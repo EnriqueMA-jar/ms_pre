@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect
 import re
 import os
+from flask import url_for
 
 # Import summary functions
 from experiments.summary.summary import get_file_info
@@ -58,6 +59,9 @@ ALIGNMENT_DIR = 'uploads/alignment' # default folder for alignment files
 CONSENSUS_DIR = 'uploads/consensus' # default folder for consensus files
 GNPS_DIR = 'uploads/gnps' # default folder for gnps files
 ACCURATE_MASS_DIR = 'uploads/accurate_mass' # default folder for accurate mass search files
+
+
+app.config['SESSION_PERMANENT'] = False
 
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +131,10 @@ def upload_chunk():
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
 
-# Main page ####################################
+# -----------------------------------------------------------------------------------------------------------------------------
+# Workflow management  ####################################
+
+# Index page ####################################
 @app.route('/')
 def home():
     return redirect('/index')
@@ -140,7 +147,7 @@ def index():
 
 # Alignment page ####################################
 @app.route('/alignment', methods=['GET', 'POST'])
-def alignment_page():
+def alignment():
     selected_option = request.form.get('alignment_options', 'op1')
     return render_template('alignment.html', selected_option=selected_option)
 
@@ -226,7 +233,7 @@ def process_alignment():
     
 # Consensus page ####################################
 @app.route('/consensus', methods=['GET', 'POST'])
-def consensus_page():
+def consensus():
     # selected_option = request.form.get('consensus_options', 'op1')
     return render_template('consensus.html')
 
@@ -273,13 +280,21 @@ def process_consensus():
 
 # Features page ####################################
 @app.route('/features', methods=['GET', 'POST'])
-def features_page():
+def features():
+    session['step_status'] = 'started'
+    current_steps = session.get('current_steps', [])
+    print("Current steps before:", current_steps)
+    if current_steps and current_steps[0] == 'features':
+        current_steps.pop(0)
+        print("Popped 'features' from current_steps")
+        session['current_steps'] = current_steps
+        
     selected_option = request.form.get('features_options', 'op1')
     return render_template('features.html', selected_option=selected_option)
 
 # FEATURES Endpoint for serving files from the uploads folder ####################################
 @app.route('/get_files_features', methods=['POST', 'GET'])
-def features():
+def features_function():
     # Folder for uploaded files
     uploads_dir = os.path.join(os.getcwd(), FEATURES_DIR)
     os.makedirs(uploads_dir, exist_ok=True)
@@ -332,6 +347,7 @@ def features():
     if all_are_features:
         # Solo mostrar el gráfico, sin links
         output_paths = file_paths
+        session['step_status'] = 'finished'
         return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option)
     
     elif output_files and len(output_files) > 0:
@@ -344,14 +360,16 @@ def features():
             else:
                 print(f"[ERROR] No se generó archivo de features para {output_file}")
         session['file_paths'] = file_paths
+        session['step_status'] = 'finished'
         return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option)
     else:
         error_msg = 'No se detectaron features en los archivos. Solo se muestra el gráfico.'
+        session['step_status'] = 'started'
         return render_template('features.html', plot_features=plot_features_render, download_links=None, error_msg=error_msg, selected_option=selected_option)
 
 # GNPS page ####################################
 @app.route('/gnps', methods=['GET', 'POST'])
-def gnps_page():
+def gnps():
     return render_template('gnps.html')
 
 # GNPS Endpoint for serving files from the uploads folder ####################################
@@ -745,6 +763,11 @@ def process_adducts():
 # Centroiding page ####################################
 @app.route('/centroiding')
 def centroiding():
+    session['step_status'] = 'started'
+    current_steps = session.get('current_steps', [])
+    if current_steps and current_steps[0] == 'centroiding':
+        current_steps.pop(0)
+        session['current_steps'] = current_steps
     return render_template('centroiding.html')
 
 # Centroiding endpoint/function
@@ -765,6 +788,7 @@ def process_centroiding():
         print (f"Download link: {download_link}")
     else: 
         download_link = "Error during centroiding."
+    session['step_status'] = 'finished'
     return render_template('centroiding.html', download_link=download_link)
 
 # Accurate mass page ####################################
@@ -882,5 +906,74 @@ def clean_folders(folders):
 @app.route('/session_files')
 def ver_rutas():
     return str(session.get('file_paths', []))
+
+@app.route('/start_workflow/<int:workflow_id>')
+def start_workflow(workflow_id):
+    current_steps = []
+    workflow1_steps = [
+        
+    ]
+    workflow2_steps = [
+        "centroiding",
+        "features",
+        "alignment",
+        "consensus",
+        "accurate_mass",
+    ]
+    session['workflow_id'] = workflow_id
+    session['workflow_status'] = 'started'
+    session['step_status'] = 'started'
+    workflow_status = session['workflow_status']
+    
+    if workflow_id == 1:
+        current_workflow = "Untargeted Metabolomics Pre-Processing"
+        current_steps = workflow1_steps
+    elif workflow_id == 2:
+        current_workflow = "Identification by Accurate Mass"
+        current_steps = workflow2_steps
+    else:
+        current_workflow = None
+    
+    session['current_workflow'] = current_workflow
+    
+    
+    # Redirect to first index page in the current steps
+    redirect_link = current_steps.pop(0)
+    session['current_steps'] = current_steps
+    
+    return redirect(url_for(redirect_link))
+    
+    # return render_template('index.html', workflow_id=workflow_id, current_workflow=current_workflow, workflow_status=workflow_status, current_steps=current_steps)
+
+@app.route('/end_workflow')
+def end_workflow():
+    session.pop('file_paths', None)
+    session.pop('file_path', None)
+    session.pop('current_workflow', None)
+    session.pop('current_steps', None)
+    session['workflow_id'] = 0
+    session['workflow_status'] = 'finished'
+    session['step_status'] = 'finished'
+    # current_workflow = session.get('current_workflow')
+    # workflow_status = session['workflow_status']
+    # workflow_id = session['workflow_id']
+    return render_template('index.html')
+
+
+# Get the workflows vars for every page
+@app.context_processor
+def inject_workflow_vars():
+    workflow_id = session.get('workflow_id', 0)
+    current_workflow = session.get('current_workflow', None)
+    workflow_status = session.get('workflow_status', 'not started')
+    current_steps = session.get('current_steps', [])
+    step_status = session.get('step_status', 'not started')
+    return {
+        'workflow_id': workflow_id, 
+        'current_workflow': current_workflow, 
+        'workflow_status': workflow_status,
+        'current_steps': current_steps,
+        'step_status': step_status
+    }
 
 app.run(host='0.0.0.0', port=5000)

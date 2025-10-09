@@ -24,18 +24,22 @@
     </div>
     </section>
     <section class="workflow_section1">
-    <div class="card">
-        <h2>Untargeted Metabolomics Pre-Processing</h2>
-        <p>Description of workflow 1.</p>
-        <img src="{{ url_for('static', filename='images/workflow1.png') }}" alt="Workflow 1" class="workflow-image">
-    </div>
+        <a href="{{ url_for('start_workflow', workflow_id=1) }}">
+            <div class="card">
+                <h2>Untargeted Metabolomics Pre-Processing</h2>
+                <p>Description of workflow 1.</p>
+                <img src="{{ url_for('static', filename='images/workflow1.png') }}" alt="Workflow 1" class="workflow-image">
+            </div>
+        </a>
     </section>
     <section class="workflow_section2">
-    <div class="card">
-        <h2>Identification by Accurate Mass</h2>
-        <p>Description of workflow 2.</p>
-        <img src="{{ url_for('static', filename='images/workflow2.png') }}" alt="Workflow 2" class="workflow-image">
-    </div>
+        <a href="{{ url_for('start_workflow', workflow_id=2) }}">
+            <div class="card">
+                <h2>Identification by Accurate Mass</h2>
+                <p>Description of workflow 2.</p>
+                <img src="{{ url_for('static', filename='images/workflow2.png') }}" alt="Workflow 2" class="workflow-image">
+            </div>
+        </a>
     </section>
     </div>
 </body>

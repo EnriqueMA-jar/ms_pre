@@ -71,3 +71,18 @@ body{
     margin-right: 8px;
     vertical-align: middle;
 }
+
+/*------------------- Workflow Manager -------------------*/
+.workflow-manager{
+    background-color:rgba(24, 182, 165, 1) !important;
+    color: white;
+    border-radius: 0.8em;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 400px !important;
+    height: fit-content;
+    z-index: 1000 !important;
+    bottom: 20px;
+    right: 20px;
+    position: fixed;
+}
