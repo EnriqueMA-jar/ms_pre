@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mzML Features Alignment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/alignment.css') }}">
+    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+</head>
+<body>
+      <div class="container">
+        <section class="selection_section">
+            <h2>mzML Features Alignment</h2>
+            <h6>Select Features Alignment Options:</h6>
+            <div class="resolution_options">
+                <form method="post">
+                    <select class="form-select form-select-sm" name="alignment_options" aria-label="Features Alignment Type" id="features_type" onchange="this.form.submit()">
+                        <option value="op1" {% if selected_option == 'op1' %}selected{% endif %}>Parts per million (PPM)</option>
+                        <option value="op2" {% if selected_option == 'op2' %}selected{% endif %}>Daltons (Da)</option>
+                    </select>
+                </form>
+            </div>
+        </section>
+        {% if selected_option == 'op1' %}
+        <section class="form_section">
+            <h5>High Resolution mzML Features Alignment</h5>
+            <h6>Select files to align:</h6>
+            <form action="/get_files_alignment" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Feature" name="feature_filename" accept=".featureXML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">Feature Files</label>
+                </div>
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="mzML" name="mzml_filename" accept=".mzML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">mzML Files</label>
+                </div>
+                <div class="input-group mb-3 inputs">
+                    <span class="input-group-text">Parts per million (PPM)</span>
+                    <input type="number" id="ppm" name="ppm" value="5" class="form-control" placeholder="PPM" aria-label="PPM" aria-describedby="button-addon2" min="5" step="05" required>
+                    <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+                </div>
+                {% include 'alerts/alerts.html' %}
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="download_section">
+            <h5>Download Features Aligned File</h5>
+            <h6>Click the link below to download the aligned features file:</h6>
+            {% if download_links_features %}
+                <ul>
+                    {% for download_link in download_links_features %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        <section class="download_section2">
+            <h5>Download mzML Aligned File</h5>
+            <h6>Click the link below to download the aligned mzML file:</h6>
+            {% if download_links_mzml %}
+                <ul>
+                    {% for download_link in download_links_mzml %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        {% elif selected_option == 'op2' %}
+        <section class="form_section">
+            <h5>Low Resolution mzML Features Alignment</h5>
+            <h6>Select mzML files to align:</h6>
+            <form action="/get_files_alignment" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Feature" name="feature_filename" accept=".featureXML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">Feature Files</label>
+                </div>
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="mzML" name="mzml_filename" accept=".mzML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">mzML Files</label>
+                </div>
+                <div class="input-group mb-3 inputs">
+                    <span class="input-group-text">Daltons (Da)</span>
+                    <input type="number" id="da" name="da" value="0.3" class="form-control" placeholder="Da" aria-label="Da" aria-describedby="button-addon2" min="0.3" step="0.1" required>
+                    <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+                </div>
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="download_section">
+            <h5>Download Features Aligned File</h5>
+            <h6>Click the link below to download the aligned features file:</h6>
+            {% if download_links_features %}
+                <ul>
+                    {% for download_link in download_links_features %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        <!-- <section class="download_section">
+            <h5>Download mzML Aligned File</h5>
+            <h6>Click the link below to download the aligned mzML file:</h6>
+            {% if download_links %}
+                <ul>
+                    {% for download_link in download_links %}
+                        <li><a href="{{ mzml_download_link }}" class="link" download>Download {{ mzml_download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section> -->
+        {% endif %}
+    </div>
+</body>
+
+</html>
+{% endblock %}

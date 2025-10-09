@@ -1,0 +1,8 @@
+#MAP	id	filename	label	size
+#CONSENSUS	rt_cf	mz_cf	intensity_cf	charge_cf	width_cf	quality_cf	rt_0	mz_0	intensity_0	charge_0	width_0	rt_1	mz_1	intensity_1	charge_1	width_1	rt_2	mz_2	intensity_2	charge_2	width_2	rt_3	mz_3	intensity_3	charge_3	width_3	rt_4	mz_4	intensity_4	charge_4	width_4	rt_5	mz_5	intensity_5	charge_5	width_5
+MAP	0	Col_1.mzML		115
+MAP	1	Col_2.mzML		120
+MAP	2	Col_3.mzML		118
+MAP	3	Col_4.mzML		117
+MAP	4	Col_5.mzML		117
+MAP	5	Col_6.mzML		117

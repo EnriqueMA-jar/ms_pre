@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatograms Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chromatogram.css') }}">
+</head>
+<body>
+    <div class="container">
+        <section class="form_section">
+            <h2>mzML Chromatogram Visualizer</h2>
+            <h4>Select mzML files to inspect:</h4>
+            <form action="/get_files_chromatograms" method="post" enctype="multipart/form-data">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/multiple_input.html' %}
+            </form>
+        </section>
+            {% if plot_chromatograms %}
+            <section class="result_section">
+                <h5>Chromatogram Comparison</h5>
+                <div class="plot_chromatogram_container">
+                    <div id="plot-container">
+                        {{ plot_chromatograms|safe }}
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Intensity Threshold</span>
+                        <input type="number" id="intensity_threshold" name="intensity_threshold" value="100" class="form-control" placeholder="Intensity threshold" aria-label="Intensity threshold" aria-describedby="button-addon2">
+                        <button class="btn btn-outline-secondary" type="button" id="set_intensity_threshold">Set</button>
+                    </div>
+                </div>
+            </section>
+            <!-- <section class="result_section2">
+                <h5>Statistic Comparison</h5>
+                <div class="plot_tic_container">
+                    {{ plot_peaks|safe }}
+                </div> -->
+        {% endif %}
+    </div>
+    <script>
+    document.getElementById('set_intensity_threshold').addEventListener('click', function() {
+        const intensity = document.getElementById('intensity_threshold').value;
+        const formData = new FormData();
+        formData.append('intensity_threshold', intensity);
+        fetch('/get_files_chromatograms', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('plot-container').innerHTML = html;
+                const container = document.getElementById('plot-container');
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                        newScript.type = oldScript.type || 'text/javascript';
+                        newScript.async = false;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+        });
+    });
+    </script>
+</body>
+</html>
+{% endblock %}

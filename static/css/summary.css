@@ -1,0 +1,82 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+               'form_section form_section'
+               'result_section result_section'
+               'filters_section download_plot_options'
+               'result_section2 result_section3'
+               'result_section2 result_section3';
+
+    grid-template-columns: 1fr 1fr; /* Dos columnas, la primera el doble de ancha que la segunda */
+    grid-template-rows: auto;
+    gap: 20px;
+    min-height: 35vh;
+    width: 100% !important;
+    border-radius: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto;
+}
+.table {
+    width: 100%;
+    table-layout: auto;
+    word-break: break-word;
+}
+.table th, .table td {
+    white-space: normal;
+}
+.table th {
+    font-weight: bold;
+    vertical-align: top;
+    white-space: nowrap;
+    font-size: 0.90em;
+}
+.table td {
+    vertical-align: top;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 180px;
+    font-size: 0.80em;
+    /*padding: 6px 8px;*/
+}
+body{
+    height: 100% !important;
+}
+h2{
+    margin-top: 10px;
+}
+.plot_tic_container{
+    width: 100% !important;
+    min-width: none;
+}
+.title_section{
+    display: block;
+    background-color: white;
+}
+.form_section { 
+    grid-area: form_section; 
+    width: 100% !important;
+}
+.result_section { grid-area: result_section; }
+.result_section2 { 
+    grid-area: result_section2; 
+    float: center;
+}
+.result_section3 { 
+    grid-area: result_section3; 
+    float: center;
+}
+.filters_section { 
+    grid-area: filters_section; 
+    width: 100% !important;
+    margin-top: 20px;
+}
+.download_plot_options { 
+    grid-area: download_plot_options; 
+    width: 100% !important;
+    margin-top: 20px;
+}

@@ -1,0 +1,49 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+               'selection_section selection_section'
+               'form_section form_section'
+               'upload_section result_section'
+               'normalize_section normalize_section';
+
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto;
+    gap: 20px;
+    min-height: 35vh;
+    width: 100% !important;
+    border-radius: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+h2{
+    margin-top: 10px;
+}
+.selection_section {
+    grid-area: selection_section;
+    width: 0.33fr !important;
+}
+.form_section { 
+    grid-area: form_section; 
+    width: 100% !important;
+}
+.normalize_section { 
+    grid-area: normalize_section; 
+    width: 100% !important;
+}
+.upload_section { 
+    grid-area: upload_section; 
+    width: 100% !important;
+}
+.result_section { 
+    grid-area: result_section; 
+    width: 100% !important;
+}
+.link{
+    text-decoration: none;
+    color: #4c85c3;
+}
+.link:hover{
+    text-decoration: underline;
+    color: #113760;
+}

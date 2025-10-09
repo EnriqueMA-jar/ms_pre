@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mzML Centroiding</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/centroiding.css') }}">
+</head>
+<body>
+      <div class="container">
+        <section class="form_section">
+            <h2>mzML Centroiding</h2>
+            <h4>Select a mzML file to centroid:</h4>
+            <form action="/get_files_centroiding" method="post" enctype="multipart/form-data" id="uploadForm">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/single_input.html' %}
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="centroiding_section">
+            <h5>Download Centroided File</h5>
+            <h6>Click the link below to download the centroided mzML file:</h6>
+            {% if download_link %}
+                <ul>
+                    <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                </ul>
+            {% else %}
+                <p>No file processed yet.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
+{% endblock %}

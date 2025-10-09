@@ -1,0 +1,37 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+               'form_section form_section'
+               'download_section download_section';
+
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto;
+    gap: 20px;
+    min-height: 35vh;
+    width: 100% !important;
+    border-radius: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+h2{
+    margin-top: 10px;
+}
+
+.link{
+    text-decoration: none;
+    color: #4c85c3;
+}
+.link:hover{
+    text-decoration: underline;
+    color: #113760;
+}
+
+
+.form_section { 
+    grid-area: form_section; 
+    width: 100% !important;
+}
+
+.download_section { grid-area: download_section; }
+.selection_section { grid-area: selection_section; }

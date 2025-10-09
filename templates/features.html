@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mzML Features Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/features.css') }}">
+    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+</head>
+<body>
+      <div class="container">
+        <section class="selection_section">
+            <h2>mzML Features Detection</h2>
+            <h6>Select Features Detection Options:</h6>
+            <div class="features_options">
+                <form method="post">
+                    <select class="form-select form-select-sm" name="features_options" aria-label="Features Detection Type" id="features_type" onchange="this.form.submit()">
+                        <option value="op1" {% if selected_option == 'op1' %}selected{% endif %}>Metabolomic Features</option>
+                        <option value="op2" {% if selected_option == 'op2' %}selected{% endif %}>Proteomic Features</option>
+                    </select>
+                </form>
+            </div>
+        </section>
+        {% if selected_option == 'op1' %}
+        <section class="form_section">
+            <h5>Metabolomic mzML Features Detection</h5>
+            <h6>Select mzML files to detect features:</h6>
+            <form action="/get_files_features" method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="features_options" value="{{ selected_option }}">
+                <input type="hidden" name="features_options" value="{{ selected_option }}">
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzML, .featureXML, .consensusXML" required multiple>
+                </div>
+                <div class="input-group mb-3 inputs">
+                    <span class="input-group-text">Mass Error (PPM)</span>
+                    <input type="number" id="mass_error_ppm" name="mass_error_ppm" value="5" class="form-control" placeholder="Mass Error (PPM)" aria-label="Mass Error (PPM)" aria-describedby="button-addon2" min="5" step="05" required>
+                    <span class="input-group-text">Noise Threshold</span>
+                    <input type="number" id="noise_threshold_int" name="noise_threshold_int" value="10" class="form-control" placeholder="Noise Threshold" aria-label="Noise Threshold" aria-describedby="button-addon2" min="10" step="1" required>
+                    <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+                </div>
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="plot_section">
+            {% if plot_features %}
+            <h5>Features Plot</h5>
+                {{ plot_features|safe }}
+            {% endif %}
+        </section>
+        <section class="download_section">
+            <h5>Download Features Processed File</h5>
+            <h6>Click the link below to download the features file:</h6>
+            {% if download_links %}
+                <ul>
+                    {% for download_link in download_links %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        {% elif selected_option == 'op2' %}
+        <section class="form_section">
+            <h5>Proteomic mzML Features Detection</h5>
+            <h6>Select mzML files to detect features:</h6>
+            <form action="/get_files_features" method="post" enctype="multipart/form-data" id="uploadForm">
+                {% set accept_types = ".mzML, .featureXML, .consensusXML" %}
+                {% include 'inputs/multiple_input.html' %}
+            </form>
+        </section>
+        <section class="plot_section">
+            {% if plot_features %}
+            <h5>Features Plot</h5>
+                {{ plot_features|safe }}
+            {% endif %}
+        </section>
+        <section class="download_section">
+            <h5>Download Features Processed File</h5>
+            <h6>Click the link below to download the features file:</h6>
+            {% if download_links %}
+                <ul>
+                    {% for download_link in download_links %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        {% endif %}
+    </div>
+</body>
+
+</html>
+{% endblock %}

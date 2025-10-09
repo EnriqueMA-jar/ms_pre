@@ -1,0 +1,53 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+               'title_section title_section'
+               'summary_section summary_section'
+               'workflow_section1 workflow_section2';
+
+    grid-template-columns: 1fr 1fr; 
+    grid-template-rows: auto;
+    gap: 20px;
+    min-height: 35vh;
+    width: 100% !important;
+    border-radius: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+body{
+    height: 100% !important;
+}
+h2{
+    margin-top: 10px;
+}
+
+.title_section{
+    grid-area: title_section;
+    display: block;
+    background-color: white;
+}
+.summary_section { 
+    grid-area: summary_section; 
+    width: 100% !important;
+}
+.workflow_section1 { grid-area: workflow_section1; }
+.workflow_section2 { grid-area: workflow_section2; }
+.card{
+    padding: 10px;
+    background-color: #f2f2f2;
+}
+.card:hover{
+    background-color: #24b6a5;
+    color: white;
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+.workflow-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 0.5em;
+}

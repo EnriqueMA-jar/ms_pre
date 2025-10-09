@@ -1,0 +1,29 @@
+{% if error_alert %}
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+        <div>
+            {{ error_alert }}
+        </div>
+    </div>
+{% elif success_alert %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            {{ success_alert }}
+        </div>
+    </div>
+{% elif info_alert %}
+    <div class="alert alert-info d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use xlink:href="#info-circle-fill"/></svg>
+        <div>
+            {{ info_alert }}
+        </div>
+    </div>
+{% elif warning_alert %}
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+        <div>
+            {{ warning_alert }}
+        </div>
+    </div>
+{% endif %}

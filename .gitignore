@@ -1,0 +1,6 @@
+.venv/
+*.mzML
+*.featureXML
+*.consensusXML
+*.tsv
+*.csv

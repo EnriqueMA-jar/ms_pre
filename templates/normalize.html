@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normalize mzML</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+</head>
+<body>
+      <div class="container">
+         <section class="selection_section">
+            <h2>mzML Normalization</h2>
+            <h6>Select Normalization Options:</h6>
+            <div class="normalize_options">
+                <form method="post">
+                    <select class="form-select form-select-sm" name="normalization_options" aria-label="Normalization Type" id="normalization_type" onchange="this.form.submit()">
+                        <option value="" disabled {% if not selected_option %}selected{% endif %}>Normalization Type</option>
+                        <option value="op1" {% if selected_option == 'op1' %}selected{% endif %}>Normalization To One</option>
+                        <option value="op2" {% if selected_option == 'op2' %}selected{% endif %}>Normalization TIC</option>
+                    </select>
+                </form>
+            </div>
+        </section>
+        {% if selected_option == 'op1' or selected_option == 'op2' %}
+        <section class="form_section">
+            <h5>
+                {% if selected_option == 'op1' %}mzML Normalization To One{% else %}mzML Normalization TIC{% endif %}
+            </h5>
+            <h6>Select a mzML file to normalize:</h6>
+            <form action="/get_files_normalize" method="post" enctype="multipart/form-data" id="uploadForm">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/single_input.html' %}
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        {% if plot_original and plot_normalized %}
+        <section class="upload_section">
+            <h5>Original Spectrum</h5>
+            {{ plot_original|safe }}
+        </section>
+        <section class="result_section">
+            <h5>
+                {% if selected_option == 'op1' %}Normalization to one{% else %}Normalization to TIC{% endif %}
+            </h5>
+            {{ plot_normalized|safe }}
+        </section>
+        {% endif %}
+        {% endif %}
+        
+        <section class="normalize_section">
+            <h5>Download Normalized File</h5>
+            <h6>Click the link below to download the normalized mzML file:</h6>
+            {% if download_link %}
+                <ul>
+                    <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                </ul>
+            {% else %}
+                <p>No file processed yet.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
+{% endblock %}

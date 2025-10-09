@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary Information Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/summary.css') }}">
+    <script src="{{ url_for('static', filename='js/download_plots/plotly_download.js') }}"></script>
+</head>
+<body>
+    
+    <div class="container">
+        <section class="form_section ">
+            <h2>mzML Summary Information</h2>
+            <h4>Select a mzML file to inspect:</h4>
+            <form id="uploadForm" action="/get_file_info" method="post" enctype="multipart/form-data">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/single_input.html' %}
+            </form>
+        </section>
+        <section class="result_section">
+            {% if filename %}
+            {% if result %}
+            <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
+            <h5>Summary Information for: {{ filename }}</h5>
+            <table class="table table-striped-columns table-hover" style="width: 100%; table-layout: auto;">
+                <tbody>
+            {% set items = result.items()|list %}
+            {% for i in range(0, items|length, 2) %}
+                <tr>
+                    {% for j in range(2) %}
+                        {% if i + j < items|length %}
+                            <th>{{ items[i + j][0] }}</th>
+                            <td>
+                                {% set value = items[i + j][1] %}
+                                {% if value is mapping or (value is sequence and not value is string) %}
+                                    {{ value }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+            </table>
+            </div>
+            </section>
+            <section class="filters_section">
+                <h5>Appearance</h5>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Select plot colorscale</span>
+                        <input type="hidden" name="filename" value="{{ filename }}">
+                        <select class="form-select" name="filter_options" aria-label="Filter Options" id="filter_type">
+                            <option value="Viridis" {% if selected_filter == 'Viridis' %}selected{% endif %}>Viridis</option>
+                            <option value="Plasma" {% if selected_filter == 'Plasma' or not selected_filter %}selected{% endif %}>Plasma</option>
+                            <option value="Cividis" {% if selected_filter == 'Cividis' %}selected{% endif %}>Cividis</option>
+                            <option value="Hot" {% if selected_filter == 'Hot' %}selected{% endif %}>Hot</option>
+                            <option value="Jet" {% if selected_filter == 'Jet' %}selected{% endif %}>Jet</option>
+                            <option value="Rainbow" {% if selected_filter == 'Rainbow' %}selected{% endif %}>Rainbow</option>
+                        </select>
+                </div>
+            </section>
+            <section class="download_plot_options">
+                <h5>Download Plot Options</h5>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Format</span>
+                    <select id="img-format" class="form-select form-select-sm">
+                        <option value="png">PNG</option>
+                        <option value="svg">SVG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="webp">WEBP</option>
+                        <option value="pdf">PDF</option>
+                    </select>
+                    <span class="input-group-text">Width</span>
+                    <input type="number" id="img-width" value="800" min="100" max="2000" class="form-control form-control-sm" style="max-width:100px;">
+                    <span class="input-group-text">Height</span>
+                    <input type="number" id="img-height" value="600" min="100" max="2000" class="form-control form-control-sm" style="max-width:100px;">
+                    <button type="button" class="btn btn-outline-secondary" onclick="downloadPlotlyImage()">Download plot</button>
+                </div>
+            </section>
+            <section class="result_section2">
+                <div class="plot_tic_container">
+                {% if plot_html %}
+                <div id="plotly-graph-1">
+                    {{ plot_html|safe }}
+                </div>
+                {% endif %}
+                </div>
+            </section>
+            <section class="result_section3">
+                <div class="plot_tic_container">
+                {% if plot_html2 %}
+                    <div id="plotly-graph-2">
+                        {{ plot_html2|safe }}
+                    </div>
+                {% endif %}
+                </div>
+            </section>
+            {% endif %}
+        {% endif %}
+    </div>
+    <script>
+        document.getElementById('filter_type').addEventListener('change',
+            function(){
+                const selectedFilter = this.value;
+                const formData = new FormData();
+                formData.append('filter_options', selectedFilter);
+                formData.append('filename', '{{ filename }}');
+                fetch('/get_file_info', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('plotly-graph-1').innerHTML = data.plot_html;
+                    document.getElementById('plotly-graph-2').innerHTML = data.plot_html2;
+                    const container1 = document.getElementById('plotly-graph-1');
+                    const container2 = document.getElementById('plotly-graph-2');
+                    const scripts1 = container1.querySelectorAll('script');
+                    const scripts2 = container2.querySelectorAll('script');
+                    scripts1.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                            newScript.type = oldScript.type || 'text/javascript';
+                            newScript.async = false;
+                        }else{
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                    scripts2.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;
+                            newScript.type = oldScript.type || 'text/javascript';
+                            newScript.async = false;
+                        }else{
+                            newScript.textContent = oldScript.textContent;
+                        }
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                });
+            }
+        );
+    </script>
+</body>
+</html>
+{% endblock %}

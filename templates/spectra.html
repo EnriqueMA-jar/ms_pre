@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectra Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/spectra.css') }}">
+    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+</head>
+<body>
+      <div class="container">
+        <section class="form_section">
+            <h2>mzML Spectra Visualizer</h2>
+            <h4>Select a mzML file to inspect:</h4>
+            <form action="/get_files_spectra" method="post" enctype="multipart/form-data" id="uploadForm">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/single_input.html' %}
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        {% if ms_level %}
+            <h6>Current File: {{ filename }}</h6>
+            <h6>MS Level detected: {{ ms_type }}</h6>
+        {% endif %}
+        </section>
+        {% if ms_type == 1 %}
+           {% if plot_spectra %}
+            <section class="result_section">
+                <h5>Reference Spectrum</h5>
+                <div class="plot_spectrum_container">
+                    {{ plot_spectra|safe }}
+                </div>
+                                <form action="/get_files_spectra" method="post">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Spectrum Index</span>
+                                        <input type="number" id="spectrum_value" name="spectrum_value" value="{{ spectrum_value }}" class="form-control" placeholder="Spectrum index" aria-label="Spectrum value" aria-describedby="button-addon2">
+                                        <button class="btn btn-outline-secondary" type="submit">Set</button>
+                                    </div>
+                                </form>
+            </section>
+            <section class="result_section2">
+                <h5>Merged Reference Spectrum</h5>
+                <div class="plot_merge_spectrum_container">
+                    {{ plot_merge_spectrum|safe }}
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Total Merged MS1 Spectra:</span>
+                    <input type="number" id="spectrum_value" name="spectrum_value" value="{{ ms_level }}" class="form-control" placeholder="Spectrum value" aria-label="Spectrum value" aria-describedby="button-addon2" disabled>
+                </div>
+            </section>
+            {% endif %}
+        {% endif %}
+        {% if ms_type == 2 %}
+            {% if plot_ms2_spectra %}
+            <section class="result_section3">
+                <h5>MS1 and MS2 Comparison</h5>
+                <div class="plot_spectrum_container">
+                    {{ plot_ms2_spectra|safe }}
+                </div>
+            </section>
+            {% endif %}
+            {% if plot_ms2_overlay %}
+            <section class="result_section4">
+                <h5>MS1 and MS2 Normalized Intensity</h5>
+                <div class="plot_spectrum_container">
+                    {{ plot_ms2_overlay|safe }}
+                </div>
+            </section>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+
+</html>
+{% endblock %}

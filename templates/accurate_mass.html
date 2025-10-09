@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accurate Mass Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/accurate_mass.css') }}">
+</head>
+<body>
+<div class="container">
+    <section class="form_section">
+        <h2>Accurate Mass Search</h2>
+        <h4>Select files to search:</h4>
+        <form action="/get_files_ami" method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="input-group mb-3 inputs">
+                <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename1" accept=".consensusXML" required>
+                <label class="input-group-text" style="min-width: 200px; text-align:center;">ConsensusXML</label>
+            </div>
+            <div class="input-group mb-3 inputs">
+                <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename2" accept=".tsv" required>
+                <label class="input-group-text" style="min-width: 200px; text-align:center;">DB Mapping</label>
+            </div>
+            <div class="input-group mb-3 inputs">
+                <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename3" accept=".tsv" required>
+                <label class="input-group-text" style="min-width: 200px; text-align:center;">DB Struct</label>
+            </div>
+            <div class="input-group mb-3 inputs">
+                <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename4" accept=".tsv" required>
+                <label class="input-group-text" style="min-width: 120px; text-align:center;">Adducts</label>
+                <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+            </div>
+            <div class="mb-3">
+                {% include 'alerts/alerts.html' %}
+                <div id="progressContainer" style="display:none;">
+                    <label for="uploadProgress">Upload Progress</label>
+                    <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                    </div>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+        </form>
+    </section>
+    <section class="download_section">
+        <h5>Download Search DataFrame Results</h5>
+            <h6>Click the link below to download the dataframe csv file:</h6>
+            {% if download_links_search %}
+                <ul>
+                    {% for download_link in download_links_search %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+    </section>
+</div>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mzML Smoothing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/smoothing.css') }}">
+</head>
+<body>
+      <div class="container">
+        <section class="selection_section">
+            <h2>mzML Smoothing</h2>
+            <h6>Select Smoothing Options:</h6>
+            <div class="smoothing_options">
+                <form method="post">
+                    <select class="form-select form-select-sm" name="smoothing_options" aria-label="Smoothing Type" id="smoothing_type" onchange="this.form.submit()">
+                        <option value="" disabled {% if not selected_option %}selected{% endif %}>Smoothing Type</option>
+                        <option value="op1" {% if selected_option == 'op1' %}selected{% endif %}>Single Smoothing</option>
+                        <option value="op2" {% if selected_option == 'op2' %}selected{% endif %}>Multiple Smoothing</option>
+                    </select>
+                </form>
+            </div>
+        </section>
+        {% if selected_option == 'op1' %}
+        <section class="form_section">
+            <h5>mzML Single Smoothing</h5>
+            <h6>Select a mzML file to smooth:</h6>
+            <form action="/get_files_smoothing" method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="smoothing_options" value="op1">
+                {% set accept_types = ".mzML" %}
+                {% include 'inputs/single_input.html' %}
+            </form>
+        </section>
+        <section class="auto_smoothing">
+            <h5>Download Smoothed File</h5>
+            <h6>Click the link below to download the smoothed mzML file:</h6>
+            {% if download_link %}
+                <ul>
+                    <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        {% elif selected_option == 'op2' %}
+        <section class="form_section">
+            <h5>mzML Multiple Smoothing</h5>
+            <h6>Select mzML files to smooth:</h6>
+            <form action="/get_files_smoothing" method="post" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="smoothing_options" value="op2">
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzML" required multiple>
+                    <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+                </div>
+                 <h6>Select Smoothing Parameters:</h6>
+                    <div class="input-group mb-3 inputs">
+                        <span class="input-group-text">Window Length</span>
+                        <input type="number" id="window_length" name="window_length" value="11" class="form-control" placeholder="Window Length" aria-label="Window Length" aria-describedby="button-addon2" min="3" step="2" required>
+                        <span class="input-group-text">Polyorder</span>
+                        <input type="number" id="polyorder" name="polyorder" value="3" class="form-control" placeholder="Polyorder" aria-label="Polyorder" aria-describedby="button-addon2" min="1" step="1" required>
+                    </div>
+                    <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+            </form>
+        </section>
+        <section class="download_links">
+            <h5>Download Smoothed Files</h5>
+            <h6>Click the links below to download the smoothed mzML files:</h6>
+            {% if download_links %}
+                <ul>
+                    {% for link in download_links %}
+                        <li><a href="{{ link }}" class="link" download>Download {{ link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+
+</html>
+{% endblock %}

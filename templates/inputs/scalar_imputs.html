@@ -1,0 +1,8 @@
+{% block scalar_inputs %}
+<div class="input-group mb-3"></div>
+    {% for input in inputs and name in names %}
+        <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept="{{ accept_types }}" required>
+    {% endfor %}
+        <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+</div>
+{% endblock %}

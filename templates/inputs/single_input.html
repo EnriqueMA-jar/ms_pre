@@ -1,0 +1,15 @@
+{% block single_input %}
+                <div class="input-group mb-3 inputs">
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept="{{ accept_types }}" required>
+                    <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
+                </div>
+                <div class="mb-3">
+                    <div id="progressContainer" style="display:none;">
+                        <label for="uploadProgress">Upload Progress</label>
+                        <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="uploadProgress"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mzML Adducts Features</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/adducts.css') }}">
+    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <section class="form_section">
+            <h2>mzML Features Adducts</h2>
+            <h4>Select mzML features files to adduct:</h4>
+            <form action="/get_files_adducts" method="post" enctype="multipart/form-data" id="uploadForm">
+                {% set accept_types = ".featureXML" %}
+                {% include 'inputs/multiple_input.html' %}
+            </form>
+        </section>
+        <section class="download_section">
+            <h5>Download Features Adduct CSV File</h5>
+            <h6>Click the link below to download the features adduct file:</h6>
+            {% if download_links %}
+                <ul>
+                    {% for download_link in download_links %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        <section class="download_section2">
+            <h5>Download Features Adduct FeaturesXML File</h5>
+            <h6>Click the link below to download the features adduct file:</h6>
+            {% if download_links2 %}
+                <ul>
+                    {% for download_link in download_links2 %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}
