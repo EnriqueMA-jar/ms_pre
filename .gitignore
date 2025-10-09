@@ -1,6 +1,8 @@
 .venv/
 *.mzML
 *.featureXML
+*Table.txt
+*.mgf
 *.consensusXML
 *.tsv
 *.csv
