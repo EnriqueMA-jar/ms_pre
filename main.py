@@ -103,22 +103,25 @@ def upload_chunk():
                         return jsonify({'status': 'error', 'message': f'Missing chunk {i}'}), 500
                     with open(part_path, 'rb') as part:
                         assembled.write(part.read())
-            # Clean up chunks
+            # Clean up chunks (try once, skip on access denied, do not print repeated warnings)
+            failed_removals = 0
             for i in range(total_chunks):
                 try:
                     os.remove(os.path.join(chunk_folder, f"chunk_{i}"))
+                except PermissionError:
+                    failed_removals += 1
+                    # Do not print warning, just skip
                 except FileNotFoundError:
-                    # Silenciar el warning si el archivo ya no existe
                     pass
                 except Exception as e:
-                    print(f"[UPLOAD_CHUNK][WARN] Could not remove chunk_{i}: {e}")
+                    failed_removals += 1
             try:
                 os.rmdir(chunk_folder)
-            except FileNotFoundError:
-                # Silenciar el warning si la carpeta ya no existe
+            except Exception:
+                # Silently skip if folder can't be removed (likely due to undeleted chunks)
                 pass
-            except Exception as e:
-                print(f"[UPLOAD_CHUNK][WARN] Could not remove chunk folder: {e}")
+            if failed_removals > 0:
+                print(f"[UPLOAD_CHUNK][WARN] {failed_removals} chunk files could not be removed (access denied or in use).")
             print(f"[UPLOAD_CHUNK] Assembly complete. Returning file_path: {assembled_path}")
             return jsonify({'status': 'complete', 'file_path': assembled_path})
         return jsonify({'status': 'incomplete', 'received': chunk_index})

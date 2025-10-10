@@ -2,7 +2,25 @@ import os
 import pyopenms as oms
 import pandas as pd
 
+def remove_useless_userparams(featurexml_path):
+    """
+    Remove UserParam tags from the FeatureMap level in a featureXML file.
+    This prevents OpenMS errors when loading as ConsensusXML.
+    """
+    try:
+        fm = oms.FeatureMap()
+        oms.FeatureXMLFile().load(featurexml_path, fm)
+        fm.clearMetaInfo()
+        for f in fm:
+            f.clearMetaInfo()
+        oms.FeatureXMLFile().store(featurexml_path, fm)
+    except Exception as e:
+        print(f"[WARN] Could not clean UserParams from {featurexml_path}: {e}")
+
 def load_files(consensus_path, db_mapping_path, db_structure_path, adducts_path, uploads_dir):
+    # Remove UserParams if the input is actually a featureXML (user error)
+    if consensus_path.endswith(".featureXML"):
+        remove_useless_userparams(consensus_path)
     ams = oms.AccurateMassSearchEngine()
     ams_params = ams.getParameters()
     ams_params.setValue("ionization_mode", "positive")
