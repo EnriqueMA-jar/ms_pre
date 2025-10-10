@@ -249,13 +249,15 @@ def process_alignment():
 # Consensus page ####################################
 @app.route('/consensus', methods=['GET', 'POST'])
 def consensus():
-    advance_workflow_step('consensus')
-    session['step_status'] = 'started'
+    if session['workflow_status'] == 'started':
+        advance_workflow_step('consensus')
+        session['step_status'] = 'started'
     return render_template('consensus.html')
 
 # Consensus endpoint/function ####################################
 @app.route('/get_files_consensus', methods=['POST', 'GET']) 
 def process_consensus():
+    
     # Folder for uploaded files
     uploads_dir = os.path.join(os.getcwd(), CONSENSUS_DIR)
     os.makedirs(uploads_dir, exist_ok=True)
@@ -300,8 +302,11 @@ def process_consensus():
 # Features page ####################################
 @app.route('/features', methods=['GET', 'POST'])
 def features():
-    advance_workflow_step('features')
-    session['step_status'] = 'started'
+    
+    if session['workflow_status'] == 'started':
+        advance_workflow_step('features')
+        session['step_status'] = 'started'
+    
     print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
     return render_template('features.html', selected_option=selected_option)
@@ -739,6 +744,9 @@ def process_mzML():
 # Adduct page #############################
 @app.route('/adducts')
 def adducts():
+    if session['workflow_status'] == 'started':
+        advance_workflow_step('adducts')
+        session['step_status'] = 'started'
     return render_template('adducts.html')
 
 # Adducts endpoint/function ####################################
@@ -771,14 +779,18 @@ def process_adducts():
             download_link = f"/uploads/adducts/{filename}"
             download_links2.append(download_link)
         else:
-            print(f"[ERROR] No se generó archivo de adducts para {output_file}")
+            session['step_status'] = 'started'
+            alert = f"Error: adduct files not generated for {output_file2}"
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, error_alert=alert)
+            
+    session['step_status'] = 'finished'
     return render_template('adducts.html', download_links=download_links, download_links2=download_links2)
 
 # Centroiding page ####################################
 @app.route('/centroiding')
 def centroiding():
     
-    if session['workflow_status'] == 'started' and session['workflow_id'] == 2:
+    if session['workflow_status'] == 'started':
         advance_workflow_step('centroiding')
         session['step_status'] = 'started'
         
@@ -943,7 +955,9 @@ def ver_rutas():
 def start_workflow(workflow_id):
     current_steps = []
     workflow1_steps = [
-        
+        "features",
+        "adducts",
+        "consensus",
     ]
     workflow2_steps = [
         "centroiding",

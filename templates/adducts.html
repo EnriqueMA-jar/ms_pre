@@ -17,6 +17,7 @@
             <form action="/get_files_adducts" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".featureXML" %}
                 {% include 'inputs/multiple_input.html' %}
+                {% include 'alerts/alerts.html' %}
             </form>
         </section>
         <section class="download_section">
