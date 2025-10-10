@@ -148,6 +148,11 @@ def index():
 # Alignment page ####################################
 @app.route('/alignment', methods=['GET', 'POST'])
 def alignment():
+    session['step_status'] = 'started'
+    current_steps = session.get('current_steps', [])
+    if current_steps and current_steps[0] == 'alignment':
+        current_steps.pop(0)
+        session['current_steps'] = current_steps
     selected_option = request.form.get('alignment_options', 'op1')
     return render_template('alignment.html', selected_option=selected_option)
 
@@ -157,6 +162,10 @@ def process_alignment():
      # Folder for uploaded files
     uploads_dir = os.path.join(os.getcwd(), ALIGNMENT_DIR)
     os.makedirs(uploads_dir, exist_ok=True)
+    
+    
+    
+    
     
     # Check which option is selected
     selected_option = request.form.get('selected_option', 'op1')
@@ -208,8 +217,10 @@ def process_alignment():
             for path in download_links_mzml_paths:
                 filename = os.path.basename(path)
                 download_links_mzml.append(f"/uploads/alignment/{filename}")
+            session['step_status'] = 'finished'
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
+            session['step_status'] = 'started'
             error_alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
             return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert)
 
@@ -223,8 +234,10 @@ def process_alignment():
         if len(matches) == len(feature_file_paths) and len(matches) == len(mzml_file_paths):
             # Main processing
             download_links_features, download_links_mzml = align_files(feature_file_paths, mzml_file_paths, resolution, uploads_dir, value)
+            session['step_status'] = 'finished'
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
+            session['step_status'] = 'started'
             alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
             return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, alert=alert)
 
