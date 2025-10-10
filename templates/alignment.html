@@ -54,11 +54,11 @@
             </form>
         </section>
         <section class="download_section">
-            <h5>Download Features Aligned File</h5>
-            <h6>Click the link below to download the aligned features file:</h6>
-            {% if download_links_features %}
+            <h5>Download Mapped Features Aligned File</h5>
+            <h6>Click the link below to download the mapped aligned features file:</h6>
+            {% if download_links_mapped %}
                 <ul>
-                    {% for download_link in download_links_features %}
+                    {% for download_link in download_links_mapped %}
                         <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
                     {% endfor %}
                 </ul>
@@ -72,6 +72,19 @@
             {% if download_links_mzml %}
                 <ul>
                     {% for download_link in download_links_mzml %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
+        <section class="download_section3">
+            <h5>Download Aligned Features File</h5>
+            <h6>Click the link below to download the aligned features file:</h6>
+            {% if download_links_features %}
+                <ul>
+                    {% for download_link in download_links_features %}
                         <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
                     {% endfor %}
                 </ul>

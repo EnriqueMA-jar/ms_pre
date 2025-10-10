@@ -161,9 +161,6 @@ def process_alignment():
     os.makedirs(uploads_dir, exist_ok=True)
     
     
-    
-    
-    
     # Check which option is selected
     selected_option = request.form.get('selected_option', 'op1')
     if not selected_option:
@@ -206,20 +203,25 @@ def process_alignment():
             # Map identifications after alignment
             mapped_feature_paths = map_identifications(download_links_mzml_paths, download_links_features_paths, uploads_dir)
             # Generate Flask links for the template
+            download_links_mapped = []
             download_links_features = []
-            for path in mapped_feature_paths:
+            
+            for path in download_links_features_paths:
                 filename = os.path.basename(path)
                 download_links_features.append(f"/uploads/alignment/{filename}")
+            for path in mapped_feature_paths:
+                filename = os.path.basename(path)
+                download_links_mapped.append(f"/uploads/alignment/{filename}")
             download_links_mzml = []
             for path in download_links_mzml_paths:
                 filename = os.path.basename(path)
                 download_links_mzml.append(f"/uploads/alignment/{filename}")
             session['step_status'] = 'finished'
-            return render_template('alignment.html', download_links_features=download_links_features, download_links_mzml=download_links_mzml, selected_option=selected_option)
+            return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
             session['step_status'] = 'started'
             error_alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
-            return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert)
+            return render_template('alignment.html', download_links_features=None, download_links_mapped=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert)
 
     elif selected_option == 'op2':
         resolution = 'Low Resolution'
@@ -232,7 +234,7 @@ def process_alignment():
             # Main processing
             download_links_features, download_links_mzml = align_files(feature_file_paths, mzml_file_paths, resolution, uploads_dir, value)
             session['step_status'] = 'finished'
-            return render_template('alignment.html', download_links_features=download_links_features, download_links_mzml=download_links_mzml, selected_option=selected_option)
+            return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
             session['step_status'] = 'started'
             alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
@@ -786,19 +788,32 @@ def process_centroiding():
     uploads_dir = os.path.join(os.getcwd(), CENTROIDS_DIR)
     os.makedirs(uploads_dir, exist_ok=True)
     
-    file = request.files['filename']
-    path = f"{uploads_dir}/{file.filename}"
-    file.save(path)
+    files = request.files.getlist('filename')
+    file_paths = []
 
-    output_file = centroid_file(path, CENTROIDS_DIR)
-    if "centroid" in output_file:
-        filename = os.path.basename(output_file)
-        download_link = f"{CENTROIDS_DIR}/{filename}"
-        print (f"Download link: {download_link}")
-    else: 
-        download_link = "Error during centroiding."
-    session['step_status'] = 'finished'
-    return render_template('centroiding.html', download_link=download_link)
+    for file in files:
+        path = f"{uploads_dir}/{file.filename}"
+        file.save(path)
+        file_paths.append(path)
+
+    try:
+        output_files = centroid_file(file_paths, CENTROIDS_DIR)
+        # Generar links de descarga solo si hay archivos válidos
+        download_links = []
+        for f in output_files:
+            if f and os.path.exists(f):
+                filename = os.path.basename(f)
+                download_links.append(f"{CENTROIDS_DIR}/{filename}")
+        if not download_links:
+            error_msg = "Error during centroiding: No centroided files generated."
+            session['step_status'] = 'started'
+            return render_template('centroiding.html', download_links=None, error_msg=error_msg)
+        session['step_status'] = 'finished'
+        return render_template('centroiding.html', download_links=download_links)
+    except Exception as e:
+        error_msg = f"Error during centroiding: {str(e)}"
+        session['step_status'] = 'started'
+        return render_template('centroiding.html', download_links=None, error_msg=error_msg)
 
 # Accurate mass page ####################################
 @app.route('/ami')

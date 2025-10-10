@@ -3,7 +3,7 @@
     grid-template-areas: 
                 'selection_section selection_section'
                'form_section form_section'
-               'download_section download_section'
+               'download_section download_section3'
                'download_section2 download_section2';
 
     grid-template-columns: 1fr 2fr;
@@ -42,4 +42,5 @@ h2{
 .parameters_section { grid-area: parameters_section; }
 .download_section { grid-area: download_section; }
 .download_section2 { grid-area: download_section2; }
+.download_section3 { grid-area: download_section3; }
 .selection_section { grid-area: selection_section; }
