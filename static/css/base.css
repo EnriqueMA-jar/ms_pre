@@ -79,10 +79,23 @@ body{
     border-radius: 0.8em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 400px !important;
+    width: 450px !important;
     height: fit-content;
     z-index: 1000 !important;
     bottom: 20px;
     right: 20px;
     position: fixed;
+}
+.workflow-manager-content{
+    width: 100%;
+}
+.next-step-button{
+    float: right;
+}
+.status{
+    float: right;
+    font-size: smaller;
+}
+h4{
+    margin: 0;
 }

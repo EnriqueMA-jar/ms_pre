@@ -1,18 +1,32 @@
 {% block workflow %}
 <div class="workflow-manager">
-    <p>Current Workflow:</p>
-    <h4>{{ current_workflow }}</h4>
+    <div class="workflow-manager-content">
+    <div>
+        <td>Current Workflow:
+        <p class="status">Step status: <b class="step-status">{{ step_status }}</b></p>
+        </td>
+    </div>
+    <h4>{{ current_workflow }}</h4> 
     <form action="{{ url_for('end_workflow') }}" method="get" style="display:inline;">
-        <button type="submit" class="btn btn-secondary">End Workflow</button>
         {% if workflow_status == 'started' %}
             {% if step_status == 'started' %}
-                <button type="button" class="btn btn-primary" disabled>{{ current_steps[0] }}</button>
+                {% if current_steps|length >= 1 %}
+                    <button type="button" class="btn btn-light next-step-button" disabled>{{ current_steps[0] }}</button>
+                {% endif %}
             {% elif step_status == 'finished' %}
-                <a href="{{ url_for(current_steps[0]) }}" class="btn btn-primary">
-                    {{ current_steps[0] }}
-                </a>
+                {% if current_steps|length >= 1 %}
+                    <a href="{{ url_for(current_steps[0]) }}" class="btn btn-light next-step-button">
+                        {{ current_steps[0] }}
+                    </a>
+                {% else %}
+                    <button type="submit" class="btn btn-light next-step-button">
+                        Finish Workflow
+                    </button>
+                {% endif %}
             {% endif %}
+            <button type="submit" class="btn btn-dark">End Workflow</button>
         {% endif %}
     </form>
+    </div>
 </div>
 {% endblock %}

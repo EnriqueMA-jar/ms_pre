@@ -148,11 +148,8 @@ def index():
 # Alignment page ####################################
 @app.route('/alignment', methods=['GET', 'POST'])
 def alignment():
+    advance_workflow_step('alignment')
     session['step_status'] = 'started'
-    current_steps = session.get('current_steps', [])
-    if current_steps and current_steps[0] == 'alignment':
-        current_steps.pop(0)
-        session['current_steps'] = current_steps
     selected_option = request.form.get('alignment_options', 'op1')
     return render_template('alignment.html', selected_option=selected_option)
 
@@ -247,7 +244,8 @@ def process_alignment():
 # Consensus page ####################################
 @app.route('/consensus', methods=['GET', 'POST'])
 def consensus():
-    # selected_option = request.form.get('consensus_options', 'op1')
+    advance_workflow_step('consensus')
+    session['step_status'] = 'started'
     return render_template('consensus.html')
 
 # Consensus endpoint/function ####################################
@@ -261,6 +259,7 @@ def process_consensus():
     
     if len(file_paths) < 2:
         error_alert = "Error: Please upload at least two .featureXML files to generate a consensus matrix."
+        session['step_status'] = 'started'
         return render_template('consensus.html', error_alert=error_alert)
     else:
         saved_file_paths = []
@@ -286,22 +285,19 @@ def process_consensus():
             download_links.append(f"/uploads/consensus/{csv_filename}")
 
         if download_links:
+            session['step_status'] = 'finished'
             return render_template('consensus.html', download_links_consensus=download_links)
         else:
+            session['step_status'] = 'started'
             error_alert = "Error: Consensus file could not be generated. Please check your uploads."
             return render_template('consensus.html', error_alert=error_alert)
 
 # Features page ####################################
 @app.route('/features', methods=['GET', 'POST'])
 def features():
+    advance_workflow_step('features')
     session['step_status'] = 'started'
-    current_steps = session.get('current_steps', [])
-    print("Current steps before:", current_steps)
-    if current_steps and current_steps[0] == 'features':
-        current_steps.pop(0)
-        print("Popped 'features' from current_steps")
-        session['current_steps'] = current_steps
-        
+    print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
     return render_template('features.html', selected_option=selected_option)
 
@@ -776,11 +772,11 @@ def process_adducts():
 # Centroiding page ####################################
 @app.route('/centroiding')
 def centroiding():
-    session['step_status'] = 'started'
-    current_steps = session.get('current_steps', [])
-    if current_steps and current_steps[0] == 'centroiding':
-        current_steps.pop(0)
-        session['current_steps'] = current_steps
+    
+    if session['workflow_status'] == 'started' and session['workflow_id'] == 2:
+        advance_workflow_step('centroiding')
+        session['step_status'] = 'started'
+        
     return render_template('centroiding.html')
 
 # Centroiding endpoint/function
@@ -807,6 +803,8 @@ def process_centroiding():
 # Accurate mass page ####################################
 @app.route('/ami')
 def accurate_mass():
+    advance_workflow_step('accurate_mass')
+    session['step_status'] = 'started'
     return render_template('accurate_mass.html')
 
 # Accurate mass endpoint/function ####################################
@@ -815,6 +813,7 @@ def process_ami():
     # Folder for uploaded files
     uploads_dir = os.path.join(os.getcwd(), ACCURATE_MASS_DIR)
     os.makedirs(uploads_dir, exist_ok=True)
+    session['step_status'] = 'started'
     
     consensus_path = request.files.get('filename1')
     consensus_file = os.path.join(uploads_dir, consensus_path.filename)
@@ -834,11 +833,13 @@ def process_ami():
         download_links = []
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result)}")
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result2)}")
+        session['step_status'] = 'finished'
         return render_template('accurate_mass.html', result=result, download_links_search=download_links)
     else:
         
         alert = "Error: Accurate mass search could not be completed. Please check your uploads."
-        return render_template('accurate_mass.html', alert=alert)
+        session['step_status'] = 'started'
+        return render_template('accurate_mass.html', error_alert=alert)
 # ----------------------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------- SERVING UPLOADED FILES --------------------------------------------------
@@ -937,26 +938,27 @@ def start_workflow(workflow_id):
     session['workflow_status'] = 'started'
     session['step_status'] = 'started'
     workflow_status = session['workflow_status']
-    
+
     if workflow_id == 1:
         current_workflow = "Untargeted Metabolomics Pre-Processing"
-        current_steps = workflow1_steps
+        current_steps = workflow1_steps.copy()
     elif workflow_id == 2:
         current_workflow = "Identification by Accurate Mass"
-        current_steps = workflow2_steps
+        current_steps = workflow2_steps.copy()
     else:
         current_workflow = None
-    
+
     session['current_workflow'] = current_workflow
-    
-    
-    # Redirect to first index page in the current steps
-    redirect_link = current_steps.pop(0)
     session['current_steps'] = current_steps
-    
-    return redirect(url_for(redirect_link))
-    
-    # return render_template('index.html', workflow_id=workflow_id, current_workflow=current_workflow, workflow_status=workflow_status, current_steps=current_steps)
+
+    # Redirige al primer paso del workflow
+    if current_steps:
+        redirect_link = current_steps[0]
+        session['current_steps'].pop(0)  # Remove the first step as we are going to it now
+        current_steps = session['current_steps']
+        return redirect(url_for(redirect_link))
+    else:
+        return render_template('index.html')
 
 @app.route('/end_workflow')
 def end_workflow():
@@ -988,5 +990,16 @@ def inject_workflow_vars():
         'current_steps': current_steps,
         'step_status': step_status
     }
+
+def advance_workflow_step(step_name):
+    """
+    Solo elimina el paso actual de current_steps si es el primero y el paso anterior está terminado (step_status == 'finished').
+    Así, navegar entre páginas no recorta la lista.
+    """
+    current_steps = session.get('current_steps', [])
+    step_status = session.get('step_status', 'not started')
+    if current_steps and current_steps[0] == step_name and step_status == 'finished':
+        current_steps.pop(0)
+        session['current_steps'] = current_steps
 
 app.run(host='0.0.0.0', port=5000)
