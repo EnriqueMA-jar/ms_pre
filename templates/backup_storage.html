@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup Storage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/backup_storage.css') }}">
+</head>
+<body>
+    <div class="container">
+        <section class="form_section">
+        <h1>Backup Storage Management</h1>
+        <h4>This page allows you to manage and clean up backup storage folders.</h4>
+
+        <form method="POST" action="/clean_folders">
+            <div class="form-group">
+                <label for="folders">Select Folders to Clean:</label><br>
+                <input type="checkbox" id="uploads" name="folders" value="uploads">
+                <label for="uploads">Uploads</label><br>
+                <input type="checkbox" id="processed" name="folders" value="processed">
+                <label for="processed">Processed</label><br>
+                <input type="checkbox" id="gnps" name="folders" value="gnps">
+                <label for="gnps">GNPS</label><br>
+            </div>
+            <button type="submit" class="btn btn-danger">Clean Selected Folders</button>
+        </form>
+
+        {% include "alerts/alerts.html" %}
+        
+        </section>
+    </div>
+</body>
+</html>
+{% endblock %}

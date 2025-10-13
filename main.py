@@ -930,6 +930,13 @@ def download_gnps(filename):
     uploads_dir = os.path.join(os.getcwd(), 'uploads/gnps')
     return send_from_directory(uploads_dir, filename, as_attachment=True)
 
+# ----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
+# Backup storage page ####################################
+@app.route('/backup')
+def backup_storage():
+    return render_template('backup_storage.html')
+
 # Cleaning folders endpoint/function ####################################
 @app.route('/clean_folders', methods=['POST'])
 def clean_folders(folders):
@@ -943,9 +950,9 @@ def clean_folders(folders):
                     if os.path.isfile(file_path):
                         os.remove(file_path)
                 except Exception as e:
-                    print(f"Error removing file {file_path}: {e}")
-    return render_template('base.html')
-    
+                    alert = f"Error removing file {file_path}: {e}"
+    return render_template('backup_storage.html', error_alert=alert)
+
 # session files testing Endpoint
 @app.route('/session_files')
 def ver_rutas():
@@ -1033,5 +1040,22 @@ def advance_workflow_step(step_name):
     if current_steps and current_steps[0] == step_name and step_status == 'finished':
         current_steps.pop(0)
         session['current_steps'] = current_steps
+        
+        
+# -------------------------------------------------------------------
+from flask import Blueprint, jsonify
+import os
+
+explorer = Blueprint('explorer', __name__)
+
+@explorer.route('/folders')
+def list_folders():
+    base_path = os.path.abspath(os.path.dirname(__file__))  # Cambia esto si quieres otro directorio
+    folders = [name for name in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, name))]
+    return jsonify(folders)
+app.register_blueprint(explorer)
+
+
+
 
 app.run(host='0.0.0.0', port=5000)
