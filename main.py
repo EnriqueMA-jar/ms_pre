@@ -60,6 +60,7 @@ CONSENSUS_DIR = 'uploads/consensus' # default folder for consensus files
 GNPS_DIR = 'uploads/gnps' # default folder for gnps files
 ACCURATE_MASS_DIR = 'uploads/accurate_mass' # default folder for accurate mass search files
 
+ALL_UPLOAD_DIRS = [SMOOTHING_DIR, CENTROIDS_DIR, NORMALIZE_DIR, FEATURES_DIR, ADDUCTS_DIR, ALIGNMENT_DIR, CONSENSUS_DIR, GNPS_DIR, ACCURATE_MASS_DIR]
 
 app.config['SESSION_PERMANENT'] = False
 
@@ -249,7 +250,7 @@ def process_alignment():
 # Consensus page ####################################
 @app.route('/consensus', methods=['GET', 'POST'])
 def consensus():
-    if session['workflow_status'] == 'started':
+    if session.get('workflow_status') == 'started':
         advance_workflow_step('consensus')
         session['step_status'] = 'started'
     return render_template('consensus.html')
@@ -303,7 +304,7 @@ def process_consensus():
 @app.route('/features', methods=['GET', 'POST'])
 def features():
     
-    if session['workflow_status'] == 'started':
+    if session.get('workflow_status') == 'started':
         advance_workflow_step('features')
         session['step_status'] = 'started'
     
@@ -744,7 +745,7 @@ def process_mzML():
 # Adduct page #############################
 @app.route('/adducts')
 def adducts():
-    if session['workflow_status'] == 'started':
+    if session.get('workflow_status') == 'started':
         advance_workflow_step('adducts')
         session['step_status'] = 'started'
     return render_template('adducts.html')
@@ -790,7 +791,7 @@ def process_adducts():
 @app.route('/centroiding')
 def centroiding():
     
-    if session['workflow_status'] == 'started':
+    if session.get('workflow_status') == 'started':
         advance_workflow_step('centroiding')
         session['step_status'] = 'started'
         
@@ -1043,19 +1044,6 @@ def advance_workflow_step(step_name):
         
         
 # -------------------------------------------------------------------
-from flask import Blueprint, jsonify
-import os
-
-explorer = Blueprint('explorer', __name__)
-
-@explorer.route('/folders')
-def list_folders():
-    base_path = os.path.abspath(os.path.dirname(__file__))  # Cambia esto si quieres otro directorio
-    folders = [name for name in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, name))]
-    return jsonify(folders)
-app.register_blueprint(explorer)
-
-
 
 
 app.run(host='0.0.0.0', port=5000)

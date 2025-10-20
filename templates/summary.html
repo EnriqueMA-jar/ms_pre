@@ -73,13 +73,13 @@
                         <option value="svg">SVG</option>
                         <option value="jpeg">JPEG</option>
                         <option value="webp">WEBP</option>
-                        <option value="pdf">PDF</option>
                     </select>
                     <span class="input-group-text">Width</span>
                     <input type="number" id="img-width" value="800" min="100" max="2000" class="form-control form-control-sm" style="max-width:100px;">
                     <span class="input-group-text">Height</span>
                     <input type="number" id="img-height" value="600" min="100" max="2000" class="form-control form-control-sm" style="max-width:100px;">
-                    <button type="button" class="btn btn-outline-secondary" onclick="downloadPlotlyImage()">Download plot</button>
+                    <!-- Único botón: descarga ambos gráficos -->
+                    <button type="button" class="btn btn-outline-secondary" onclick="downloadBothPlotlyImages()">Download both</button>
                 </div>
             </section>
             <section class="result_section2">
@@ -148,6 +148,43 @@
                 });
             }
         );
+
+        // Función: exporta y descarga ambos gráficos (si existen) como archivos separados.
+        function downloadBothPlotlyImages() {
+            const format = document.getElementById('img-format').value || 'png';
+            const width = parseInt(document.getElementById('img-width').value) || 800;
+            const height = parseInt(document.getElementById('img-height').value) || 600;
+            if (!window.Plotly || typeof Plotly.toImage !== 'function') {
+                alert('Plotly is not available for export. Make sure the Plotly scripts have loaded.');
+                return;
+            }
+            const tasks = [];
+            [1, 2].forEach(i => {
+                const container = document.getElementById('plotly-graph-' + i);
+                if (!container) return;
+                const plotDiv = container.querySelector('.js-plotly-plot') || container.querySelector('div[data-plotly]') || container.querySelector('div');
+                if (!plotDiv) return;
+                const p = Plotly.toImage(plotDiv, { format: format, width: width, height: height })
+                    .then(function(dataUrl) {
+                        const a = document.createElement('a');
+                        a.href = dataUrl;
+                        const ext = (format === 'jpeg') ? 'jpg' : format;
+                        a.download = 'plot' + i + '.' + ext;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                    });
+                tasks.push(p);
+            });
+            if (tasks.length === 0) {
+                alert('No plots are loaded for download.');
+                return;
+            }
+            Promise.all(tasks).catch(function(err) {
+                console.error('Error downloading plots:', err);
+                alert('An error occurred while downloading one or more plots. Check the console for more details.');
+            });
+        }
     </script>
 </body>
 </html>
