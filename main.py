@@ -149,8 +149,8 @@ def index():
 # Alignment page ####################################
 @app.route('/alignment', methods=['GET', 'POST'])
 def alignment():
-    advance_workflow_step('alignment')
-    session['step_status'] = 'started'
+    if 'alignment' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+        session['step_status'] = 'started'
     selected_option = request.form.get('alignment_options', 'op1')
     return render_template('alignment.html', selected_option=selected_option)
 
@@ -226,9 +226,8 @@ def process_alignment():
                     "filename": os.path.basename(path),
                     "path": path
                 })
-            if session['workflow_status'] == 'started':
-                session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+            workflow_step_finished('alignment', generated_files)
+            advance_workflow_step('alignment')
             
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
@@ -253,9 +252,7 @@ def process_alignment():
                     "filename": os.path.basename(path),
                     "path": path
                 })
-            if session['workflow_status'] == 'started':
-                session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+            workflow_step_finished('alignment', generated_files)
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
             session['step_status'] = 'started'
@@ -269,8 +266,8 @@ def process_alignment():
 @app.route('/consensus', methods=['GET', 'POST'])
 def consensus():
     if session.get('workflow_status') == 'started':
-        advance_workflow_step('consensus')
-        session['step_status'] = 'started'
+        if 'consensus' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     return render_template('consensus.html')
 
 # Consensus endpoint/function ####################################
@@ -318,9 +315,8 @@ def process_consensus():
                     "filename": os.path.basename(path),
                     "path": path
                 })
-            if session['workflow_status'] == 'started':
-                session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+            workflow_step_finished('consensus', generated_files)
+            advance_workflow_step('consensus')
             return render_template('consensus.html', download_links_consensus=download_links)
         else:
             session['step_status'] = 'started'
@@ -332,9 +328,9 @@ def process_consensus():
 def features():
     
     if session.get('workflow_status') == 'started':
-        advance_workflow_step('features')
-        session['step_status'] = 'started'
-        session['generated_files'] = []
+        if 'features' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
+        #session['generated_files'] = []
     
     print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
@@ -402,9 +398,8 @@ def features_function():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        if session['workflow_status'] == 'started':
-            session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+        workflow_step_finished('features', generated_files)
+        advance_workflow_step('features')
         return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option)
     
     elif output_files and len(output_files) > 0:
@@ -424,9 +419,8 @@ def features_function():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        if session['workflow_status'] == 'started':
-            session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+        workflow_step_finished('features', generated_files)
+        advance_workflow_step('features')
         return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option)
     else:
         error_msg = 'No se detectaron features en los archivos. Solo se muestra el gráfico.'
@@ -791,8 +785,8 @@ def process_mzML():
 @app.route('/adducts')
 def adducts():
     if session.get('workflow_status') == 'started':
-        advance_workflow_step('adducts')
-        session['step_status'] = 'started'
+        if 'adducts' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     return render_template('adducts.html')
 
 # Adducts endpoint/function ####################################
@@ -836,9 +830,8 @@ def process_adducts():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        if session['workflow_status'] == 'started':
-            session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+        workflow_step_finished('adducts', generated_files)
+        advance_workflow_step('adducts')
     return render_template('adducts.html', download_links=download_links, download_links2=download_links2)
 
 # Centroiding page ####################################
@@ -846,9 +839,9 @@ def process_adducts():
 def centroiding():
     
     if session.get('workflow_status') == 'started':
-        advance_workflow_step('centroiding')
-        session['step_status'] = 'started'
-        session['generated_files'] = []
+        if 'centroided' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
+        #session['generated_files'] = []
         
     return render_template('centroiding.html')
 
@@ -887,9 +880,8 @@ def process_centroiding():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        if session['workflow_status'] == 'started':
-            session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+        workflow_step_finished('centroiding', generated_files)
+        advance_workflow_step('centroiding')
         return render_template('centroiding.html', download_links=download_links)
     except Exception as e:
         alert = f"Error during centroiding: {str(e)}"
@@ -899,8 +891,8 @@ def process_centroiding():
 # Accurate mass page ####################################
 @app.route('/ami')
 def accurate_mass():
-    advance_workflow_step('accurate_mass')
-    session['step_status'] = 'started'
+    if 'accurate_mass' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+        session['step_status'] = 'started'
     
     return render_template('accurate_mass.html')
 
@@ -937,9 +929,8 @@ def process_ami():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        if session['workflow_status'] == 'started':
-            session['generated_files'].extend(generated_files)
-            session['step_status'] = 'finished'
+        workflow_step_finished('accurate_mass', generated_files)
+        advance_workflow_step('accurate_mass')
         return render_template('accurate_mass.html', result=result, download_links_search=download_links)
     else:
         
@@ -1093,7 +1084,7 @@ def inject_workflow_vars():
         'current_workflow': current_workflow, 
         'workflow_status': workflow_status,
         'current_steps': current_steps,
-        'step_status': step_status
+        'step_status': step_status,
     }
 
 def advance_workflow_step(step_name):
@@ -1107,7 +1098,43 @@ def advance_workflow_step(step_name):
         current_steps.pop(0)
         session['current_steps'] = current_steps
         
+def workflow_step_finished(step_name=None, generated_files=None):
+    previous_step = None
+    workflow_id = session.get('workflow_id')
+    if workflow_id == 1:
+        workflow_steps = [
+            "features",
+            "adducts",
+            "consensus",
+        ]
+    elif workflow_id == 2:
+        workflow_steps = [
+            "centroiding",
+            "features",
+            "alignment",
+            "consensus",
+            "accurate_mass",
+        ]
+    else:
+        workflow_steps = []
+
+    # Calcula el paso anterior al actual
+    current_steps = session.get('current_steps', [])
+    
+    finished_steps = [step for step in workflow_steps if step not in current_steps]
+    if finished_steps:
+        previous_step = finished_steps[-1]
+    else:
+        previous_step = None
+    if previous_step == step_name:
+        if session.get('workflow_status') == 'started':
+            if 'generated_files' not in session or not isinstance(session['generated_files'], list):
+                session['generated_files'] = []
+            if generated_files:
+                session['generated_files'].extend(generated_files)
+        session['step_status'] = 'finished'
         
+    
 # -------------------------------------------------------------------
 # SEND FILES ENDPOINT
 

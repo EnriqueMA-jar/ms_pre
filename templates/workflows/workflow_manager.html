@@ -81,9 +81,14 @@ document.getElementById('toggle-files-btn').addEventListener('click', function()
 <div class="workflow-manager">
     <div class="workflow-manager-content">
     <div>
-        <td>Current Workflow:
-            <p class="status">Step status: <b class="step-status">{{ step_status }}</b></p>
+        <td>
+            Current Workflow:
+            <p class="status">
+                Step status: <b class="step-status">{{ step_status }}</b>
+            </p>
+            
         </td>
+        
     </div>
     <h4>{{ current_workflow }}</h4> 
     <form action="{{ url_for('end_workflow') }}" method="get" style="display:inline;">
