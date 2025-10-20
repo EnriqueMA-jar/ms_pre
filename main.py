@@ -1,8 +1,6 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, send_file, jsonify, url_for, send_from_directory
 import re
 import os
-from flask import url_for
-
 # Import summary functions
 from experiments.summary.summary import get_file_info
 from experiments.tic.tic_2d_3d import main as plot_tic
@@ -67,7 +65,6 @@ app.config['SESSION_PERMANENT'] = False
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
 # Large file upload endpoint/function ####################################
-from flask import jsonify
 @app.route('/upload_chunk', methods=['POST'])
 def upload_chunk():
     try:
@@ -220,7 +217,19 @@ def process_alignment():
             for path in download_links_mzml_paths:
                 filename = os.path.basename(path)
                 download_links_mzml.append(f"/uploads/alignment/{filename}")
+                
+                
+            # Store generated files in session for workflow tracking
+            generated_files = []
+            for path in download_links_features_paths + mapped_feature_paths + download_links_mzml_paths:
+                generated_files.append({
+                    "filename": os.path.basename(path),
+                    "path": path
+                })
+            if session['workflow_status'] == 'started':
+                session['generated_files'].extend(generated_files)
             session['step_status'] = 'finished'
+            
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
             session['step_status'] = 'started'
@@ -237,6 +246,15 @@ def process_alignment():
         if len(matches) == len(feature_file_paths) and len(matches) == len(mzml_file_paths):
             # Main processing
             download_links_features, download_links_mzml = align_files(feature_file_paths, mzml_file_paths, resolution, uploads_dir, value)
+            # Store generated files in session for workflow tracking
+            generated_files = []
+            for path in download_links_features + download_links_mzml:
+                generated_files.append({
+                    "filename": os.path.basename(path),
+                    "path": path
+                })
+            if session['workflow_status'] == 'started':
+                session['generated_files'].extend(generated_files)
             session['step_status'] = 'finished'
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
@@ -293,6 +311,15 @@ def process_consensus():
             download_links.append(f"/uploads/consensus/{csv_filename}")
 
         if download_links:
+            # Store generated files in session for workflow tracking
+            generated_files = []
+            for path in download_links:
+                generated_files.append({
+                    "filename": os.path.basename(path),
+                    "path": path
+                })
+            if session['workflow_status'] == 'started':
+                session['generated_files'].extend(generated_files)
             session['step_status'] = 'finished'
             return render_template('consensus.html', download_links_consensus=download_links)
         else:
@@ -307,6 +334,7 @@ def features():
     if session.get('workflow_status') == 'started':
         advance_workflow_step('features')
         session['step_status'] = 'started'
+        session['generated_files'] = []
     
     print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
@@ -367,7 +395,16 @@ def features_function():
     if all_are_features:
         # Solo mostrar el gráfico, sin links
         output_paths = file_paths
-        session['step_status'] = 'finished'
+        # Store generated files in session for workflow tracking
+        generated_files = []
+        for path in download_links:
+            generated_files.append({
+                "filename": os.path.basename(path),
+                "path": path
+            })
+        if session['workflow_status'] == 'started':
+            session['generated_files'].extend(generated_files)
+            session['step_status'] = 'finished'
         return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option)
     
     elif output_files and len(output_files) > 0:
@@ -380,7 +417,16 @@ def features_function():
             else:
                 print(f"[ERROR] No se generó archivo de features para {output_file}")
         session['file_paths'] = file_paths
-        session['step_status'] = 'finished'
+        # Store generated files in session for workflow tracking
+        generated_files = []
+        for path in download_links:
+            generated_files.append({
+                "filename": os.path.basename(path),
+                "path": path
+            })
+        if session['workflow_status'] == 'started':
+            session['generated_files'].extend(generated_files)
+            session['step_status'] = 'finished'
         return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option)
     else:
         error_msg = 'No se detectaron features en los archivos. Solo se muestra el gráfico.'
@@ -733,7 +779,6 @@ def process_mzML():
     # If theres a AJAX request, return only the plot HTML
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         print("AJAX request detected for summary")
-        from flask import jsonify
         return jsonify({'plot_html': plot_html, 'plot_html2': plot_html2})
     
     # Otherwise, return the full page
@@ -784,7 +829,16 @@ def process_adducts():
             alert = f"Error: adduct files not generated for {output_file2}"
             return render_template('adducts.html', download_links=download_links, download_links2=download_links2, error_alert=alert)
             
-    session['step_status'] = 'finished'
+    # Store generated files in session for workflow tracking
+        generated_files = []
+        for path in download_links + download_links2:
+            generated_files.append({
+                "filename": os.path.basename(path),
+                "path": path
+            })
+        if session['workflow_status'] == 'started':
+            session['generated_files'].extend(generated_files)
+            session['step_status'] = 'finished'
     return render_template('adducts.html', download_links=download_links, download_links2=download_links2)
 
 # Centroiding page ####################################
@@ -794,6 +848,7 @@ def centroiding():
     if session.get('workflow_status') == 'started':
         advance_workflow_step('centroiding')
         session['step_status'] = 'started'
+        session['generated_files'] = []
         
     return render_template('centroiding.html')
 
@@ -819,23 +874,34 @@ def process_centroiding():
         for f in output_files:
             if f and os.path.exists(f):
                 filename = os.path.basename(f)
-                download_links.append(f"{CENTROIDS_DIR}/{filename}")
+                download_links.append(f"/{CENTROIDS_DIR}/{filename}")
         if not download_links:
-            error_msg = "Error during centroiding: No centroided files generated."
+            alert = "Error during centroiding: No centroided files generated."
             session['step_status'] = 'started'
-            return render_template('centroiding.html', download_links=None, error_msg=error_msg)
-        session['step_status'] = 'finished'
+            return render_template('centroiding.html', download_links=None, error_alert=alert)
+        # Store generated files 
+        # in session for workflow tracking
+        generated_files = []
+        for path in download_links:
+            generated_files.append({
+                "filename": os.path.basename(path),
+                "path": path
+            })
+        if session['workflow_status'] == 'started':
+            session['generated_files'].extend(generated_files)
+            session['step_status'] = 'finished'
         return render_template('centroiding.html', download_links=download_links)
     except Exception as e:
-        error_msg = f"Error during centroiding: {str(e)}"
+        alert = f"Error during centroiding: {str(e)}"
         session['step_status'] = 'started'
-        return render_template('centroiding.html', download_links=None, error_msg=error_msg)
+        return render_template('centroiding.html', download_links=None, error_alert=alert)
 
 # Accurate mass page ####################################
 @app.route('/ami')
 def accurate_mass():
     advance_workflow_step('accurate_mass')
     session['step_status'] = 'started'
+    
     return render_template('accurate_mass.html')
 
 # Accurate mass endpoint/function ####################################
@@ -864,7 +930,16 @@ def process_ami():
         download_links = []
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result)}")
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result2)}")
-        session['step_status'] = 'finished'
+        # Store generated files in session for workflow tracking
+        generated_files = []
+        for path in download_links:
+            generated_files.append({
+                "filename": os.path.basename(path),
+                "path": path
+            })
+        if session['workflow_status'] == 'started':
+            session['generated_files'].extend(generated_files)
+            session['step_status'] = 'finished'
         return render_template('accurate_mass.html', result=result, download_links_search=download_links)
     else:
         
@@ -877,57 +952,48 @@ def process_ami():
 # Accurate mass Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/accurate_mass/<filename>')
 def download_accurate_mass(filename):
-    from flask import send_from_directory
     return send_from_directory(ACCURATE_MASS_DIR, filename, as_attachment=True)
 
 # NORMALIZE Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/normalize/<filename>')
 def download_normalized(filename):
-    from flask import send_from_directory
     return send_from_directory(NORMALIZE_DIR, filename, as_attachment=True)
 
 #  ALIGNMENT Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/alignment/<filename>')
 def download_alignment(filename):
-    from flask import send_from_directory
     return send_from_directory(ALIGNMENT_DIR, filename, as_attachment=True)
 
 #  ADDUCTS Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/adducts/<filename>')
 def download_adducts(filename):
-    from flask import send_from_directory
     return send_from_directory(ADDUCTS_DIR, filename, as_attachment=True)
 
 # CONSENSUS Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/consensus/<filename>')
 def download_consensus(filename):
-    from flask import send_from_directory
     uploads_dir = os.path.join(os.getcwd(), CONSENSUS_DIR)
     return send_from_directory(uploads_dir, filename, as_attachment=True)
 
 # SMOOTHING Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/smoothing/<filename>')
 def download_smoothing(filename):
-    from flask import send_from_directory
     uploads_dir = SMOOTHING_DIR
     return send_from_directory(uploads_dir, filename, as_attachment=True)
 
 # CENTROIDING Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/centroiding/<filename>')
 def download_centroid(filename):
-    from flask import send_from_directory
     return send_from_directory(CENTROIDS_DIR, filename, as_attachment=True)
 
 # FEATURES Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/features/<filename>')
 def download_features(filename):
-    from flask import send_from_directory
     return send_from_directory(FEATURES_DIR, filename, as_attachment=True)
 
 #  GNPS Endpoint for serving files from the uploads folder ####################################
 @app.route('/uploads/gnps/<filename>')
 def download_gnps(filename):
-    from flask import send_from_directory
     uploads_dir = os.path.join(os.getcwd(), 'uploads/gnps')
     return send_from_directory(uploads_dir, filename, as_attachment=True)
 
@@ -941,8 +1007,6 @@ def backup_storage():
 # Cleaning folders endpoint/function ####################################
 @app.route('/clean_folders', methods=['POST'])
 def clean_folders(folders):
-    import os
-    from flask import jsonify
     for folder in folders:
         if os.path.exists(folder):
             for file in os.listdir(folder):
@@ -1009,6 +1073,7 @@ def end_workflow():
     session['workflow_id'] = 0
     session['workflow_status'] = 'finished'
     session['step_status'] = 'finished'
+    session.pop('generated_files', None)
     # current_workflow = session.get('current_workflow')
     # workflow_status = session['workflow_status']
     # workflow_id = session['workflow_id']
@@ -1043,6 +1108,18 @@ def advance_workflow_step(step_name):
         session['current_steps'] = current_steps
         
         
+# -------------------------------------------------------------------
+# SEND FILES ENDPOINT
+
+@app.route('/generated_files/<filename>')
+def generated_files(filename):
+    workflow_files = session.get('generated_files', {})
+    for files in workflow_files.values():
+        for file in files:
+            if file["filename"] == filename:
+                return send_file(file["path"], as_attachment=True)
+    return "File not found", 404
+
 # -------------------------------------------------------------------
 
 

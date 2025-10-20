@@ -86,6 +86,50 @@ body{
     right: 20px;
     position: fixed;
 }
+.generated-files-section{
+     max-height: 180px;   /* O el valor que prefieras */
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.files-container{
+    background-color:rgba(24, 182, 165, 1) !important;
+    border-radius: 0.8em;
+    color: white;
+    padding: 20px;
+    gap: 10px;
+    width: 450px !important;
+    height: fit-content;
+    max-height: 290px;
+    z-index: 1000 !important;
+    bottom: 200px;
+    right: 20px;
+    position: fixed;
+    
+}
+.container-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.cards{
+    cursor: grab;
+    font-size: smaller;
+    background-color:white !important;
+    border-radius: 0.5em;
+    border: 1px solid #ccc !important;
+    color: black !important;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+.cards:hover{
+    background-color: black !important;
+    color: white !important;
+}
+.cards:active{
+    cursor: grabbing !important;
+    background-color: #111 !important;
+    color: white !important;
+}
 .workflow-manager-content{
     width: 100%;
 }

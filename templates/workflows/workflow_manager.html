@@ -1,9 +1,88 @@
 {% block workflow %}
+
+    {% if session['generated_files'] %}
+    <div class="files-container">
+        <div class="container-header">
+            <h5>Generated files</h5>
+            <button type="button" class="btn btn-light btn-sm" id="toggle-files-btn">Show/Hide</button>
+        </div>
+        <p>Drag and drop the card files into the inputs</p>
+        <div class="generated-files-section" id="generated-files-section"> </div>
+<script>
+const generatedFiles = {{ session.get('generated_files', []) | tojson | safe }};
+let fileObjects = []; // <-- Declarar aquí
+
+async function fetchAllFilesAndRenderCards() {
+    fileObjects = []; // <-- Limpiar antes de llenar
+    for (const file of generatedFiles) {
+        const response = await fetch(file.path);
+        const blob = await response.blob();
+        const fileObject = new File([blob], file.filename, { type: blob.type });
+        fileObjects.push(fileObject);
+    }
+
+    // Renderiza las cards
+    const section = document.getElementById('generated-files-section');
+    section.innerHTML = fileObjects.map((file, idx) =>
+        `<div class="cards" 
+              draggable="true" 
+              data-idx="${idx}" 
+              >
+            <b>${file.name}</b>
+        </div>`
+    ).join('');
+
+    // Añadir eventos drag a cada card
+    document.querySelectorAll('.cards').forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('text/plain', card.dataset.idx);
+        });
+    });
+}
+
+// Drag & drop sobre el input
+document.querySelectorAll('.form-control').forEach(fileInput => {
+    fileInput.addEventListener('dragover', e => {
+        e.preventDefault();
+        fileInput.style.border = '2px dashed #007bff';
+    });
+    fileInput.addEventListener('dragleave', e => {
+        fileInput.style.border = '';
+    });
+    fileInput.addEventListener('drop', e => {
+        e.preventDefault();
+        fileInput.style.border = '';
+        const idx = e.dataTransfer.getData('text/plain');
+        if (fileObjects[idx]) {
+            const dt = new DataTransfer();
+
+            for (let i = 0; i < fileInput.files.length; i++) {
+                dt.items.add(fileInput.files[i]);
+            }
+
+            dt.items.add(fileObjects[idx]);
+            fileInput.files = dt.files;
+        }
+    });
+});
+
+if (generatedFiles.length > 0) {
+    fetchAllFilesAndRenderCards();
+}
+
+document.getElementById('toggle-files-btn').addEventListener('click', function() {
+        const section = document.getElementById('generated-files-section');
+        section.style.display = (section.style.display === 'none') ? 'block' : 'none';
+    });
+</script>
+</div>
+    {% endif %}
+
 <div class="workflow-manager">
     <div class="workflow-manager-content">
     <div>
         <td>Current Workflow:
-        <p class="status">Step status: <b class="step-status">{{ step_status }}</b></p>
+            <p class="status">Step status: <b class="step-status">{{ step_status }}</b></p>
         </td>
     </div>
     <h4>{{ current_workflow }}</h4> 
