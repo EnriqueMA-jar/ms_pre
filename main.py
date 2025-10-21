@@ -719,7 +719,7 @@ def summary():
 def process_mzML():
     file = request.files.get('filename')
     filter_type = request.form.get('filter_options', 'Plasma')
-    print(f"[DEBUG] filter_type recibido: {filter_type}")
+    #print(f"[DEBUG] filter_type recibido: {filter_type}")
     filename = request.form.get('filename')
 
     if file:
@@ -740,7 +740,15 @@ def process_mzML():
     import plotly.io as pio
     import pandas as pd
 
-    result = get_file_info_extended(path)
+    try:
+        result = get_file_info_extended(path)
+        if not result:
+            alert = "Error processing file: No data returned."
+            return render_template('summary.html', error_alert=alert)
+    except Exception as e:
+        alert = f"Error processing file: {str(e)}"
+        return render_template('summary.html', error_alert=alert)
+    
     # Convertir los valores numpy a tipos nativos para evitar np.float64/np.int32
     def clean_value(val):
         import numpy as np
@@ -762,12 +770,25 @@ def process_mzML():
 
     # Usamos la función de TIC2 para obtener los datos base
     from experiments.tic.tic_2d_3d import load_and_process_data
-    rt_list, mz_list, tic_list = load_and_process_data(path)
-    fig = plot_tic(path, mode='3d-spikes', max_points=10000, df=None, filter=filter_type)
+    try: 
+        rt_list, mz_list, tic_list = load_and_process_data(path)
+    except Exception as e:
+        alert = f"Error loading and processing data: {str(e)}"
+        return render_template('summary.html', error_alert=alert)
+
+    try:
+        fig = plot_tic(path, mode='3d-spikes', max_points=10000, df=None, filter=filter_type)
+    except Exception as e:
+        alert = f"Error generating 3D TIC plot: {str(e)}"
+        return render_template('summary.html', error_alert=alert)
 
     # For 2D, we create the DataFrame from the same data
     df = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'Total Ion Current': tic_list})
-    fig2, _ = plot_tic(path, mode='2d', max_points=10000, df=df, filter=filter_type)
+    try:
+        fig2, _ = plot_tic(path, mode='2d', max_points=10000, df=df, filter=filter_type)
+    except Exception as e:
+        alert = f"Error generating 2D TIC plot: {str(e)}"
+        return render_template('summary.html', error_alert=alert)
 
     # result plots
     plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
@@ -859,9 +880,14 @@ def process_centroiding():
     file_paths = []
 
     for file in files:
-        path = f"{uploads_dir}/{file.filename}"
-        file.save(path)
-        file_paths.append(path)
+        if file.filename.endswith('.mzML'):
+            path = f"{uploads_dir}/{file.filename}"
+            file.save(path)
+            file_paths.append(path)
+        else:
+            alert = 'Please upload only .mzML files for centroiding.'
+            session['step_status'] = 'started'
+            return render_template('centroiding.html', download_links=None, error_alert=alert)
 
     try:
         output_files = centroid_file(file_paths, CENTROIDS_DIR)

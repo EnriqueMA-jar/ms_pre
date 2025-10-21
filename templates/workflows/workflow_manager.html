@@ -6,7 +6,7 @@
             <h5>Generated files</h5>
             <button type="button" class="btn btn-light btn-sm" id="toggle-files-btn">Show/Hide</button>
         </div>
-        <p>Drag and drop the card files into the inputs</p>
+        <p>Drag and drop the file cards into the inputs</p>
         <div class="generated-files-section" id="generated-files-section"> </div>
 <script>
 const generatedFiles = {{ session.get('generated_files', []) | tojson | safe }};
@@ -65,6 +65,7 @@ document.querySelectorAll('.form-control').forEach(fileInput => {
         }
     });
 });
+
 
 if (generatedFiles.length > 0) {
     fetchAllFilesAndRenderCards();

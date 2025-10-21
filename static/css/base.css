@@ -1,22 +1,22 @@
 .navbar{
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: white;
-    background-color: #333;
+    background-color: #028a70;
     overflow: hidden;
     width: 100%;
     display: block;
     position: static;
     margin-bottom: 20px;
+    height: 50px;
 }
 .navbar .a{
     width: 100%;
     height: 100%;
     display: block;
-    padding: 10px 0;
     text-align: center;
     text-decoration: none;
     color: white;
-    font-size: smaller;
+    
 }
 .navbar > .ul > .li, .li_cleaner{
     list-style-type: none;
@@ -25,7 +25,7 @@
     display: inline-block;
 }
 .li{
-    background-color: #484848;
+   
     display: block;
     width: fit-content;
     padding-left: 10px !important;
@@ -34,7 +34,6 @@
     padding: 10px;
 }
 .li_cleaner{
-    background-color: #680202;
     display: block;
      width: fit-content;
     padding-left: 10px !important;
@@ -42,12 +41,13 @@
     height: 100%; 
     padding: 10px;
 }
-.li_cleaner:hover{
-    background-color: #c40202 !important;
+
+.li:hover{
+    border-bottom: 2px solid white;
     color: white;
 }
-.li:hover{
-    background-color: #111;
+.li.active {
+    border-bottom: 5px solid white;
     color: white;
 }
 .container{
@@ -59,7 +59,8 @@ body{
 }
 .alert{
     width:100% !important;
-    height: 35px !important;
+    height: fit-content !important;
+    padding: 10px !important;
 }
 .alert svg {
     width: 16px;

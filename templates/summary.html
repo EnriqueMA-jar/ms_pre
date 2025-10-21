@@ -17,6 +17,7 @@
             <form id="uploadForm" action="/get_file_info" method="post" enctype="multipart/form-data">
                 {% set accept_types = ".mzML" %}
                 {% include 'inputs/single_input.html' %}
+                {% include 'alerts/alerts.html' %}
             </form>
         </section>
         <section class="result_section">
