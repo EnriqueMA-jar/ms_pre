@@ -650,7 +650,7 @@ def process_smoothing():
     
     # Check which option is selected
     selected_option = request.form.get('smoothing_options', 'op1')
-    print(f"[DEBUG] selected_option: {selected_option}")
+    # print(f"[DEBUG] selected_option: {selected_option}")
     if selected_option == 'op1':
         # It could be a single file smoothing
         files = request.files.getlist('filename')
@@ -660,8 +660,8 @@ def process_smoothing():
                 file = f
                 break
         if not file:
-            error_msg = 'Please upload a valid .mzML file for single file smoothing.'
-            return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_msg=error_msg)
+            alert = 'Please upload a valid .mzML file for single file smoothing.'
+            return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert)
         print(f"[DEBUG] single file: {file.filename}")
         save_path = os.path.join(uploads_dir, file.filename)
         file.save(save_path)
@@ -683,19 +683,22 @@ def process_smoothing():
             else:
                 polyorder = int(polyorder)
             files = request.files.getlist('filename')
-            print(f"[DEBUG] multiple files count: {len(files)}")
+            # print(f"[DEBUG] multiple files count: {len(files)}")
             file_paths = []
             for file in files:
-                print(f"[DEBUG] processing file: {file.filename}")
+                # print(f"[DEBUG] processing file: {file.filename}")
                 if file.filename.endswith('.mzML'):
                     save_path = os.path.join(uploads_dir, file.filename)
                     file.save(save_path)
                     file_paths.append(save_path)
+                else:
+                    alert = 'Please upload a valid .mzML file for multiple file smoothing.'
+                    return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert)
 
             # Process files and get output paths
             output_files = multiple_smoothing(file_paths, window_length, polyorder)
 
-            # GGenerate download links
+            # Generate download links
             download_links = []
             for file_path in output_files:
                 if "savgol" in file_path:
@@ -1046,7 +1049,7 @@ def start_workflow(workflow_id):
     session['current_workflow'] = current_workflow
     session['current_steps'] = current_steps
 
-    # Redirige al primer paso del workflow
+    # Redirect to the first step of the workflow
     if current_steps:
         redirect_link = current_steps[0]
         session['current_steps'].pop(0)  # Remove the first step as we are going to it now
@@ -1089,8 +1092,7 @@ def inject_workflow_vars():
 
 def advance_workflow_step(step_name):
     """
-    Solo elimina el paso actual de current_steps si es el primero y el paso anterior está terminado (step_status == 'finished').
-    Así, navegar entre páginas no recorta la lista.
+    Deletes the current step from the session's current_steps if it matches the provided step_name and the step_status is 'finished'.
     """
     current_steps = session.get('current_steps', [])
     step_status = session.get('step_status', 'not started')
