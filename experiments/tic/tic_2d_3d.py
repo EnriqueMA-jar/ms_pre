@@ -9,6 +9,7 @@ from datashader.mpl_ext import dsshow
 import pandas as pd
 from plotly.subplots import make_subplots
 from scipy.ndimage import gaussian_filter
+from scipy.interpolate import griddata
 
 
 
@@ -176,7 +177,38 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list,
     
     return fig
         
-        
+def create_3d_surface(rt_list, mz_list, tic_list, width=650, height=500, filter_type='Plasma'):
+    # Crear una grilla regular
+    rt_grid = np.linspace(min(rt_list), max(rt_list), 100)
+    mz_grid = np.linspace(min(mz_list), max(mz_list), 100)
+    RT, MZ = np.meshgrid(rt_grid, mz_grid)
+    # Interpolar los valores TIC sobre la grilla
+    TIC_grid = griddata(
+        (rt_list, mz_list), tic_list, (RT, MZ), method='linear', fill_value=0
+    )
+    # Crear la figura de superficie
+    fig = go.Figure(
+        data=[go.Surface(
+            z=TIC_grid,
+            x=rt_grid,
+            y=mz_grid,
+            colorscale=filter_type,
+            colorbar=dict(title='TIC')
+        )]
+    )
+    fig.update_layout(
+        title='Total Ion Current (TIC) 3D Surface Plot',
+        scene=dict(
+            xaxis_title='Retention Time (min)',
+            yaxis_title='m/z',
+            zaxis_title='Total Ion Current'
+        ),
+        width=width,
+        height=height,
+        template='plotly_white'
+    )
+    return fig
+
 # def create_2d_heatmap(rt_list, mz_list, tic_list, width=1200, height=800,
 #                       colorscale='viridis'):
 #     """
@@ -331,6 +363,10 @@ def main(file_path, mode, max_points, df, filter):
     elif mode == '3d-spikes':
         fig = create_optimized_3d_spikes(rt_list, mz_list, tic_list,
                                       max_points=max_points, filter_type=filter)
+        return fig
+    elif mode == '3d-surface':
+        fig = create_3d_surface(rt_list, mz_list, tic_list,
+                                width=650, height=500, filter_type=filter)
         return fig
 
     # Default: return None if mode is not recognized
