@@ -13,7 +13,7 @@
         <section class="form_section">
             <h2>mzML Chromatogram Visualizer</h2>
             <h4>Select mzML files to inspect:</h4>
-            <form action="/get_files_chromatograms" method="post" enctype="multipart/form-data">
+            <form id="uploadForm" action="/get_files_chromatograms" method="post" enctype="multipart/form-data">
                 {% set accept_types = ".mzML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
