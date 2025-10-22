@@ -28,7 +28,7 @@ async function fetchAllFilesAndRenderCards() {
               draggable="true" 
               data-idx="${idx}" 
               >
-            <b>${file.name}</b>
+            <b class="generated-files-name">${file.name}</b>
         </div>`
     ).join('');
 
@@ -93,25 +93,29 @@ document.getElementById('toggle-files-btn').addEventListener('click', function()
     </div>
     <h4>{{ current_workflow }}</h4> 
     <form action="{{ url_for('end_workflow') }}" method="get" style="display:inline;">
-        {% if workflow_status == 'started' %}
-            {% if step_status == 'started' %}
-                {% if current_steps|length >= 1 %}
-                    <button type="button" class="btn btn-light next-step-button" disabled>{{ current_steps[0] }}</button>
-                {% endif %}
-            {% elif step_status == 'finished' %}
-                {% if current_steps|length >= 1 %}
-                    <a href="{{ url_for(current_steps[0]) }}" class="btn btn-light next-step-button">
-                        {{ current_steps[0] }}
-                    </a>
-                {% else %}
-                    <button type="submit" class="btn btn-light next-step-button">
-                        Finish Workflow
-                    </button>
-                {% endif %}
+    {% if workflow_status == 'started' %}
+        {% if step_status == 'started' %}
+            {% if current_steps|length > 1 %}
+                <button type="button" class="btn btn-light next-step-button" disabled>{{ current_steps[0] }}</button>
+            {% elif current_steps|length == 1 %}
+                <button type="button" class="btn btn-light next-step-button" disabled>Finish Workflow</button>
             {% endif %}
+        {% elif step_status == 'finished' %}
+            {% if current_steps|length > 1 %}
+                <a href="{{ url_for('next_step') }}" class="btn btn-light next-step-button">
+                    {{ current_steps[1] }}
+                </a>
+            {% elif current_steps|length == 1 %}
+                <button type="submit" class="btn btn-light next-step-button">
+                    Finish Workflow
+                </button>
+            {% endif %}
+        {% endif %}
+        {% if workflow_status == 'started' %}
             <button type="submit" class="btn btn-dark">End Workflow</button>
         {% endif %}
-    </form>
+    {% endif %}
+</form>
     </div>
 </div>
 {% endblock %}

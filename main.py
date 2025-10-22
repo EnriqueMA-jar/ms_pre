@@ -227,7 +227,7 @@ def process_alignment():
                     "path": path
                 })
             workflow_step_finished('alignment', generated_files)
-            advance_workflow_step('alignment')
+            #advance_workflow_step('alignment')
             
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
@@ -248,9 +248,10 @@ def process_alignment():
             # Store generated files in session for workflow tracking
             generated_files = []
             for path in download_links_features + download_links_mzml:
+                filename = os.path.basename(path)
                 generated_files.append({
-                    "filename": os.path.basename(path),
-                    "path": path
+                    "filename": filename,
+                    "path": f"/uploads/alignment/{filename}"
                 })
             workflow_step_finished('alignment', generated_files)
             return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
@@ -316,7 +317,7 @@ def process_consensus():
                     "path": path
                 })
             workflow_step_finished('consensus', generated_files)
-            advance_workflow_step('consensus')
+            #advance_workflow_step('consensus')
             return render_template('consensus.html', download_links_consensus=download_links)
         else:
             session['step_status'] = 'started'
@@ -399,7 +400,7 @@ def features_function():
                 "path": path
             })
         workflow_step_finished('features', generated_files)
-        advance_workflow_step('features')
+        #advance_workflow_step('features')
         return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option)
     
     elif output_files and len(output_files) > 0:
@@ -420,12 +421,12 @@ def features_function():
                 "path": path
             })
         workflow_step_finished('features', generated_files)
-        advance_workflow_step('features')
+        #advance_workflow_step('features')
         return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option)
     else:
-        error_msg = 'No se detectaron features en los archivos. Solo se muestra el gráfico.'
+        alert = 'There are no features detected.'
         session['step_status'] = 'started'
-        return render_template('features.html', plot_features=plot_features_render, download_links=None, error_msg=error_msg, selected_option=selected_option)
+        return render_template('features.html', plot_features=plot_features_render, download_links=None, error_alert=alert, selected_option=selected_option)
 
 # GNPS page ####################################
 @app.route('/gnps', methods=['GET', 'POST'])
@@ -662,7 +663,7 @@ def process_smoothing():
         if not file:
             alert = 'Please upload a valid .mzML file for single file smoothing.'
             return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert)
-        print(f"[DEBUG] single file: {file.filename}")
+        # print(f"[DEBUG] single file: {file.filename}")
         save_path = os.path.join(uploads_dir, file.filename)
         file.save(save_path)
         output_path = single_smoothing(save_path)
@@ -855,7 +856,7 @@ def process_adducts():
                 "path": path
             })
         workflow_step_finished('adducts', generated_files)
-        advance_workflow_step('adducts')
+        #advance_workflow_step('adducts')
     return render_template('adducts.html', download_links=download_links, download_links2=download_links2)
 
 # Centroiding page ####################################
@@ -910,7 +911,7 @@ def process_centroiding():
                 "path": path
             })
         workflow_step_finished('centroiding', generated_files)
-        advance_workflow_step('centroiding')
+        #advance_workflow_step('centroiding')
         return render_template('centroiding.html', download_links=download_links)
     except Exception as e:
         alert = f"Error during centroiding: {str(e)}"
@@ -959,7 +960,7 @@ def process_ami():
                 "path": path
             })
         workflow_step_finished('accurate_mass', generated_files)
-        advance_workflow_step('accurate_mass')
+        # advance_workflow_step('accurate_mass')
         return render_template('accurate_mass.html', result=result, download_links_search=download_links)
     else:
         
@@ -1078,8 +1079,8 @@ def start_workflow(workflow_id):
     # Redirect to the first step of the workflow
     if current_steps:
         redirect_link = current_steps[0]
-        session['current_steps'].pop(0)  # Remove the first step as we are going to it now
-        current_steps = session['current_steps']
+        # session['current_steps'].pop(0)  # Remove the first step as we are going to it now
+        
         return redirect(url_for(redirect_link))
     else:
         return render_template('index.html')
@@ -1127,54 +1128,41 @@ def advance_workflow_step(step_name):
         session['current_steps'] = current_steps
         
 def workflow_step_finished(step_name=None, generated_files=None):
-    previous_step = None
-    workflow_id = session.get('workflow_id')
-    if workflow_id == 1:
-        workflow_steps = [
-            "features",
-            "adducts",
-            "consensus",
-        ]
-    elif workflow_id == 2:
-        workflow_steps = [
-            "centroiding",
-            "features",
-            "alignment",
-            "consensus",
-            "accurate_mass",
-        ]
-    else:
-        workflow_steps = []
 
-    # Calcula el paso anterior al actual
-    current_steps = session.get('current_steps', [])
-    
-    finished_steps = [step for step in workflow_steps if step not in current_steps]
-    if finished_steps:
-        previous_step = finished_steps[-1]
-    else:
-        previous_step = None
-    if previous_step == step_name:
-        if session.get('workflow_status') == 'started':
-            if 'generated_files' not in session or not isinstance(session['generated_files'], list):
-                session['generated_files'] = []
-            if generated_files:
-                session['generated_files'].extend(generated_files)
+    if session.get('workflow_status') == 'started':
+        if 'generated_files' not in session or not isinstance(session['generated_files'], list):
+            session['generated_files'] = []
+        if generated_files:
+            # Evita duplicados
+            filenames = {f['filename'] for f in session['generated_files']}
+            for f in generated_files:
+                if f['filename'] not in filenames:
+                    session['generated_files'].append(f)
         session['step_status'] = 'finished'
         
+        
+@app.route('/next_step')
+def next_step():
+    current_steps = session.get('current_steps', [])
+    if current_steps:
+        advance_workflow_step(current_steps[0])
+        session['step_status'] = 'started'
+    # Redirige al siguiente paso si existe
+    if session.get('current_steps'):
+        return redirect(url_for(session['current_steps'][0]))
+    else:
+        return redirect(url_for('index'))
     
 # -------------------------------------------------------------------
 # SEND FILES ENDPOINT
 
 @app.route('/generated_files/<filename>')
 def generated_files(filename):
-    workflow_files = session.get('generated_files', {})
-    for files in workflow_files.values():
-        for file in files:
-            if file["filename"] == filename:
-                return send_file(file["path"], as_attachment=True)
+    workflow_files = session.get('generated_files', [])
+    for file in workflow_files:
+        if file["filename"] == filename:
+            return send_file(file["path"], as_attachment=True)
     return "File not found", 404
-
 # -------------------------------------------------------------------
 
 

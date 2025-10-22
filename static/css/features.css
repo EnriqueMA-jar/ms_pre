@@ -6,7 +6,7 @@
                'plot_section plot_section'
                'download_section download_section';
 
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     gap: 20px;
     min-height: 35vh;
