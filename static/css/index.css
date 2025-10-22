@@ -51,6 +51,14 @@ h2{
     background-color: white;
     border-radius: 0.5em;
 }
+.workflow-image2 {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 0.5em;
+    padding: 80px;
+}
 a{
     text-decoration: none;
     color: inherit;

@@ -2,7 +2,7 @@
     display: grid;
     grid-template-areas: 
                'form_section form_section'
-               'result_section result_section';
+               'generated-folders-section generated-folders-section';
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
@@ -30,7 +30,71 @@ h2{
     grid-area: form_section; 
     width: 100% !important;
 }
-.result_section { 
-    grid-area: result_section; 
+.generated-folders-section { 
+    grid-area: generated-folders-section; 
     width: 100% !important;
+    border: collapse !important;
+    height: 600px !important;
+}
+.table-folders{
+    width: 100% !important;
+    height: 100% !important;
+    padding: 10px !important;
+    overflow-y: hidden !important;
+    overflow-x: auto !important;
+    font-size: 14px !important;
+}
+
+#files-table td, #files-table th {
+    padding: 4px 8px !important;
+    height: 24px !important;
+    
+}
+#files-table tr {
+    height: 40px !important;
+}
+#files-table {
+    table-layout: fixed;
+    width: 100%;
+}
+.folder-th, .folder-td, .file-size-th, .file-size-td {
+    width: 10% !important;
+}
+.file-name-th, .file-name-td, .file-path-th, .file-path-td {
+    width: 36% !important;
+}
+.file-created-th, .file-created-td {
+    width: 18% !important;
+}
+.file-name-td, .file-path-td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Mostrar el texto completo en un tooltip al hacer hover */
+.file-name-td:hover::after,
+.file-path-td:hover::after {
+    content: attr(data-fulltext);
+    position: absolute;
+    left: 20px;
+    top: 40%;
+    background-color: #333;
+    color: white;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    white-space: normal;
+    z-index: 1;
+    min-width: 200px;
+    max-width: 600px;
+    font-size: 13px;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.file-name-td:hover, .file-path-td:hover {
+    overflow: visible !important;
+    background-color: transparent !important;
+    color: transparent !important;
 }

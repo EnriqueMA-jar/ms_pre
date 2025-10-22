@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, send_file, jsonify, url_for, send_from_directory
 import re
 import os
@@ -719,6 +720,11 @@ def summary():
 @app.route('/get_file_info', methods=['POST'])
 def process_mzML():
     file = request.files.get('filename')
+    if file.filename.endswith('.mzML'):
+        pass
+    else:
+        alert = "Invalid file type. Please upload a .mzML file."
+        return render_template('summary.html', error_alert=alert)
     filter_type = request.form.get('filter_options', 'Plasma')
     #print(f"[DEBUG] filter_type recibido: {filter_type}")
     filename = request.form.get('filename')
@@ -1017,13 +1023,49 @@ def download_features(filename):
 def download_gnps(filename):
     uploads_dir = os.path.join(os.getcwd(), 'uploads/gnps')
     return send_from_directory(uploads_dir, filename, as_attachment=True)
+# ----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
 
-# ----------------------------------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------------------
 # Backup storage page ####################################
 @app.route('/backup')
 def backup_storage():
     return render_template('backup_storage.html')
+
+
+# Backup storage page functions ####################################
+@app.route('/show_upload_folders', methods=['GET', 'POST'])
+def show_upload_folders():
+    upload_folders = {
+        'Alignment': ALIGNMENT_DIR,
+        'Accurate Mass': ACCURATE_MASS_DIR,
+        'Adducts': ADDUCTS_DIR,
+        'Centroiding': CENTROIDS_DIR,
+        'Consensus': CONSENSUS_DIR,
+        'Features': FEATURES_DIR,
+        'Normalize': NORMALIZE_DIR,
+        'Smoothing': SMOOTHING_DIR,
+        'GNPS': GNPS_DIR,
+    }
+    folder_contents = {}
+    for folder_name, folder_path in upload_folders.items():
+        files_info = []
+        if os.path.exists(folder_path):
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+                if os.path.isfile(file_path):
+                    size = os.path.getsize(file_path)
+                    created = os.path.getctime(file_path)
+                    created_str = datetime.fromtimestamp(created).strftime('%Y-%m-%d %H:%M:%S')
+                    files_info.append({
+                        'name': filename,
+                        'path': file_path,
+                        'size': float(size/1024/1024).__round__(2),
+                        'created': created_str
+                    })
+            folder_contents[folder_name] = files_info
+        else:
+            folder_contents[folder_name] = []
+    return render_template('backup_storage.html', folder_contents=folder_contents)
 
 # Cleaning folders endpoint/function ####################################
 @app.route('/clean_folders', methods=['POST'])

@@ -7,30 +7,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backup Storage</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/backup_storage.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.css') }}">
+    <script src="{{ url_for('static', filename='js/jquery/jquery-3.0.6.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+
 </head>
 <body>
     <div class="container">
         <section class="form_section">
-        <h1>Backup Storage Management</h1>
-        <h4>This page allows you to manage and clean up backup storage folders.</h4>
-
-        <form method="POST" action="/clean_folders">
-            <div class="form-group">
-                <label for="folders">Select Folders to Clean:</label><br>
-                <input type="checkbox" id="uploads" name="folders" value="uploads">
-                <label for="uploads">Uploads</label><br>
-                <input type="checkbox" id="processed" name="folders" value="processed">
-                <label for="processed">Processed</label><br>
-                <input type="checkbox" id="gnps" name="folders" value="gnps">
-                <label for="gnps">GNPS</label><br>
-            </div>
-            <button type="submit" class="btn btn-danger">Clean Selected Folders</button>
-        </form>
-
-        {% include "alerts/alerts.html" %}
+        <h2>Backup Storage Management</h2>
+        <h4>This page allows you to manage and clean up uploads folders.</h4>
         
         </section>
-    </div>
+
+    {% if folder_contents %}
+    <section class="generated-folders-section" id="generated-folders-section">
+        <h5>Uploaded/Generated Files</h5>
+        <div class="table-folders table-responsive">
+        <table id="files-table" class="display">
+            <thead>
+                <tr>
+                    <th class="folder-th">Folder</th>
+                    <th class="file-name-th">File Name</th>
+                    <th class="file-size-th">Size</th>
+                    <th class="file-created-th">Created</th>
+                    <th class="file-path-th">Path</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for folder_name, files in folder_contents.items() %}
+                    {% for file in files %}
+                        <tr>
+                            <td class="folder-td" >{{ folder_name }}</td>
+                            <td class="file-name-td" data-fulltext="{{ file.name }}">{{ file.name }}</td>
+                            <td class="file-size-td">{{ file.size }} MB</td>
+                            <td class="file-created-td">{{ file.created }}</td>
+                            <td class="file-path-td" data-fulltext="{{ file.path }}">
+                                {{ file.path }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        <script>
+            $(document).ready(function() {
+                $('#files-table').DataTable();
+        });
+        </script>
+        </div>
+    </section>
+    {% endif %}
 </body>
 </html>
 {% endblock %}
