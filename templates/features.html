@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
+    {% block title %}
+        mzML Features Detection
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/features.css') }}">
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mzML Features Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/features.css') }}">
-    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
-</head>
-<body>
       <div class="container">
         <section class="selection_section">
             <h2>mzML Features Detection</h2>
@@ -100,7 +98,4 @@
         </section>
         {% endif %}
     </div>
-</body>
-
-</html>
 {% endblock %}

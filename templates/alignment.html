@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
+    {% block title %}
+        mzML Features Alignment
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/alignment.css') }}">
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mzML Features Alignment</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/alignment.css') }}">
-    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
-</head>
-<body>
       <div class="container">
         <section class="selection_section">
             <h2>mzML Features Alignment</h2>
@@ -134,22 +132,6 @@
                 <p>No files processed yet.</p>
             {% endif %}
         </section>
-        <!-- <section class="download_section">
-            <h5>Download mzML Aligned File</h5>
-            <h6>Click the link below to download the aligned mzML file:</h6>
-            {% if download_links %}
-                <ul>
-                    {% for download_link in download_links %}
-                        <li><a href="{{ mzml_download_link }}" class="link" download>Download {{ mzml_download_link.split('/')[-1] }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No files processed yet.</p>
-            {% endif %}
-        </section> -->
         {% endif %}
     </div>
-</body>
-
-</html>
 {% endblock %}

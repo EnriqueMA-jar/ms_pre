@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
+{% block title %}
+        mzML Centroiding    
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/centroiding.css') }}">
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mzML Centroiding</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/centroiding.css') }}">
-</head>
-<body>
       <div class="container">
         <section class="form_section">
             <h2>mzML Centroiding</h2>
@@ -36,6 +34,4 @@
             {% endif %}
         </section>
     </div>
-</body>
-</html>
 {% endblock %}

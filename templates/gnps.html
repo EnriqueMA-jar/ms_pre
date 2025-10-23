@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
+    {% block title %}
+        mzML Consensus GNPS Files
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/gnps.css') }}">
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mzML Consensus GNPS Files</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gnps.css') }}">
-    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
-</head>
-<body>
       <div class="container">
         <section class="form_section">
             <h2>GNPS File Generation</h2>
@@ -50,7 +48,4 @@
             {% endif %}
         </section>
     </div>
-</body>
-
-</html>
 {% endblock %}

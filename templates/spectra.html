@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
+    {% block title %}
+        Spectra Viewer
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/spectra.css') }}">
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spectra Viewer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/spectra.css') }}">
-    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
-</head>
-<body>
       <div class="container">
         <section class="form_section">
             <h2>mzML Spectra Visualizer</h2>
@@ -78,7 +76,4 @@
             {% endif %}
         {% endif %}
     </div>
-</body>
-
-</html>
 {% endblock %}

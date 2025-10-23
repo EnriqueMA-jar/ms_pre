@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
+    {% block title %}
+        Accurate Mass Search
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/accurate_mass.css') }}">
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accurate Mass Search</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/accurate_mass.css') }}">
-</head>
-<body>
 <div class="container">
     <section class="form_section">
         <h2>Accurate Mass Search</h2>
@@ -57,6 +55,4 @@
             {% endif %}
     </section>
 </div>
-</body>
-</html>
 {% endblock %}

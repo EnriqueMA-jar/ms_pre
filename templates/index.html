@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
+    {% block title %}
+        Home
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-</head>
-<body>
     <div class="container">
     <section class="title_section">
     <div>
@@ -42,6 +40,4 @@
         </a>
     </section>
     </div>
-</body>
-</html>
 {% endblock %}

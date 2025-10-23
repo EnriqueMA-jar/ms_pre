@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+    <title>
+      {% block title %}
+        Menu
+      {% endblock %}
+    </title>
+      {% block head %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
+      {% endblock %}
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
@@ -34,7 +40,7 @@
         <li class="li {% if request.endpoint == 'alignment' or request.endpoint == 'process_alignment' %}active{% endif %}"><a href="/alignment" class="a">Alignment</a></li>
         <li class="li {% if request.endpoint == 'consensus' or request.endpoint == 'process_consensus' %}active{% endif %}"><a href="/consensus" class="a">Consensus</a></li>
         <li class="li {% if request.endpoint == 'gnps' or request.endpoint == 'process_gnps' %}active{% endif %}"><a href="/gnps" class="a">GNPS</a></li>
-        <li class="li {% if request.endpoint == 'accurate_mass' or request.endpoint == 'process_ami' %}active{% endif %}"><a href="/ami" class="a">Accurate Mass Identification</a></li>
+        <li class="li {% if request.endpoint == 'accurate_mass' or request.endpoint == 'process_ami' %}active{% endif %}"><a href="/ami" class="a">Accurate Mass Search</a></li>
 
 
         <li class="li li_cleaner"><a href="/show_upload_folders" class="a">Backup Storage</a></li>

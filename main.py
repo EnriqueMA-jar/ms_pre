@@ -719,10 +719,15 @@ def summary():
 
 @app.route('/get_file_info', methods=['POST'])
 def process_mzML():
-    file = request.files.get('filename')
-    if file.filename.endswith('.mzML'):
-        pass
-    else:
+    file = request.files.get('file')
+    filename = None
+
+    if file:
+        filename = file.filename
+    elif 'filename' in request.form:
+        filename = request.form.get('filename')
+
+    if not filename and filename.endswith('.mzML'):
         alert = "Invalid file type. Please upload a .mzML file."
         return render_template('summary.html', error_alert=alert)
     filter_type = request.form.get('filter_options', 'Plasma')
@@ -809,7 +814,6 @@ def process_mzML():
     # Otherwise, return the full page
     # Calling the summary page
     return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type)
-
 
 
 # Adduct page #############################
@@ -1059,6 +1063,7 @@ def show_upload_folders():
         'Normalize': NORMALIZE_DIR,
         'Smoothing': SMOOTHING_DIR,
         'GNPS': GNPS_DIR,
+        'Samples': 'mzML_samples',
     }
     folder_contents = {}
     for folder_name, folder_path in upload_folders.items():

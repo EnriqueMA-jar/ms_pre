@@ -1,24 +1,20 @@
 {% extends "base.html" %}
+    {% block title %}
+        Backup Storage
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/backup_storage.css') }}">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.css') }}">
+        <script src="{{ url_for('static', filename='js/jquery/jquery-3.0.6.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Backup Storage</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/backup_storage.css') }}">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.css') }}">
-    <script src="{{ url_for('static', filename='js/jquery/jquery-3.0.6.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
-
-</head>
-<body>
     <div class="container">
         <section class="form_section">
         <h2>Backup Storage Management</h2>
         <h4>This page allows you to manage and clean up uploads folders.</h4>
-        
         </section>
 
     {% if folder_contents %}
@@ -59,6 +55,4 @@
         </div>
     </section>
     {% endif %}
-</body>
-</html>
 {% endblock %}

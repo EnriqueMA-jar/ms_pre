@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
+    {% block title %}
+        mzML Smoothing
+    {% endblock %}
+    {% block head %}
+    {{ super() }}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/smoothing.css') }}">
+    {% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mzML Smoothing</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/smoothing.css') }}">
-</head>
-<body>
       <div class="container">
         <section class="selection_section">
             <h2>mzML Smoothing</h2>
@@ -88,7 +86,4 @@
             {% endif %}
         {% endif %}
     </div>
-</body>
-
-</html>
 {% endblock %}
