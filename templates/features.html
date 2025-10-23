@@ -29,7 +29,7 @@
                 <input type="hidden" name="features_options" value="{{ selected_option }}">
                 <input type="hidden" name="features_options" value="{{ selected_option }}">
                 <div class="input-group mb-3 inputs">
-                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzml,.featurexml" required multiple>
+                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzML,.featureXML" required multiple>
                 </div>
                 <div class="input-group mb-3 inputs">
                     <span class="input-group-text">Mass Error (PPM)</span>
@@ -73,7 +73,7 @@
             <h5>Proteomic mzML Features Detection</h5>
             <h6>Select mzML files to detect features:</h6>
             <form action="/get_files_features" method="post" enctype="multipart/form-data" id="uploadForm">
-                {% set accept_types = ".mzML, .featureXML, .consensusXML" %}
+                {% set accept_types = ".mzML,.featureXML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
         </section>

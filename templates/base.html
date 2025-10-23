@@ -43,7 +43,7 @@
         <li class="li {% if request.endpoint == 'accurate_mass' or request.endpoint == 'process_ami' %}active{% endif %}"><a href="/ami" class="a">Accurate Mass Search</a></li>
 
 
-        <li class="li li_cleaner"><a href="/show_upload_folders" class="a">Backup Storage</a></li>
+        <li class="li li_cleaner {% if request.endpoint == 'show_upload_folders' %}active{% endif %}"><a href="/show_upload_folders" class="a">Backup Storage</a></li>
         
     </ul>
     </nav>

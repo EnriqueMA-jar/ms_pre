@@ -38,10 +38,10 @@ h2{
 }
 .table-folders{
     width: 100% !important;
-    height: 100% !important;
+    max-height: 550px !important;
     padding: 10px !important;
+    overflow-x: hidden !important;
     overflow-y: hidden !important;
-    overflow-x: auto !important;
     font-size: 14px !important;
 }
 
@@ -79,23 +79,23 @@ h2{
 .file-path-td:hover::after {
     content: attr(data-fulltext);
     position: absolute;
-    left: 20px;
-    top: 40%;
+    left: 0px;
+    top: 0px; /* Encima de la celda */
+    
     background-color: #333;
     color: white;
     padding: 4px 8px;
     border: 1px solid #ccc;
     white-space: normal;
-    z-index: 1;
+    z-index: 1000;
     min-width: 200px;
     max-width: 600px;
-    font-size: 13px;
+    height: 60px;
+    font-size: 11px;
     pointer-events: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .file-name-td:hover, .file-path-td:hover {
-    overflow: visible !important;
     background-color: transparent !important;
-    color: transparent !important;
-    z-index: 10000;
+    color: inherit !important;
+    z-index: 100000;
 }
