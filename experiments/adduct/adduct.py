@@ -6,6 +6,7 @@ import os
 def get_adduct_files(file_paths, output_dir):
     output_files = []
     output_files2 = []
+    output_files3 = []
     for file in file_paths: 
         # Create a FeatureMap and load the featureXML file
         feature_map = oms.FeatureMap()
@@ -45,15 +46,26 @@ def get_adduct_files(file_paths, output_dir):
         
         output_file = f"{output_dir}/{os.path.basename(file).replace('.featureXML', '_adducts.csv')}"
         output_file2 = f"{output_dir}/{os.path.basename(file).replace('.featureXML', '_adducts.featureXML')}"
+        output_file3 = f"{output_dir}/{os.path.basename(file).replace('.featureXML', '_adducts_db.tsv')}"
         # Save the DataFrame to a CSV file
         df.to_csv(output_file, index=False)
         output_files.append(output_file)
+        
+         # Prepare and save the adduct database file
+        
+        df2 = df.filter(items=['adduct', 'charge'])
+        df2["charge"] = df2["charge"].astype(str) + "+"
+        df2 = df2.drop_duplicates()
+        
+
+        df2.to_csv(output_file3, index=False, header=False, sep=";")
+        output_files3.append(output_file3)
         
         oms.FeatureXMLFile().store(output_file2, feature_map_MFD)
         output_files2.append(output_file2)
         
         
         
-    return output_files, output_files2
+    return output_files, output_files2, output_files3
         
     

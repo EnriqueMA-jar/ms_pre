@@ -835,15 +835,20 @@ def process_adducts():
         file_paths.append(path)
 
     # Llama a get_adduct_files con la lista de archivos
-    output_files, output_files2 = get_adduct_files(file_paths, ADDUCTS_DIR)
+    output_files, output_files2, output_files3 = get_adduct_files(file_paths, ADDUCTS_DIR)
 
     download_links = []
     download_links2 = []
+    download_links3 = []
     for output_file in output_files:
         if output_file and os.path.exists(output_file):
             filename = os.path.basename(output_file)
             download_link = f"/uploads/adducts/{filename}"
             download_links.append(download_link)
+        else:
+            session['step_status'] = 'started'
+            alert = f"Error: adduct files not generated for {output_file}"
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
     for output_file2 in output_files2:
         if output_file2 and os.path.exists(output_file2):
             filename = os.path.basename(output_file2)
@@ -852,18 +857,27 @@ def process_adducts():
         else:
             session['step_status'] = 'started'
             alert = f"Error: adduct files not generated for {output_file2}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, error_alert=alert)
-            
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
+    for output_file3 in output_files3:
+        if output_file3 and os.path.exists(output_file3):
+            filename = os.path.basename(output_file3)
+            download_link = f"/uploads/adducts/{filename}"
+            download_links3.append(download_link)
+        else:
+            session['step_status'] = 'started'
+            alert = f"Error: adduct files not generated for {output_file3}"
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
+
     # Store generated files in session for workflow tracking
-        generated_files = []
-        for path in download_links + download_links2:
-            generated_files.append({
+    generated_files = []
+    for path in download_links + download_links2 + download_links3:
+        generated_files.append({
                 "filename": os.path.basename(path),
                 "path": path
             })
-        workflow_step_finished('adducts', generated_files)
-        #advance_workflow_step('adducts')
-    return render_template('adducts.html', download_links=download_links, download_links2=download_links2)
+    workflow_step_finished('adducts', generated_files)
+    #advance_workflow_step('adducts')
+    return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3)
 
 # Centroiding page ####################################
 @app.route('/centroiding')

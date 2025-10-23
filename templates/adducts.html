@@ -45,6 +45,20 @@
             {% else %}
                 <p>No files processed yet.</p>
             {% endif %}
+        </section>
+        <section class="download_section3">
+            <h5>Download Features Positive Adduct for db File</h5>
+            <h6>Click the link below to download the features adduct db file:</h6>
+            {% if download_links3 %}
+                <ul>
+                    {% for download_link in download_links3 %}
+                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No files processed yet.</p>
+            {% endif %}
+        </section>
     </div>
 </body>
 </html>

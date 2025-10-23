@@ -2,7 +2,8 @@
     display: grid;
     grid-template-areas: 
                'form_section form_section'
-               'download_section download_section2';
+               'download_section download_section2'
+               'download_section3 download_section3';
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
@@ -35,4 +36,4 @@ h2{
 
 .download_section { grid-area: download_section; }
 .download_section2 { grid-area: download_section2; }
-.selection_section { grid-area: selection_section; }
+.download_section3 { grid-area: download_section3; }
