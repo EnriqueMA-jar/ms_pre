@@ -2,6 +2,7 @@
     display: grid;
     grid-template-areas: 
                'form_section form_section'
+               'plot_section plot_section'
                'result_section result_section';
 
     grid-template-columns: 1fr 1fr;
@@ -32,5 +33,9 @@ h2{
 }
 .result_section { 
     grid-area: result_section; 
+    width: 100% !important;
+}
+.plot_section { 
+    grid-area: plot_section; 
     width: 100% !important;
 }

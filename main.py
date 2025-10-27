@@ -971,11 +971,15 @@ def process_ami():
     adducts_file = os.path.join(uploads_dir, adducts.filename)
     adducts.save(adducts_file)
 
-    result, result2 = accurate_mass_search(consensus_file, dbmapping_file, dbstruct_file, adducts_file, uploads_dir)
-    if result is not None and result2 is not None:
+    result, result2, result3, fig_id = accurate_mass_search(consensus_file, dbmapping_file, dbstruct_file, adducts_file, uploads_dir)
+    import plotly.io as pio
+    
+    if result is not None and result2 is not None and result3 is not None:
+        plot_url_ami = pio.to_html(fig_id, full_html=False, include_plotlyjs='cdn')
         download_links = []
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result)}")
         download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result2)}")
+        download_links.append(f"{ACCURATE_MASS_DIR}/{os.path.basename(result3)}")
         # Store generated files in session for workflow tracking
         generated_files = []
         for path in download_links:
@@ -985,7 +989,7 @@ def process_ami():
             })
         workflow_step_finished('accurate_mass', generated_files)
         # advance_workflow_step('accurate_mass')
-        return render_template('accurate_mass.html', result=result, download_links_search=download_links)
+        return render_template('accurate_mass.html', result=result, plot_url_ami = plot_url_ami, download_links_search=download_links)
     else:
         
         alert = "Error: Accurate mass search could not be completed. Please check your uploads."

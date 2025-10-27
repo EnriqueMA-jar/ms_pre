@@ -41,6 +41,14 @@
             </div>
         </form>
     </section>
+    <section class="plot_section">
+        <h5>Accurate Mass Search Results Plot</h5>
+        {% if plot_url_ami %}
+            {{ plot_url_ami|safe }}
+        {% else %}
+            <p>No plot available. Please upload files and process.</p>
+        {% endif %}
+    </section>
     <section class="download_section">
         <h5>Download Search DataFrame Results</h5>
             <h6>Click the link below to download the dataframe csv file:</h6>
