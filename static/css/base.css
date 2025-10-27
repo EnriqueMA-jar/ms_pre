@@ -153,3 +153,20 @@ body{
 h4{
     margin: 0;
 }
+/*--------------------------------------ANIMATIONS--------------------------------------*/
+
+.container{
+    animation: scaleUp 0.1s ease-in-out;
+}
+@keyframes scaleUp {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
+.workflow-manager, .files-container{
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

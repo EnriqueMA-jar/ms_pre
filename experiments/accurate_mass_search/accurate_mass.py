@@ -19,14 +19,19 @@ def remove_useless_userparams(featurexml_path):
 
 def load_files(consensus_path, db_mapping_path, db_structure_path, adducts_path, uploads_dir):
     # Remove UserParams if the input is actually a featureXML (user error)
+    
     if consensus_path.endswith(".featureXML"):
         remove_useless_userparams(consensus_path)
     ams = oms.AccurateMassSearchEngine()
     ams_params = ams.getParameters()
-    ams_params.setValue("ionization_mode", "positive")
-    ams_params.setValue(
-        "positive_adducts", adducts_path
-    )
+    adduct_mode = detect_adduct_mode(adducts_path)
+    ams_params.setValue("ionization_mode", adduct_mode)
+    if adduct_mode == "positive":
+        ams_params.setValue("positive_adducts", adducts_path)
+        print("Positive adducts detected.")
+    elif adduct_mode == "negative":
+        ams_params.setValue("negative_adducts", adducts_path)
+        print("Negative adducts detected.")
     ams_params.setValue("db:mapping", [db_mapping_path])
     ams_params.setValue("db:struct", [db_structure_path])
     ams.setParameters(ams_params)
@@ -63,6 +68,14 @@ def load_files(consensus_path, db_mapping_path, db_structure_path, adducts_path,
     csv_filtered_path = os.path.join(uploads_dir, f"{consensus_basename}_ids_smsection_filtered.csv")
     csv_filtered.to_csv(csv_filtered_path, index=False)
     
-    
-
     return csv_path, csv_filtered_path
+
+def detect_adduct_mode(adducts_path):
+    with open(adducts_path, "rb") as f:
+        print(f.readline())
+    df = pd.read_csv(adducts_path, sep=";", header=None)
+    charge_col = df[1].astype(str)
+    if charge_col.str.endswith('-').sum() >  charge_col.str.endswith("+").sum():
+        return "negative"
+    else:
+        return "positive"
