@@ -615,11 +615,14 @@ def process_spectra():
         pass
     if ms1 > 0 and ms2 == 0:
         ms_type = 1
-        fig_binning = binning_spectrum(spectrum_value, path)
-        plot_spectra = pio.to_html(fig_binning, full_html=False)
-        fig_merge = merge_spectra(path)
-        plot_merge_spectrum = pio.to_html(fig_merge, full_html=False)
-        return render_template('spectra.html', plot_spectra=plot_spectra, plot_merge_spectrum=plot_merge_spectrum, filename=filename, ms_level=ms1, ms_type=ms_type, spectrum_value=spectrum_value)
+        alert, fig_binning, spectrum_index = binning_spectrum(spectrum_value, path)
+        if alert and fig_binning is None:
+            return render_template('spectra.html', error_alert=alert)
+        elif alert is None and fig_binning is not None:
+            plot_spectra = pio.to_html(fig_binning, full_html=False)
+            fig_merge = merge_spectra(path)
+            plot_merge_spectrum = pio.to_html(fig_merge, full_html=False)
+            return render_template('spectra.html', plot_spectra=plot_spectra, plot_merge_spectrum=plot_merge_spectrum, filename=filename, ms_level=ms1, ms_type=ms_type, spectrum_value=spectrum_value)
     else:
         if ms2 > 0:
             ms_type = 2

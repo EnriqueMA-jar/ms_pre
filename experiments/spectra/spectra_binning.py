@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 def binning_spectrum(spectrum_value, file_path):
+    alert = None
     # Load the mzML file
     exp = pyopenms.MSExperiment()
 
@@ -17,8 +18,12 @@ def binning_spectrum(spectrum_value, file_path):
     if len(spectra) > 0:
         # Select the spectrum (you can change the index)
         spectrum_index = spectrum_value  # Change this index to select different spectra
-        spectrum = spectra[spectrum_index]
-    
+        try:
+            spectrum = spectra[spectrum_index]
+        except IndexError:
+            alert = f"Spectrum index {spectrum_index} is out of range."
+            return alert, None, spectrum_index
+
         # Extract m/z and intensity values
         mz_values, intensity_values = spectrum.get_peaks()
     
@@ -93,9 +98,11 @@ def binning_spectrum(spectrum_value, file_path):
             template='plotly_white',
             hovermode='x'
         )
-        return fig_annotated
+        alert = None
+        return alert, fig_annotated, spectrum_index
 
     else:
-        print("No valid spectrum found.")
-    
-    return fig_annotated, spectrum_index
+        alert = "No valid spectrum found."
+        return alert, None, spectrum_index
+
+    # return fig_annotated, spectrum_index
