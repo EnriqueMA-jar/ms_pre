@@ -180,13 +180,13 @@ def process_alignment():
         path = os.path.join(uploads_dir, file.filename)
         if not os.path.exists(path):
             file.save(path)
-            feature_file_paths.append(path)
+        feature_file_paths.append(path)
     mzml_file_paths = []
     for file in mzml_files:
         path = os.path.join(uploads_dir, file.filename)
         if not os.path.exists(path):
             file.save(path)
-            mzml_file_paths.append(path)
+        mzml_file_paths.append(path)
 
     # Get base names without extension from mzML files
     mzml_basenames = [os.path.splitext(os.path.basename(f))[0] for f in mzml_file_paths]
@@ -296,7 +296,7 @@ def process_consensus():
             path = os.path.join(uploads_dir, file.filename)
             if not os.path.exists(path):
                 file.save(path)
-                saved_file_paths.append(path)
+            saved_file_paths.append(path)
         file_paths = saved_file_paths
     
         # get_consensus_matrix now returns (output_path, csv_path)
@@ -366,7 +366,7 @@ def features_function():
             path = os.path.join(uploads_dir, file.filename)
             if not os.path.exists(path):
                 file.save(path)
-                file_paths.append(path)
+            file_paths.append(path)
         session['file_paths'] = file_paths
     else:
         file_paths = session.get('file_paths', [])
@@ -462,7 +462,7 @@ def process_gnps():
             path = os.path.join(uploads_dir, file.filename)
             if not os.path.exists(path):
                 file.save(path)
-                mzml_file_paths.append(path)
+            mzml_file_paths.append(path)
             
         consensus_path = os.path.join(uploads_dir, consensus_file.filename)
         consensus_file.save(consensus_path)
@@ -495,7 +495,7 @@ def process_chromatograms():
         for file in files:
             path = f"mzML_samples/{file.filename}"
             file.save(path)
-            file_paths.append(path)
+        file_paths.append(path)
         session['file_paths'] = file_paths
         print("Rutas de archivos:", file_paths)
     else:
@@ -847,7 +847,7 @@ def process_adducts():
     for file in files:
         path = f"{uploads_dir}/{file.filename}"
         file.save(path)
-        file_paths.append(path)
+    file_paths.append(path)
 
     # Llama a get_adduct_files con la lista de archivos
     output_files, output_files2, output_files3 = get_adduct_files(file_paths, ADDUCTS_DIR)
@@ -918,7 +918,8 @@ def process_centroiding():
     for file in files:
         if file.filename.endswith('.mzML'):
             path = f"{uploads_dir}/{file.filename}"
-            file.save(path)
+            if not os.path.exists(path):
+                file.save(path)
             file_paths.append(path)
         else:
             alert = 'Please upload only .mzML files for centroiding.'
