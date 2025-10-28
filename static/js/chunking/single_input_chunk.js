@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     formData.append('upload_id', uploadId);
                     formData.append('chunk_index', currentChunk);
                     formData.append('total_chunks', totalChunks);
+                    formData.append('target_dir', window.targetDir || 'mzML_samples');
 
                     const maxRetries = 3;
                     let attempt = 0;

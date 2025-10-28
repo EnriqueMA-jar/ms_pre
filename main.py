@@ -76,6 +76,8 @@ def upload_chunk():
         chunk_index = int(request.form['chunk_index'])
         total_chunks = int(request.form['total_chunks'])
         chunk_folder = os.path.join(CHUNKS_DIR, filename)
+        target_dir = request.form.get('target_dir')
+        os.makedirs(target_dir, exist_ok=True)
         print(f"[UPLOAD_CHUNK] filename={filename}, chunk_index={chunk_index}, total_chunks={total_chunks}")
         # If it exists as a file, remove it before creating the directory
         if os.path.isfile(chunk_folder):
@@ -92,7 +94,7 @@ def upload_chunk():
         print(f"[UPLOAD_CHUNK] Uploaded chunks: {uploaded_chunks}/{total_chunks}")
         if uploaded_chunks == total_chunks:
             # Merge the chunks
-            assembled_path = os.path.join('mzML_samples', filename)
+            assembled_path = os.path.join(target_dir, filename)
             print(f"[UPLOAD_CHUNK] All chunks received. Assembling to {assembled_path}")
             with open(assembled_path, 'wb') as assembled:
                 for i in range(total_chunks):
@@ -176,13 +178,15 @@ def process_alignment():
     feature_file_paths = []
     for file in feature_files:
         path = os.path.join(uploads_dir, file.filename)
-        file.save(path)
-        feature_file_paths.append(path)
+        if not os.path.exists(path):
+            file.save(path)
+            feature_file_paths.append(path)
     mzml_file_paths = []
     for file in mzml_files:
         path = os.path.join(uploads_dir, file.filename)
-        file.save(path)
-        mzml_file_paths.append(path)
+        if not os.path.exists(path):
+            file.save(path)
+            mzml_file_paths.append(path)
 
     # Get base names without extension from mzML files
     mzml_basenames = [os.path.splitext(os.path.basename(f))[0] for f in mzml_file_paths]
@@ -290,8 +294,9 @@ def process_consensus():
         saved_file_paths = []
         for file in file_paths:
             path = os.path.join(uploads_dir, file.filename)
-            file.save(path)
-            saved_file_paths.append(path)
+            if not os.path.exists(path):
+                file.save(path)
+                saved_file_paths.append(path)
         file_paths = saved_file_paths
     
         # get_consensus_matrix now returns (output_path, csv_path)
@@ -359,8 +364,9 @@ def features_function():
         file_paths = []
         for file in files:
             path = os.path.join(uploads_dir, file.filename)
-            file.save(path)
-            file_paths.append(path)
+            if not os.path.exists(path):
+                file.save(path)
+                file_paths.append(path)
         session['file_paths'] = file_paths
     else:
         file_paths = session.get('file_paths', [])
@@ -454,8 +460,9 @@ def process_gnps():
         
         for file in aligned_mzML_files:
             path = os.path.join(uploads_dir, file.filename)
-            file.save(path)
-            mzml_file_paths.append(path)
+            if not os.path.exists(path):
+                file.save(path)
+                mzml_file_paths.append(path)
             
         consensus_path = os.path.join(uploads_dir, consensus_file.filename)
         consensus_file.save(consensus_path)
@@ -500,12 +507,12 @@ def process_chromatograms():
     fig = compare_chromatograms(file_paths, intensity_threshold)
     plot_chromatograms = pio.to_html(fig, full_html=False, include_plotlyjs='cdn')
 
-    # Si es AJAX, solo regresa el HTML del gráfico
+    # If AJAX request, return only the plot HTML
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         print("AJAX request detected")
         print("Rutas de archivos:", file_paths)
         return plot_chromatograms
-    # Si no, regresa la página completa
+    # If not, return the full page
     return render_template('chromatogram.html', plot_chromatograms=plot_chromatograms)
     
 # normalize page ####################################
@@ -517,7 +524,6 @@ def normalize():
 # render normalize endpoint/function ####################################
 @app.route('/get_files_normalize', methods=['POST'])
 def process_normalize():
-    # Inicializar variables para evitar UnboundLocalError
     plot_normalized = None
     plot_original = None
     download_link = None
@@ -669,8 +675,9 @@ def process_smoothing():
             return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert)
         # print(f"[DEBUG] single file: {file.filename}")
         save_path = os.path.join(uploads_dir, file.filename)
-        file.save(save_path)
-        output_path = single_smoothing(save_path)
+        if not os.path.exists(save_path):
+            file.save(save_path)
+            output_path = single_smoothing(save_path)
         if "savgol" in output_path:
             filename = os.path.basename(output_path)
             download_link = f"{SMOOTHING_DIR}/{filename}"
@@ -694,8 +701,9 @@ def process_smoothing():
                 # print(f"[DEBUG] processing file: {file.filename}")
                 if file.filename.endswith('.mzML'):
                     save_path = os.path.join(uploads_dir, file.filename)
-                    file.save(save_path)
-                    file_paths.append(save_path)
+                    if not os.path.exists(save_path):
+                        file.save(save_path)
+                        file_paths.append(save_path)
                 else:
                     alert = 'Please upload a valid .mzML file for multiple file smoothing.'
                     return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert)
