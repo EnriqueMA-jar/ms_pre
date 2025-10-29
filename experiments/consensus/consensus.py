@@ -1,13 +1,15 @@
 import pandas as pd
 import pyopenms as oms
-import os
+import os, re
 
 def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
     
     feature_maps = []
     file_names = [os.path.basename(f) for f in feature_file_paths]
 
-    matrix_name = "".join([os.path.splitext(name)[0] for name in file_names]).replace("_savgol","").replace("_centroided", "").replace("_Metabolomics","").replace("_Proteomics","").replace("_features","").replace("_aligned","").replace("_features","").replace("aligned_","").replace("-","").replace("_adducts","")
+    matrix_name = "".join([
+        re.sub(r"\(\d+\)", "", os.path.splitext(name)[0]) for name in file_names
+        ]).replace("_savgol","").replace("_centroided", "").replace("_Metabolomics","").replace("_Proteomics","").replace("_features","").replace("_aligned","").replace("_features","").replace("aligned_","").replace("-","").replace("_adducts","")
 
     # Cargar los FeatureMaps
     for feature_file in feature_file_paths:
