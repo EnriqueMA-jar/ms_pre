@@ -677,7 +677,7 @@ def process_smoothing():
         save_path = os.path.join(uploads_dir, file.filename)
         if not os.path.exists(save_path):
             file.save(save_path)
-            output_path = single_smoothing(save_path)
+        output_path = single_smoothing(save_path)
         if "savgol" in output_path:
             filename = os.path.basename(output_path)
             download_link = f"{SMOOTHING_DIR}/{filename}"
@@ -703,7 +703,7 @@ def process_smoothing():
                     save_path = os.path.join(uploads_dir, file.filename)
                     if not os.path.exists(save_path):
                         file.save(save_path)
-                        file_paths.append(save_path)
+                    file_paths.append(save_path)
                 else:
                     alert = 'Please upload a valid .mzML file for multiple file smoothing.'
                     return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert)
@@ -716,7 +716,7 @@ def process_smoothing():
             for file_path in output_files:
                 if "savgol" in file_path:
                     filename = os.path.basename(file_path)
-                    download_links.append(f"{SMOOTHING_DIR}/{filename}")
+                download_links.append(f"{SMOOTHING_DIR}/{filename}")
 
             # Render the page with download links and keep the multiple option selected
             return render_template('smoothing.html', selected_option='op2', download_links=download_links)

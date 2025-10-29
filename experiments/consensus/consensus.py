@@ -50,7 +50,7 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
                     if not empty_idmxl:
                         empty_idmxl = os.path.join(output_dir, "empty.idXML")
                     if not os.path.exists(empty_idmxl):
-                        print(f"Creating empty idXML at: {empty_idmxl}")
+                        # print(f"Creating empty idXML at: {empty_idmxl}")
                         oms.IdXMLFile().store(empty_idmxl, protein_ids, peptide_ids)
                     else:
                         # load any existing identifications (likely empty)
@@ -164,6 +164,6 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
     with open(csv_path, 'w') as f:
         f.write(csv)
     print(f"Consensus matrix CSV saved to: {csv_path}")
-    for row in df.itertuples():
-        print(row)
+    # for row in df.itertuples():
+    #     print(row)
     return output_path, csv_path
