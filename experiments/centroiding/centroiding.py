@@ -45,7 +45,7 @@ def centroid_file(file_paths, output_dir):
         
         # ADJUST PARAMETERS IF NEEDED
         params = picker.getParameters() 
-        # params.setValue("signal_to_noise", 0.5)  
+        params.setValue("signal_to_noise", 2.0)  
         picker.setParameters(params)
         picker.pickExperiment(profile_spectra, centroided_spectra, True)
 
