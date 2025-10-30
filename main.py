@@ -495,7 +495,7 @@ def process_chromatograms():
         for file in files:
             path = f"mzML_samples/{file.filename}"
             file.save(path)
-        file_paths.append(path)
+            file_paths.append(path)
         session['file_paths'] = file_paths
         print("Rutas de archivos:", file_paths)
     else:
@@ -509,8 +509,9 @@ def process_chromatograms():
 
     # If AJAX request, return only the plot HTML
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        print("AJAX request detected")
-        print("Rutas de archivos:", file_paths)
+        
+        #print("AJAX request detected")
+        #print("Rutas de archivos:", file_paths)
         return plot_chromatograms
     # If not, return the full page
     return render_template('chromatogram.html', plot_chromatograms=plot_chromatograms)
