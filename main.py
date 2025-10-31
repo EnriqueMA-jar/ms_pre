@@ -78,7 +78,7 @@ def upload_chunk():
         chunk_folder = os.path.join(CHUNKS_DIR, filename)
         target_dir = request.form.get('target_dir')
         os.makedirs(target_dir, exist_ok=True)
-        print(f"[UPLOAD_CHUNK] filename={filename}, chunk_index={chunk_index}, total_chunks={total_chunks}")
+        #print(f"[UPLOAD_CHUNK] filename={filename}, chunk_index={chunk_index}, total_chunks={total_chunks}")
         # If it exists as a file, remove it before creating the directory
         if os.path.isfile(chunk_folder):
             print(f"[UPLOAD_CHUNK] {chunk_folder} exists as file, removing...")
@@ -87,11 +87,11 @@ def upload_chunk():
             os.makedirs(chunk_folder, exist_ok=True)
         chunk_path = os.path.join(chunk_folder, f"chunk_{chunk_index}")
         chunk.save(chunk_path)
-        print(f"[UPLOAD_CHUNK] Saved chunk to {chunk_path}")
+        #print(f"[UPLOAD_CHUNK] Saved chunk to {chunk_path}")
 
         # Verify if all chunks have been uploaded
         uploaded_chunks = len([name for name in os.listdir(chunk_folder) if name.startswith('chunk_')])
-        print(f"[UPLOAD_CHUNK] Uploaded chunks: {uploaded_chunks}/{total_chunks}")
+        #print(f"[UPLOAD_CHUNK] Uploaded chunks: {uploaded_chunks}/{total_chunks}")
         if uploaded_chunks == total_chunks:
             # Merge the chunks
             assembled_path = os.path.join(target_dir, filename)
@@ -204,20 +204,27 @@ def process_alignment():
             value = float(value)
         # Main processing
         if len(matches) == len(feature_file_paths) and len(matches) == len(mzml_file_paths):
-            download_links_features_paths, download_links_mzml_paths = align_files(feature_file_paths, mzml_file_paths, resolution, uploads_dir, value)
+            download_links_features_paths, download_links_mzml_paths, ms_levels = align_files(feature_file_paths, mzml_file_paths, resolution, uploads_dir, value)
             
-            # Map identifications after alignment
-            mapped_feature_paths = map_identifications(download_links_mzml_paths, download_links_features_paths, uploads_dir)
             # Generate Flask links for the template
-            download_links_mapped = []
             download_links_features = []
+            download_links_mapped = []
+            mapped_feature_paths = []
             
+            if 2 in ms_levels:
+                # Map identifications after alignment
+                mapped_feature_paths = map_identifications(download_links_mzml_paths, download_links_features_paths, uploads_dir)
+                success_alert = "Generated files for MS2 levels detected."
+                
+                for path in mapped_feature_paths:
+                    filename = os.path.basename(path)
+                    download_links_mapped.append(f"/uploads/alignment/{filename}")
+            elif 2 not in ms_levels:
+                success_alert = "Generated files only for MS1 levels detected."
             for path in download_links_features_paths:
                 filename = os.path.basename(path)
                 download_links_features.append(f"/uploads/alignment/{filename}")
-            for path in mapped_feature_paths:
-                filename = os.path.basename(path)
-                download_links_mapped.append(f"/uploads/alignment/{filename}")
+            
             download_links_mzml = []
             for path in download_links_mzml_paths:
                 filename = os.path.basename(path)
@@ -226,15 +233,22 @@ def process_alignment():
                 
             # Store generated files in session for workflow tracking
             generated_files = []
-            for path in download_links_features_paths + mapped_feature_paths + download_links_mzml_paths:
-                generated_files.append({
-                    "filename": os.path.basename(path),
-                    "path": path
-                })
+            if len(mapped_feature_paths) > 0:
+                for path in download_links_features_paths + mapped_feature_paths + download_links_mzml_paths:
+                    generated_files.append({
+                        "filename": os.path.basename(path),
+                        "path": path
+                    })
+            else:
+                for path in download_links_features_paths + download_links_mzml_paths:
+                    generated_files.append({
+                        "filename": os.path.basename(path),
+                        "path": path
+                    })
             workflow_step_finished('alignment', generated_files)
             #advance_workflow_step('alignment')
-            
-            return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
+
+            return render_template('alignment.html', success_alert=success_alert, download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
         else:
             session['step_status'] = 'started'
             error_alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."

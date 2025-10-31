@@ -50,6 +50,7 @@
     {% block content %}
     {% endblock %}
 
+    
     {% if workflow_status == 'started' %}
       {% include 'workflows/workflow_manager.html' %}
     {% endif %}

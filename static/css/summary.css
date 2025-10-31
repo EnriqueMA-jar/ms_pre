@@ -7,7 +7,7 @@
                'result_section2 result_section3'
                'result_section2 result_section3';
 
-    grid-template-columns: 1fr 1fr; /* Dos columnas, la primera el doble de ancha que la segunda */
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     gap: 20px;
     min-height: 35vh;
