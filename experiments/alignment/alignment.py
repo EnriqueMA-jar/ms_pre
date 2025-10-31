@@ -31,6 +31,7 @@ def align_files(feature_file_paths, mzML_file_paths, resolution, output_dir, val
     aligner = oms.MapAlignmentAlgorithmPoseClustering()
     aligner_par = aligner.getDefaults()
     
+    
     # Base parameters (common for all)
     aligner_par.setValue("max_num_peaks_considered", -1)  # Consider all peaks
     aligner_par.setValue("pairfinder:distance_RT:max_difference", 100.0)  # 100 seconds
@@ -102,6 +103,9 @@ def align_files(feature_file_paths, mzML_file_paths, resolution, output_dir, val
         # Load the mzML file
         exp = oms.MSExperiment()
         oms.MzMLFile().load(mzML_path, exp)
+        ms_levels = set()
+        for spectrum in exp.getSpectra():
+            ms_levels.add(spectrum.getMSLevel())
         exp.sortSpectra(True)
 
         # Get the corresponding transformation
@@ -122,7 +126,7 @@ def align_files(feature_file_paths, mzML_file_paths, resolution, output_dir, val
             oms.MzMLFile().store(aligned_mzML_path, exp)
             print(f" - {base_name}: Aligned and saved")
         aligned_mzml_paths.append(aligned_mzML_path)
-    return aligned_feature_paths, aligned_mzml_paths
+    return aligned_feature_paths, aligned_mzml_paths, sorted(ms_levels)
 
 def map_identifications(aligned_mzml_paths, aligned_feature_paths, output_dir):
     

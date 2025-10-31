@@ -195,6 +195,7 @@ def get_file_info_extended(file_path):
         "RT range (sec)": (rt_min, rt_max),
         "m/z range": (mz_min, mz_max),
         "Intensity range": (int_min, int_max),
+        "Spectra levels": ms_levels_sorted,
         "Spectra per level": spectra_per_level,
         "Peak types": peak_types,
         "Activation methods": activation_methods,
