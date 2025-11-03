@@ -180,8 +180,8 @@ h4{
     border: none;
     background-color: #028a70;
     color: white;
-    width: 40px;
-    height: 40px;
+    width: 39px;
+    height: 39px;
 }
 
 .info-button svg {
@@ -205,4 +205,16 @@ h4{
     padding: 5px;
     color: white;
     padding: 10px;
+}
+.inputs-div{
+    padding: 10px;
+    background-color: #bdf6ed;
+}
+.options-div{
+    padding: 10px;
+    background-color: #f2f2f2;
+}
+.outputs-div{
+    padding: 10px;
+    background-color: #f0e3d1;
 }

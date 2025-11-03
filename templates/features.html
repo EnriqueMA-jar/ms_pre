@@ -11,7 +11,7 @@
       <div class="container">
         <section class="selection_section">
             <h2>mzML Features Detection</h2>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
             <h6>Select Features Detection Options:</h6>
@@ -33,6 +33,7 @@
                 <input type="hidden" name="features_options" value="{{ selected_option }}">
                 <div class="input-group mb-3 inputs">
                     <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzML,.featureXML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">mzML/FeatureXML</label>
                 </div>
                 <div class="input-group mb-3 inputs">
                     <span class="input-group-text">Mass Error (PPM)</span>
@@ -77,6 +78,7 @@
             <h6>Select mzML files to detect features:</h6>
             <form action="/get_files_features" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".mzML,.featureXML" %}
+                {% set accept_types_label = "mzML/FeatureXML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
         </section>

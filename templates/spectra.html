@@ -11,12 +11,13 @@
       <div class="container">
         <section class="form_section">
             <h2>mzML Spectra Visualizer</h2>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
             <h4>Select a mzML file to inspect:</h4>
             <form action="/get_files_spectra" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".mzML" %}
+                {% set accept_types_label = "mzML" %}
                 {% include 'inputs/single_input.html' %}
                 <div class="mb-3">
                     <div id="progressContainer" style="display:none;">

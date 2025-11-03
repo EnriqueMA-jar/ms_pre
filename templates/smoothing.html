@@ -10,7 +10,7 @@
       <div class="container">
         <section class="selection_section">
             <h2>mzML Smoothing</h2>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
             <h6>Select Smoothing Options:</h6>
@@ -31,6 +31,7 @@
             <form action="/get_files_smoothing" method="post" enctype="multipart/form-data" id="uploadForm">
                 <input type="hidden" name="smoothing_options" value="op1">
                 {% set accept_types = ".mzML" %}
+                {% set accept_types_label = "mzML" %}
                 {% include 'inputs/single_input.html' %}
                 {% include 'alerts/alerts.html' %}
             </form>

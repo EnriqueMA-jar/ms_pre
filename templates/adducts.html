@@ -11,12 +11,13 @@
     <div class="container">
         <section class="form_section">
             <h2>mzML Features Adducts</h2>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
             <h4>Select mzML features files to adduct:</h4>
             <form action="/get_files_adducts" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".featureXML" %}
+                {% set accept_types_label = "FeatureXML" %}
                 {% include 'inputs/multiple_input.html' %}
                 {% include 'alerts/alerts.html' %}
             </form>
