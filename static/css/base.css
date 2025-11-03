@@ -171,3 +171,38 @@ h4{
   from { opacity: 0; }
   to { opacity: 1; }
 }
+.info-button{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    border-radius: 2em;
+    border: none;
+    background-color: #028a70;
+    color: white;
+    width: 40px;
+    height: 40px;
+}
+
+.info-button svg {
+    width: 28px;
+    height: 28px;
+    display: inline-block;
+    vertical-align: middle;
+    fill: white;
+}
+.info-button:hover {
+    background-color: #072f28;
+    cursor: pointer;
+}
+.offcanvas-header{
+    width: 100%;
+    background-color: #037560;
+    color: white;
+}
+.tool-type{
+    background-color: #024239;
+    padding: 5px;
+    color: white;
+    padding: 10px;
+}

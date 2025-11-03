@@ -10,6 +10,9 @@
       <div class="container">
         <section class="form_section">
             <h2>mzML Centroiding</h2>
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
+            </button>
             <h4>Select mzML files to centroid:</h4>
             <form action="/get_files_centroiding" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".mzML" %}

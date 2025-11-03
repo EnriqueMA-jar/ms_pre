@@ -1,0 +1,120 @@
+
+
+
+{% if page=='Summary' or page=="process_mzML" %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to upload and process mzML files to obtain a summary of their contents, including metadata and basic statistics." %}
+{% elif page=='Chromatograms' or page=='process_chromatograms' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {} %}  
+    {% set about = "This section allows you to upload and process chromatogram files to obtain a summary of their contents, including metadata and basic statistics." %}
+{% elif page=='Spectra' or page=='process_spectra' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to upload and process spectra files to obtain a summary of their contents, including metadata and basic statistics." %}
+{% elif page=='Smoothing' or page=='process_smoothing' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {
+       "Options": {
+        "Single Smoothing": "Applies smoothing to a single file.",
+        "Multiple Smoothing": "Applies smoothing to multiple files."
+    },
+    "Parameters": {
+        "Window Length": "Defines the length of the smoothing window.",
+        "Polyorder": "Polynomial order for the smoothing algorithm."
+    }
+    } %}
+    {% set about = "This section allows you to apply smoothing algorithms to the data to reduce noise and improve signal quality." %}
+{% elif page=='Centroiding' or page=='process_centroiding' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to convert profile mzML data into centroided data, which simplifies the data by retaining only the most significant peaks." %}
+{% elif page=='Normalize' or page=='process_normalize' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["mzML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to normalize mzML files to ensure that the data is on a comparable scale, which is essential for accurate analysis." %}
+{% elif page=='Features' or page=='process_features' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["mzML", "featureXML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to detect and extract features from mzML files, which are essential for downstream analysis such as identification and quantification." %}
+{% elif page=='Adducts' or page=='process_adducts' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["featureXML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to annotate mzML features with potential adducts, which is crucial for accurate compound identification." %}
+{% elif page=='Alignment' or page=='process_alignment' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["featureXML", "mzML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to align multiple mzML files to a common reference, which is essential for comparative analysis." %}
+{% elif page=='Consensus' or page=='process_consensus' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["featureXML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to generate consensus features from multiple mzML feature files, which helps in consolidating data for better analysis." %}
+{% elif page=='GNPS' or page=='process_gnps' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["mzML", "consensusXML"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to prepare and upload mzML files to the GNPS platform for molecular networking and compound identification." %}
+{% elif page=='Accurate Mass Search' or page=='process_ami' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = ["consensusXML", "DB Mapping file", "DB Struct file", "Adducts file tsv"] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to perform accurate mass searches against compound databases to identify potential compounds present in your mzML files." %}
+{% elif page=='Backup Storage' or page=='show_upload_folders' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = [] %}
+    {% set options = {} %}
+    {% set about = "This section allows you to manage and back up your uploaded files, ensuring that your data is securely stored and easily accessible." %}
+{% elif page=='Home' %}
+{% endif %}
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+            {{ page }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="tool-type">
+        <h6>{{ tool_type }}</h6>
+    </div>
+    <div class="offcanvas-body">
+        <div>
+            <h6>About:</h6>
+            <p>{{ about }}</p>
+        </div>
+        <div>
+            {% if inputs is defined %}
+                <h6>Files input:</h6>
+                <ul>
+                    {% for input in inputs %}
+                        <li>{{ input }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        <div>
+            {% if options and options|length > 0 %}
+                {% for group, items in options.items() %}
+                <h6>{{ group }}:</h6>
+                <ul>
+                {% for name, info in items.items() %}
+                    <li><strong>{{ name }}:</strong> {{ info }}</li>
+                {% endfor %}
+                </ul>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>

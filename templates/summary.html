@@ -10,6 +10,11 @@
     <div class="container">
         <section class="form_section ">
             <h2>mzML Summary Information</h2>
+
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
+            </button>
+
             <h4>Select a mzML file to inspect:</h4>
             <form id="uploadForm" action="/get_file_info" method="post" enctype="multipart/form-data">
                 {% set accept_types = ".mzML" %}
@@ -184,14 +189,4 @@
         }
     </script>
 
-{% endblock %}
-{% block template_info %}
-<div class="template-info">
-        <section class="template-info-title">
-            <h6>Summary</h6>
-        </section>
-        <section class="template-info-about">
-            <b>About:</b> This template allows users to upload a single mzML file and view its summary information in a structured table format. It also provides interactive Plotly visualizations of the data, which can be customized using different color scales. Users can download the generated plots in various formats and sizes.
-        </section>
-    </div>
 {% endblock %}

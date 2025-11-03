@@ -145,7 +145,7 @@ def home():
 
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', page='Home')
 
 
 
@@ -155,7 +155,7 @@ def alignment():
     if 'alignment' in session.get('current_steps', []) and session.get('step_status') == 'finished':
         session['step_status'] = 'started'
     selected_option = request.form.get('alignment_options', 'op1')
-    return render_template('alignment.html', selected_option=selected_option)
+    return render_template('alignment.html', selected_option=selected_option, page='Alignment')
 
 # Alignment endpoint/function ####################################
 @app.route('/get_files_alignment', methods=['POST', 'GET'])
@@ -248,11 +248,11 @@ def process_alignment():
             workflow_step_finished('alignment', generated_files)
             #advance_workflow_step('alignment')
 
-            return render_template('alignment.html', success_alert=success_alert, download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
+            return render_template('alignment.html', success_alert=success_alert, download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option, page='Alignment')
         else:
             session['step_status'] = 'started'
             error_alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
-            return render_template('alignment.html', download_links_features=None, download_links_mapped=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert)
+            return render_template('alignment.html', download_links_features=None, download_links_mapped=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert, page='Alignment')
 
     elif selected_option == 'op2':
         resolution = 'Low Resolution'
@@ -273,11 +273,11 @@ def process_alignment():
                     "path": f"/uploads/alignment/{filename}"
                 })
             workflow_step_finished('alignment', generated_files)
-            return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option)
+            return render_template('alignment.html', download_links_features=download_links_features, download_links_mapped=download_links_mapped, download_links_mzml=download_links_mzml, selected_option=selected_option, page='Alignment')
         else:
             session['step_status'] = 'started'
             alert = "Error: Not all feature files have a corresponding mzML file. Please check your uploads."
-            return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, alert=alert)
+            return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, alert=alert, page='Alignment')
 
     #print("Coincidencias entre mzML y features:", matches)
     # return render_template('alignment.html', download_links=None, selected_option=selected_option)
@@ -288,7 +288,7 @@ def consensus():
     if session.get('workflow_status') == 'started':
         if 'consensus' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
-    return render_template('consensus.html')
+    return render_template('consensus.html', page='Consensus')
 
 # Consensus endpoint/function ####################################
 @app.route('/get_files_consensus', methods=['POST', 'GET']) 
@@ -303,7 +303,7 @@ def process_consensus():
     if len(file_paths) < 2:
         error_alert = "Error: Please upload at least two .featureXML files to generate a consensus matrix."
         session['step_status'] = 'started'
-        return render_template('consensus.html', error_alert=error_alert)
+        return render_template('consensus.html', error_alert=error_alert, page='Consensus')
     else:
         saved_file_paths = []
         for file in file_paths:
@@ -338,11 +338,11 @@ def process_consensus():
                 })
             workflow_step_finished('consensus', generated_files)
             #advance_workflow_step('consensus')
-            return render_template('consensus.html', download_links_consensus=download_links)
+            return render_template('consensus.html', download_links_consensus=download_links, page='Consensus')
         else:
             session['step_status'] = 'started'
             error_alert = "Error: Consensus file could not be generated. Please check your uploads."
-            return render_template('consensus.html', error_alert=error_alert)
+            return render_template('consensus.html', error_alert=error_alert, page='Consensus')
 
 # Features page ####################################
 @app.route('/features', methods=['GET', 'POST'])
@@ -355,7 +355,7 @@ def features():
     
     print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
-    return render_template('features.html', selected_option=selected_option)
+    return render_template('features.html', selected_option=selected_option, page='Features')
 
 # FEATURES Endpoint for serving files from the uploads folder ####################################
 @app.route('/get_files_features', methods=['POST', 'GET'])
@@ -422,7 +422,7 @@ def features_function():
             })
         workflow_step_finished('features', generated_files)
         #advance_workflow_step('features')
-        return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option)
+        return render_template('features.html', plot_features=plot_features_render, download_links=None, selected_option=selected_option, page='Features')
     
     elif output_files and len(output_files) > 0:
         # Generar links de descarga para todos los archivos generados
@@ -443,16 +443,16 @@ def features_function():
             })
         workflow_step_finished('features', generated_files)
         #advance_workflow_step('features')
-        return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option)
+        return render_template('features.html', plot_features=plot_features_render, download_links=download_links, selected_option=selected_option, page='Features')
     else:
         alert = 'There are no features detected.'
         session['step_status'] = 'started'
-        return render_template('features.html', plot_features=plot_features_render, download_links=None, error_alert=alert, selected_option=selected_option)
+        return render_template('features.html', plot_features=plot_features_render, download_links=None, error_alert=alert, selected_option=selected_option, page='Features')
 
 # GNPS page ####################################
 @app.route('/gnps', methods=['GET', 'POST'])
 def gnps():
-    return render_template('gnps.html')
+    return render_template('gnps.html', page='GNPS')
 
 # GNPS Endpoint for serving files from the uploads folder ####################################
 @app.route('/get_files_gnps', methods=['POST', 'GET'])
@@ -469,7 +469,7 @@ def process_gnps():
     
     if len(aligned_mzML_files) < 1 or not consensus_file:
         error_alert = "Error: Please upload at least one aligned .mzML file and one .consensusXML file to generate GNPS files."
-        return render_template('gnps.html', error_alert=error_alert)
+        return render_template('gnps.html', error_alert=error_alert, page='GNPS')
     else:
         
         for file in aligned_mzML_files:
@@ -490,13 +490,13 @@ def process_gnps():
             else:
                 print(f"[ERROR] No se generó archivo GNPS para {output_file}")
 
-        return render_template('gnps.html', download_links_gnps=download_links)
+        return render_template('gnps.html', download_links_gnps=download_links, page='GNPS')
 
 
 # Chromatograms page ####################################
 @app.route('/chromatograms')
 def chromatograms():
-    return render_template('chromatogram.html')
+    return render_template('chromatogram.html', page='Chromatograms')
 
 # render chromatograms endpoint/function ####################################
 @app.route('/get_files_chromatograms', methods=['POST'])
@@ -528,13 +528,13 @@ def process_chromatograms():
         #print("Rutas de archivos:", file_paths)
         return plot_chromatograms
     # If not, return the full page
-    return render_template('chromatogram.html', plot_chromatograms=plot_chromatograms)
+    return render_template('chromatogram.html', plot_chromatograms=plot_chromatograms, page='Chromatograms')
     
 # normalize page ####################################
 @app.route('/normalize', methods=['GET', 'POST'])
 def normalize():
     selected_option = request.form.get('normalization_options', 'op1')
-    return render_template('normalize.html', selected_option=selected_option)
+    return render_template('normalize.html', selected_option=selected_option, page='Normalize')
 
 # render normalize endpoint/function ####################################
 @app.route('/get_files_normalize', methods=['POST'])
@@ -563,7 +563,7 @@ def process_normalize():
 
     # Only proceed if file_path is set
     if not file_path:
-        return render_template('normalize.html', selected_option=selected_option, plot_original=None, plot_normalized=None, download_link=None, error_msg="No file uploaded.")
+        return render_template('normalize.html', selected_option=selected_option, plot_original=None, plot_normalized=None, download_link=None, error_msg="No file uploaded.", page='Normalize')
 
     if selected_option == 'op1':
         result = normalize_to_one(file_path)
@@ -588,18 +588,18 @@ def process_normalize():
             plot_original = pio.to_html(fig, full_html=False, include_plotlyjs='cdn')
             plot_normalized = pio.to_html(fig2, full_html=False, include_plotlyjs='cdn')
 
-    return render_template('normalize.html', selected_option=selected_option, plot_original=plot_original, plot_normalized=plot_normalized, download_link=download_link)
+    return render_template('normalize.html', selected_option=selected_option, plot_original=plot_original, plot_normalized=plot_normalized, download_link=download_link, page='Normalize')
 
 # render spectra page ####################################
 @app.route('/spectra')
 def spectra():
     return render_template('spectra.html',  
-        ms_level=0,
+        ms_level=0, 
         ms_type=0,
         spectrum_value=0,
         filename='',
         plot_spectra=None,
-        plot_merge_spectrum=None)
+        plot_merge_spectrum=None, page='Spectra')
 
 # render spectra endpoint/function (unificado) ####################################
 @app.route('/get_files_spectra', methods=['POST'])
@@ -638,12 +638,12 @@ def process_spectra():
         ms_type = 1
         alert, fig_binning, spectrum_index = binning_spectrum(spectrum_value, path)
         if alert and fig_binning is None:
-            return render_template('spectra.html', error_alert=alert)
+            return render_template('spectra.html', error_alert=alert, page='Spectra')
         elif alert is None and fig_binning is not None:
             plot_spectra = pio.to_html(fig_binning, full_html=False)
             fig_merge = merge_spectra(path)
             plot_merge_spectrum = pio.to_html(fig_merge, full_html=False)
-            return render_template('spectra.html', plot_spectra=plot_spectra, plot_merge_spectrum=plot_merge_spectrum, filename=filename, ms_level=ms1, ms_type=ms_type, spectrum_value=spectrum_value)
+            return render_template('spectra.html', plot_spectra=plot_spectra, plot_merge_spectrum=plot_merge_spectrum, filename=filename, ms_level=ms1, ms_type=ms_type, spectrum_value=spectrum_value, page='Spectra')
     else:
         if ms2 > 0:
             ms_type = 2
@@ -657,14 +657,15 @@ def process_spectra():
                 filename=filename,
                 ms_level=ms1,
                 ms_type=ms_type,
-                spectrum_value=spectrum_value
+                spectrum_value=spectrum_value, 
+                page='Spectra'
             )
     
 # Smoothing page ####################################
 @app.route('/smoothing', methods=['GET', 'POST'])
 def smoothing():
     selected_option = request.form.get('smoothing_options', 'op1')
-    return render_template('smoothing.html', selected_option=selected_option)
+    return render_template('smoothing.html', selected_option=selected_option, page='Smoothing')
 
 # Smoothing endpoint/function ####################################
 @app.route('/get_files_smoothing', methods=['POST'])
@@ -687,7 +688,7 @@ def process_smoothing():
                 break
         if not file:
             alert = 'Please upload a valid .mzML file for single file smoothing.'
-            return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert)
+            return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert, page='Smoothing')
         # print(f"[DEBUG] single file: {file.filename}")
         save_path = os.path.join(uploads_dir, file.filename)
         if not os.path.exists(save_path):
@@ -696,7 +697,7 @@ def process_smoothing():
         if "savgol" in output_path:
             filename = os.path.basename(output_path)
             download_link = f"{SMOOTHING_DIR}/{filename}"
-        return render_template('smoothing.html', selected_option='op1', download_link=download_link, window_length=11, polyorder=3)
+        return render_template('smoothing.html', selected_option='op1', download_link=download_link, window_length=11, polyorder=3, page='Smoothing')
     else:
         if selected_option == 'op2':
             window_length = request.form.get('window_length')
@@ -721,7 +722,7 @@ def process_smoothing():
                     file_paths.append(save_path)
                 else:
                     alert = 'Please upload a valid .mzML file for multiple file smoothing.'
-                    return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert)
+                    return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert, page='Smoothing')
 
             # Process files and get output paths
             output_files = multiple_smoothing(file_paths, window_length, polyorder)
@@ -734,14 +735,14 @@ def process_smoothing():
                 download_links.append(f"{SMOOTHING_DIR}/{filename}")
 
             # Render the page with download links and keep the multiple option selected
-            return render_template('smoothing.html', selected_option='op2', download_links=download_links)
+            return render_template('smoothing.html', selected_option='op2', download_links=download_links, page='Smoothing', window_length=window_length, polyorder=polyorder)
     
 
 
 # Summary page ####################################
 @app.route('/summary')
 def summary():
-    return render_template('summary.html')
+    return render_template('summary.html', page='Summary')
 
 @app.route('/get_file_info', methods=['POST'])
 def process_mzML():
@@ -755,7 +756,7 @@ def process_mzML():
 
     if not filename and filename.endswith('.mzML'):
         alert = "Invalid file type. Please upload a .mzML file."
-        return render_template('summary.html', error_alert=alert)
+        return render_template('summary.html', error_alert=alert, page='Summary')
     filter_type = request.form.get('filter_options', 'Plasma')
     #print(f"[DEBUG] filter_type recibido: {filter_type}")
     filename = request.form.get('filename')
@@ -782,11 +783,11 @@ def process_mzML():
         result = get_file_info_extended(path)
         if not result:
             alert = "Error processing file: No data returned."
-            return render_template('summary.html', error_alert=alert)
+            return render_template('summary.html', error_alert=alert, page='Summary')
     except Exception as e:
         alert = f"Error processing file: {str(e)}"
-        return render_template('summary.html', error_alert=alert)
-    
+        return render_template('summary.html', error_alert=alert, page='Summary')
+
     # Convertir los valores numpy a tipos nativos para evitar np.float64/np.int32
     def clean_value(val):
         import numpy as np
@@ -812,13 +813,13 @@ def process_mzML():
         rt_list, mz_list, tic_list = load_and_process_data(path)
     except Exception as e:
         alert = f"Error loading and processing data: {str(e)}"
-        return render_template('summary.html', error_alert=alert)
+        return render_template('summary.html', error_alert=alert, page='Summary')
 
     try:
         fig = plot_tic(path, mode='3d-spikes', max_points=10000, df=None, filter=filter_type)
     except Exception as e:
         alert = f"Error generating 3D TIC plot: {str(e)}"
-        return render_template('summary.html', error_alert=alert)
+        return render_template('summary.html', error_alert=alert, page='Summary')
 
     # For 2D, we create the DataFrame from the same data
     df = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'Total Ion Current': tic_list})
@@ -826,7 +827,7 @@ def process_mzML():
         fig2, _ = plot_tic(path, mode='2d', max_points=10000, df=df, filter=filter_type)
     except Exception as e:
         alert = f"Error generating 2D TIC plot: {str(e)}"
-        return render_template('summary.html', error_alert=alert)
+        return render_template('summary.html', error_alert=alert, page='Summary')
 
     # result plots
     plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
@@ -839,7 +840,7 @@ def process_mzML():
     
     # Otherwise, return the full page
     # Calling the summary page
-    return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type)
+    return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')
 
 
 # Adduct page #############################
@@ -848,7 +849,7 @@ def adducts():
     if session.get('workflow_status') == 'started':
         if 'adducts' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
-    return render_template('adducts.html')
+    return render_template('adducts.html', page='Adducts')
 
 # Adducts endpoint/function ####################################
 @app.route('/get_files_adducts', methods=['POST'])
@@ -878,7 +879,7 @@ def process_adducts():
         else:
             session['step_status'] = 'started'
             alert = f"Error: adduct files not generated for {output_file}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
     for output_file2 in output_files2:
         if output_file2 and os.path.exists(output_file2):
             filename = os.path.basename(output_file2)
@@ -887,7 +888,7 @@ def process_adducts():
         else:
             session['step_status'] = 'started'
             alert = f"Error: adduct files not generated for {output_file2}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
     for output_file3 in output_files3:
         if output_file3 and os.path.exists(output_file3):
             filename = os.path.basename(output_file3)
@@ -896,7 +897,7 @@ def process_adducts():
         else:
             session['step_status'] = 'started'
             alert = f"Error: adduct files not generated for {output_file3}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert)
+            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
 
     # Store generated files in session for workflow tracking
     generated_files = []
@@ -907,7 +908,7 @@ def process_adducts():
             })
     workflow_step_finished('adducts', generated_files)
     #advance_workflow_step('adducts')
-    return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3)
+    return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, page='Adducts')
 
 # Centroiding page ####################################
 @app.route('/centroiding')
@@ -918,7 +919,7 @@ def centroiding():
             session['step_status'] = 'started'
         #session['generated_files'] = []
         
-    return render_template('centroiding.html')
+    return render_template('centroiding.html', page='Centroiding')
 
 # Centroiding endpoint/function
 @app.route('/get_files_centroiding', methods=['POST'])
@@ -939,7 +940,7 @@ def process_centroiding():
         else:
             alert = 'Please upload only .mzML files for centroiding.'
             session['step_status'] = 'started'
-            return render_template('centroiding.html', download_links=None, error_alert=alert)
+            return render_template('centroiding.html', download_links=None, error_alert=alert, page='Centroiding')
 
     try:
         output_files = centroid_file(file_paths, CENTROIDS_DIR)
@@ -952,7 +953,7 @@ def process_centroiding():
         if not download_links:
             alert = "Error during centroiding: No centroided files generated."
             session['step_status'] = 'started'
-            return render_template('centroiding.html', download_links=None, error_alert=alert)
+            return render_template('centroiding.html', download_links=None, error_alert=alert, page='Centroiding')
         # Store generated files 
         # in session for workflow tracking
         generated_files = []
@@ -963,19 +964,19 @@ def process_centroiding():
             })
         workflow_step_finished('centroiding', generated_files)
         #advance_workflow_step('centroiding')
-        return render_template('centroiding.html', download_links=download_links)
+        return render_template('centroiding.html', download_links=download_links, page='Centroiding')
     except Exception as e:
         alert = f"Error during centroiding: {str(e)}"
         session['step_status'] = 'started'
-        return render_template('centroiding.html', download_links=None, error_alert=alert)
+        return render_template('centroiding.html', download_links=None, error_alert=alert, page='Centroiding')
 
 # Accurate mass page ####################################
 @app.route('/ami')
 def accurate_mass():
     if 'accurate_mass' in session.get('current_steps', []) and session.get('step_status') == 'finished':
         session['step_status'] = 'started'
-    
-    return render_template('accurate_mass.html')
+
+    return render_template('accurate_mass.html', page='Accurate Mass Search')
 
 # Accurate mass endpoint/function ####################################
 @app.route('/get_files_ami', methods=['POST'])
@@ -1016,12 +1017,12 @@ def process_ami():
             })
         workflow_step_finished('accurate_mass', generated_files)
         # advance_workflow_step('accurate_mass')
-        return render_template('accurate_mass.html', result=result, plot_url_ami = plot_url_ami, download_links_search=download_links)
+        return render_template('accurate_mass.html', result=result, plot_url_ami = plot_url_ami, download_links_search=download_links, page='Accurate Mass Search')
     else:
         
         alert = "Error: Accurate mass search could not be completed. Please check your uploads."
         session['step_status'] = 'started'
-        return render_template('accurate_mass.html', error_alert=alert)
+        return render_template('accurate_mass.html', error_alert=alert, page='Accurate Mass Search')
 # ----------------------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------------------
 #-------------------------------------------------- SERVING UPLOADED FILES --------------------------------------------------
@@ -1078,7 +1079,7 @@ def download_gnps(filename):
 # Backup storage page ####################################
 @app.route('/backup')
 def backup_storage():
-    return render_template('backup_storage.html')
+    return render_template('backup_storage.html', page='Backup Storage')
 
 
 # Backup storage page functions ####################################
@@ -1115,7 +1116,7 @@ def show_upload_folders():
             folder_contents[folder_name] = files_info
         else:
             folder_contents[folder_name] = []
-    return render_template('backup_storage.html', folder_contents=folder_contents)
+    return render_template('backup_storage.html', folder_contents=folder_contents, page='Backup Storage')
 
 # Cleaning folders endpoint/function ####################################
 @app.route('/clean_folders', methods=['POST'])
@@ -1129,7 +1130,7 @@ def clean_folders(folders):
                         os.remove(file_path)
                 except Exception as e:
                     alert = f"Error removing file {file_path}: {e}"
-    return render_template('backup_storage.html', error_alert=alert)
+    return render_template('backup_storage.html', error_alert=alert, page='Backup Storage')
 
 # session files testing Endpoint
 @app.route('/session_files')
@@ -1175,7 +1176,7 @@ def start_workflow(workflow_id):
         
         return redirect(url_for(redirect_link))
     else:
-        return render_template('index.html')
+        return render_template('index.html', page='Home')
 
 @app.route('/end_workflow')
 def end_workflow():
@@ -1190,7 +1191,7 @@ def end_workflow():
     # current_workflow = session.get('current_workflow')
     # workflow_status = session['workflow_status']
     # workflow_id = session['workflow_id']
-    return render_template('index.html')
+    return render_template('index.html', page='Home')
 
 
 # Get the workflows vars for every page
