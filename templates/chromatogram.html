@@ -10,9 +10,13 @@
     <div class="container">
         <section class="form_section">
             <h2>mzML Chromatogram Visualizer</h2>
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
+            </button>
             <h4>Select mzML files to inspect:</h4>
             <form id="uploadForm" action="/get_files_chromatograms" method="post" enctype="multipart/form-data">
                 {% set accept_types = ".mzML" %}
+                {% set accept_types_label = "mzML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
         </section>

@@ -1,6 +1,7 @@
 {% block single_input %}
                 <div class="input-group mb-3 inputs">
                     <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept="{{ accept_types }}" required>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">{{ accept_types_label }}</label>
                     <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
                 </div>
                 <div class="mb-3">

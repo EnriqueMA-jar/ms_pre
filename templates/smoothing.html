@@ -10,6 +10,9 @@
       <div class="container">
         <section class="selection_section">
             <h2>mzML Smoothing</h2>
+            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
+            </button>
             <h6>Select Smoothing Options:</h6>
             <div class="smoothing_options">
                 <form method="post">
@@ -28,6 +31,7 @@
             <form action="/get_files_smoothing" method="post" enctype="multipart/form-data" id="uploadForm">
                 <input type="hidden" name="smoothing_options" value="op1">
                 {% set accept_types = ".mzML" %}
+                {% set accept_types_label = "mzML" %}
                 {% include 'inputs/single_input.html' %}
                 {% include 'alerts/alerts.html' %}
             </form>
@@ -51,6 +55,7 @@
                 <input type="hidden" name="smoothing_options" value="op2">
                 <div class="input-group mb-3 inputs">
                     <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload" name="filename" accept=".mzML" required multiple>
+                    <label class="input-group-text" style="min-width: 200px; text-align:center;">mzML</label>
                     <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
                 </div>
                  <h6>Select Smoothing Parameters:</h6>

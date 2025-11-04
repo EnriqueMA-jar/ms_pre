@@ -47,6 +47,10 @@
         
     </ul>
     </nav>
+
+      {% include 'info/info.html' %}
+
+
     {% block content %}
     {% endblock %}
 
@@ -54,5 +58,8 @@
     {% if workflow_status == 'started' %}
       {% include 'workflows/workflow_manager.html' %}
     {% endif %}
+
+    
+  <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
 </body>
 </html>
