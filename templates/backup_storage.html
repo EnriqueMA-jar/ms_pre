@@ -5,16 +5,17 @@
     {% block head %}
     {{ super() }}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/backup_storage.css') }}">
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.css') }}">
         <script src="{{ url_for('static', filename='js/jquery/jquery-3.0.6.min.js') }}"></script>
+<!--    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script> -->
         <script src="{{ url_for('static', filename='js/datatables/jquery.dataTables.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap5.min.js') }}"></script>
     {% endblock %}
 {% block content %}
     <div class="container">
         <section class="form_section">
         <h2>Backup Storage Management</h2>
-        <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+        <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
         <h4>This page allows you to manage and clean up uploads folders.</h4>
@@ -22,16 +23,15 @@
 
     {% if folder_contents %}
     <section class="generated-folders-section" id="generated-folders-section">
-        <h5>Uploaded/Generated Files</h5>
         <div class="table-folders table-responsive">
-        <table id="files-table" class="display">
+        <table id="files-table" class="table table-striped table-bordered">
             <thead>
                 <tr>
-                    <th class="folder-th">Folder</th>
-                    <th class="file-name-th">File Name</th>
-                    <th class="file-size-th">Size</th>
-                    <th class="file-created-th">Created</th>
-                    <th class="file-path-th">Path</th>
+                    <th>Folder</th>
+                    <th>File Name</th>
+                    <th>Size</th>
+                    <th>Created</th>
+                    <th>Path</th>
                 </tr>
             </thead>
             <tbody>

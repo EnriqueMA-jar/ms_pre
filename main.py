@@ -481,14 +481,32 @@ def process_gnps():
         consensus_path = os.path.join(uploads_dir, consensus_file.filename)
         consensus_file.save(consensus_path)
 
-        output_files = get_gnps_files(mzml_file_paths, consensus_path, uploads_dir)
-        for output_file in output_files:
-            if output_file and os.path.exists(output_file):
-                filename = os.path.basename(output_file)
-                download_link = f"/uploads/gnps/{filename}"
-                download_links.append(download_link)
-            else:
-                print(f"[ERROR] No se generó archivo GNPS para {output_file}")
+        output_files, alert = get_gnps_files(mzml_file_paths, consensus_path, uploads_dir)
+        if alert is not None:
+            return render_template('gnps.html', warning_alert=alert, page='GNPS')
+        elif alert is None:
+            for output_file in output_files:
+                if output_file and os.path.exists(output_file):
+                    filename = os.path.basename(output_file)
+                    download_link = f"/uploads/gnps/{filename}"
+                    download_links.append(download_link)
+            # Store generated files in session for workflow tracking
+            generated_files = []
+            for path in download_links:
+                generated_files.append({
+                    "filename": os.path.basename(path),
+                    "path": path
+                })
+            workflow_step_finished('gnps', generated_files)
+            #advance_workflow_step('gnps')
+            return render_template('gnps.html', download_links_gnps=download_links, page='GNPS')
+            # for output_file in output_files:
+            #     if output_file and os.path.exists(output_file):
+            #         filename = os.path.basename(output_file)
+            #         download_link = f"/uploads/gnps/{filename}"
+            #         download_links.append(download_link)
+            #     else:
+            #         print(f"[ERROR] No se generó archivo GNPS para {output_file}")
 
         return render_template('gnps.html', download_links_gnps=download_links, page='GNPS')
 

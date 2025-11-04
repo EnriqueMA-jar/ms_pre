@@ -6,7 +6,9 @@
     {% set inputs = {
         "mzML": "Single mzML file, profile and centroid data supported."
     } %}
-    <!-- {% set outputs = {} %} -->
+    {% set outputs = {
+        "None": "No output files generated."
+    } %}
     {% set options = {
     "Plot options": {
         "Appearance": "Customize the look of the plots.",
@@ -18,7 +20,7 @@
         }
     },
     "Plots": {
-        "Total Ion Chromatogram": "TIC plot of the mzML file, showing the intensity of all ions over time.",
+        "Total Ion Current Chromatogram": "TIC plot of the mzML file, showing the intensity of all ions over time.",
         "2D TIC Heatmap": "2D heatmap representation of the TIC."
     }
 } %}
@@ -28,15 +30,26 @@
     {% set inputs = {
         "mzML": "Multiple mzML files, profile and centroid data supported"
     } %}
-    <!-- {% set outputs = {} %} -->
-    <!-- {% set options = {} %}   -->
-    {% set about = "This section allows you to upload and process chromatogram files to obtain a summary of their contents, including metadata and basic statistics." %}
+    {% set outputs = {
+        "None": "No output files generated."
+    } %} 
+    {% set options = {
+        "Plot": {
+            "Chromatogram Comparisson": "Overlayed view of chromatograms from multiple mzML files."
+        },
+        "Plot options":{
+            "Intensity Threshold": "Sets the intensity threshold for displaying chromatograms."
+        }
+    } %}
+    {% set about = "This section allows you to upload and process mzML files to plot the chromatogram of their contents, this page also allows you to compare multiple mzML chromatograms." %}
 {% elif page=='Spectra' or page=='process_spectra' %}
     {% set tool_type = "Inspection Tool" %}
     {% set inputs = {
         "mzML": "Single mzML file, profile and centroid data and both MS Levels supported."
     } %}
-    <!-- {% set outputs = {} %} -->
+    {% set outputs = {
+        "None": "No output files generated."
+     } %}
     {% set options = {
         "MS1 Level detected": {
             "Plots": {
@@ -56,7 +69,7 @@
             }
         }
     } %}
-    {% set about = "This section allows you to upload and process spectra files to obtain a summary of their contents, including metadata and basic statistics." %}
+    {% set about = "This section allows you to upload and process a single mzML file to plot and compare the spectra of its MS levels." %}
 {% elif page=='Smoothing' or page=='process_smoothing' %}
     {% set tool_type = "Pre-Processing Tool" %}
     {% set inputs = {
@@ -75,7 +88,7 @@
         "Polyorder": "Polynomial order for the smoothing algorithm."
     }
     } %}
-    {% set about = "This section allows you to apply smoothing algorithms to the data to reduce noise and improve signal quality." %}
+    {% set about = "This section allows you to apply smoothing using Savitzky-Golay filter to the mzML files uploaded to reduce noise and improve signal quality." %}
 {% elif page=='Centroiding' or page=='process_centroiding' %}
     {% set tool_type = "Pre-Processing Tool" %}
     {% set inputs = {
@@ -84,7 +97,9 @@
     {% set outputs = {
         "file_centroided.mzML": "Centroided mzML file"
     } %}
-    <!-- {% set options = {} %} -->
+    {% set options = {
+        "None": "No additional features available."
+    } %}
     {% set about = "This section allows you to convert profile mzML data into centroided data, which simplifies the data by retaining only the most significant peaks." %}
 {% elif page=='Normalize' or page=='process_normalize' %}
     {% set tool_type = "Pre-Processing Tool" %}
@@ -96,10 +111,22 @@
         "file_normalized_TO_TIC.mzML": "Normalized TO TIC mzML file"
     } %}
     {% set options = {
-         "Normalization Methods": {
+         "Options": {
           "TO ONE": "Normalizes intensities to a maximum of one.",
           "TO TIC": "Normalizes intensities based on the Total Ion Current."
-         }
+         },
+         "Normalization To One": {
+            "Plots": {
+                "Before Normalization": "Plot showing the spectrum before normalization.",
+                "After Normalization": "Plot showing the spectrum after normalization."
+            }
+         },
+            "Normalization To TIC": {
+                "Plots": {
+                    "Before Normalization": "Plot showing the spectrum before normalization.",
+                    "After Normalization": "Plot showing the spectrum after normalization."
+                }
+            }
     } %}
     {% set about = "This section allows you to normalize mzML files to ensure that the data is on a comparable scale, which is essential for accurate analysis." %}
 {% elif page=='Features' or page=='process_features' %}
@@ -112,11 +139,11 @@
         "file_featureXML.featureXML": "Extracted features in featureXML format"
     } %}
     {% set options = {
-        "Feature Detection": {
+        "Options": {
             "Metabolomic Features": "Detects metabolomic features from the mzML files.",
             "Proteomic Features": "Detects proteomic features from the mzML files."
         },
-        "Feature Detection Parameters": {
+        "Parameters": {
             "Mass Error (PPM)": "Defines the acceptable mass error for feature detection in parts per million (PPM), the lower the value the stricter the detection.",
             "Noise Threshold": "Sets the noise threshold for feature detection."
         },
@@ -124,7 +151,7 @@
             "Feature Map": "Visual representation of detected features."
         }
     } %}
-    {% set about = "This section allows you to detect and extract features from mzML files, which are essential for downstream analysis such as identification and quantification." %}
+    {% set about = "This section allows you to detect and extract features from mzML files, which are essential for downstream analysis such as identification and quantification, this page also allows you to visualize the detected features." %}
 {% elif page=='Adducts' or page=='process_adducts' %}
     {% set tool_type = "Pre-Processing Tool" %}
     {% set inputs = {
@@ -135,7 +162,9 @@
         "file_adducts.csv": "Adducts annotated CSV file",
         "file_adducts.tsv": "Adducts annotated TSV for Accurate Mass Search file"
     } %}
-    <!-- {% set options = {} %} -->
+    {% set options = {
+        "None": "No additional features available."
+    } %}
     {% set about = "This section allows you to annotate mzML features with potential adducts, which is crucial for accurate compound identification." %}
 {% elif page=='Alignment' or page=='process_alignment' %}
     {% set tool_type = "Pre-Processing Tool" %}
@@ -148,7 +177,7 @@
         "aligned_mzML.mzML": "Aligned mzML file"
     } %}
     {% set options = {
-        "Alignment Parameters Type": {
+        "Parameters": {
             "Part Per Million": "Aligns features based on mass accuracy in parts per million (PPM).",
             "Daltons": "Aligns features based on absolute mass difference in Daltons (Da)."
         },
@@ -162,8 +191,10 @@
     {% set outputs = {
         "consensusXML.consensusXML": "Consensus featureXML file"
     } %}
-    <!-- {% set options = {} %} -->
-    {% set about = "This section allows you to generate consensus features from multiple mzML feature files, which helps in consolidating data for better analysis." %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to generate consensus matrix from multiple mzML feature files, which helps in consolidating data for better analysis." %}
 {% elif page=='GNPS' or page=='process_gnps' %}
     {% set tool_type = "Pre-Processing Tool" %}
     {% set inputs = {
@@ -171,10 +202,15 @@
         "ConsensusXML": "Single Consensus featureXML file"
     } %}
     {% set outputs = {
-        "GNPS_upload_files.zip": "ZIP file containing files ready for GNPS upload"
+        "consensus.consensusXML": "Filtered consensus featureXML file for GNPS",
+        "MS2data_consensus.mgf": "MGF file containing MS2 spectra for GNPS",
+        "consensus_FeatureQuantificationTable.txt": "TXT file containing feature quantification data for GNPS",
+        "consensus_MetaValueTable.txt": "TXT file containing consensus metadata for GNPS"
     } %}
-    <!-- {% set options = {} %} -->
-    {% set about = "This section allows you to prepare and upload mzML files to the GNPS platform for molecular networking and compound identification." %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to prepare aligned mzML files and consensus matrix to the GNPS platform for molecular networking and compound identification." %}
 {% elif page=='Accurate Mass Search' or page=='process_ami' %}
     {% set tool_type = "Pre-Processing Tool" %}
     {% set inputs = {
@@ -196,8 +232,17 @@
     {% set about = "This section allows you to perform accurate mass searches against compound databases to identify potential compounds present in your mzML files." %}
 {% elif page=='Backup Storage' or page=='show_upload_folders' %}
     {% set tool_type = "Inspection Tool" %}
-    <!-- {% set inputs = [] %} -->
-    <!-- {% set options = {} %} -->
+    {% set inputs = {
+        "None": "No input files required."
+    } %}
+    {% set outputs = {
+        "None": "No output files generated."
+    } %}
+    {% set options = {
+        "Show entries": "Sets the number of entries to display in the table.",
+        "Search": "Allows searching for specific files or folders in the table.",
+        "Pagination": "Enables pagination for easier navigation through large datasets."
+    } %}
     {% set about = "This section allows you to manage and back up your uploaded files, ensuring that your data is securely stored and easily accessible." %}
 {% elif page=='Home' %}
 {% endif %}
@@ -244,7 +289,7 @@
         </div>
         <div class="options-div">
             {% if options and options|length > 0 %}
-            <h6>Options:</h6>
+            <h6>Features:</h6>
                 {{ render_options(options) }}
             {% endif %}
         </div>
