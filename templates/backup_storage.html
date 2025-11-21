@@ -13,7 +13,7 @@
     {% endblock %}
 {% block content %}
     <div class="container">
-        <section class="form_section">
+        <section class="table-section">
         <h2>Backup Storage Management</h2>
         <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
@@ -32,6 +32,7 @@
                     <th>Size</th>
                     <th>Created</th>
                     <th>Path</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,8 +43,11 @@
                             <td class="file-name-td" data-fulltext="{{ file.name }}">{{ file.name }}</td>
                             <td class="file-size-td">{{ file.size }} MB</td>
                             <td class="file-created-td">{{ file.created }}</td>
-                            <td class="file-path-td" data-fulltext="{{ file.path }}">
+                            <td class="file-path-td" data-fulltext="{{ file.path }}" title="{{file.path}}">
                                 {{ file.path }}
+                            </td>
+                            <td class="file-actions-td">
+                                <a href="/uploads/{{ folder_name|lower|replace(' ', '_') }}/{{ file.name }}" title="Download {{file.name}}" class="btn btn-success">Download</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -64,5 +68,45 @@
         </script>
         </div>
     </section>
+   <section class="cleaner-section">
+    <h5>Clean folders</h5>
+    <form id="clean-folders-form">
+        <div class="input-group">
+        <label class="input-group-text" for="inputGroupSelect01">Select folders</label>
+        <select id="folder-select" name="folders" class="form-select" id="inputGroupSelect01">
+            <option value="ALL">Select all</option>
+            {% for folder_name in folder_contents.keys() %}
+                <option value="{{ folder_name }}">{{ folder_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-danger" style="margin-left:10px;">Clean</button>
+    </form>
+    </div>
+</section>
+<script>
+    $('#clean-folders-form').on('submit', function(e) {
+        e.preventDefault();
+        let selected = $('#folder-select').val();
+        let folders = [];
+        if (selected.includes('ALL')) {
+            folders = [{% for folder_name in folder_contents.keys() %}'{{ folder_name }}',{% endfor %}];
+        } else {
+            folders = selected;
+        }
+        $.ajax({
+            url: '/clean_folders',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({folders: folders}),
+            success: function(response) {
+                $('#clean-result').html('<span style="color:green;">Success</span>');
+                setTimeout(function(){ location.reload(); }, 1000);
+            },
+            error: function(xhr) {
+                $('#clean-result').html('<span style="color:red;">Error</span>');
+            }
+        });
+    });
+</script>
     {% endif %}
 {% endblock %}

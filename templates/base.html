@@ -28,7 +28,7 @@
 </svg>
     <nav class="navbar">
         <ul class="ul">
-        <li class="li {% if request.endpoint == 'index' or request.endpoint == 'end_workflow' %}active{% endif %}"><a href="/index" class="a">Home</a></li>
+        <li class="li {% if request.endpoint == 'index' or request.endpoint == 'end_workflow' %}active{% endif %}"><a href="/index" class="a" target="">Home</a></li>
         <li class="li {% if request.endpoint == 'summary' or request.endpoint == 'process_mzML' %}active{% endif %}"><a href="/summary" class="a">Summary</a></li>
         <li class="li {% if request.endpoint == 'chromatograms' or request.endpoint == 'process_chromatograms' %}active{% endif %}"><a href="/chromatograms" class="a">Chromatograms</a></li>
         <li class="li {% if request.endpoint == 'spectra' or request.endpoint == 'process_spectra' %}active{% endif %}"><a href="/spectra" class="a">Spectra</a></li>

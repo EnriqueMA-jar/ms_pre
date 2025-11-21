@@ -1138,17 +1138,50 @@ def show_upload_folders():
 
 # Cleaning folders endpoint/function ####################################
 @app.route('/clean_folders', methods=['POST'])
-def clean_folders(folders):
+def clean_folders():
+    data = request.get_json()
+    folders = data.get('folders', [])
+    # Mapea los nombres a rutas reales
+    upload_folders = {
+        'Alignment': ALIGNMENT_DIR,
+        'Accurate Mass': ACCURATE_MASS_DIR,
+        'Adducts': ADDUCTS_DIR,
+        'Centroiding': CENTROIDS_DIR,
+        'Consensus': CONSENSUS_DIR,
+        'Features': FEATURES_DIR,
+        'Normalize': NORMALIZE_DIR,
+        'Smoothing': SMOOTHING_DIR,
+        'GNPS': GNPS_DIR,
+        'Samples': 'mzML_samples',
+    }
     for folder in folders:
-        if os.path.exists(folder):
-            for file in os.listdir(folder):
-                file_path = os.path.join(folder, file)
+        folder_path = upload_folders.get(folder)
+        if folder_path and os.path.exists(folder_path):
+            for file in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, file)
                 try:
                     if os.path.isfile(file_path):
                         os.remove(file_path)
                 except Exception as e:
-                    alert = f"Error removing file {file_path}: {e}"
-    return render_template('backup_storage.html', error_alert=alert, page='Backup Storage')
+                    print(f"Error removing file {file_path}: {e}")
+    return jsonify({'status': 'ok'})
+
+#Upload folders ###########################################################
+@app.route('/select_upload_folders', methods=['POST'])
+def select_upload_folders():
+    upload_folders = {
+        'Alignment': ALIGNMENT_DIR,
+        'Accurate Mass': ACCURATE_MASS_DIR,
+        'Adducts': ADDUCTS_DIR,
+        'Centroiding': CENTROIDS_DIR,
+        'Consensus': CONSENSUS_DIR,
+        'Features': FEATURES_DIR,
+        'Normalize': NORMALIZE_DIR,
+        'Smoothing': SMOOTHING_DIR,
+        'GNPS': GNPS_DIR,
+    }
+    return upload_folders
+
 
 # session files testing Endpoint
 @app.route('/session_files')
