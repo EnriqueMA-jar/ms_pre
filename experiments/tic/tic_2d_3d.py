@@ -46,167 +46,108 @@ def load_and_process_data(file_path):
     return rt_list, mz_list, tic_list
 
 # Function to create a 3D scatter plot using Plotly
-def create_optimized_3d_spikes(rt_list, mz_list, tic_list, 
-                                max_points=10000, filter_type='Plasma'):
+def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, filter_type='Viridis'):
     """
-    Create a 3D visualization with vertical lines (spikes) more efficiently
-    than the original method, while maintaining the same aesthetics.
+    Crea una gráfica 3D tipo superficie (como 3d_personalizado.py) pero usando filter_type como colorscale.
     """
-    # Convert lists to arrays for efficient processing
+    import numpy as np
+    import plotly.graph_objects as go
+
+    # Convertir listas a arrays de numpy
     rt_array = np.array(rt_list)
     mz_array = np.array(mz_list)
     tic_array = np.array(tic_list)
-    
-    # If too many points, random subsample
+
+    # Si hay demasiados puntos, muestrea aleatoriamente
     n_points = len(rt_array)
     if n_points > max_points:
-        print(f"Subsampling from {n_points} to {max_points} points for improved performance...")
-        indexes = np.random.choice(n_points, max_points, replace=False)
-        rt_array = rt_array[indexes]
-        mz_array = mz_array[indexes]
-        tic_array = tic_array[indexes]
-    
-    # Normalize TIC values for color mapping
-    min_tic = tic_array.min()
-    max_tic = tic_array.max()
-    norm_tic = (tic_array - min_tic) / (max_tic - min_tic)
-    
-    # Método optimizado: usar un único trazo para todas las líneas
-    # Creamos secuencias de puntos con None como separador entre líneas
-    x_data = []
-    y_data = []
-    z_data = []
-    colors = []
+        idx = np.random.choice(n_points, max_points, replace=False)
+        rt_array = rt_array[idx]
+        mz_array = mz_array[idx]
+        tic_array = tic_array[idx]
 
-    # Generate colors based on intensity
-    color_values = sample_colorscale(getattr(px.colors.sequential, filter_type), norm_tic)
-    
-    for i, (rt, mz, tic, color) in enumerate(zip(rt_array, mz_array, tic_array, color_values)):
-        # Add basepoints (x, y, 0)
-        x_data.extend([rt, rt, None])
-        y_data.extend([mz, mz, None]) 
-        z_data.extend([0, tic, None])
-        colors.extend([color, color, color])  # same color for the spike line and the None
-    
-    # Create the 3D figure
-    fig = go.Figure()
-    
-    # Add line trace
-    fig.add_trace(
-        go.Scatter3d(
-            x=x_data,
-            y=y_data,
-            z=z_data,
-            mode='lines',
-            line=dict(
-                color=colors,
-                width=2
-            ),
-            hoverinfo='none',
-            showlegend=False
-        )
-    )
-    
-    # Adding a dummy trace for the colorbar
-    fig.add_trace(
-        go.Scatter3d(
-            x=[None],
-            y=[None],
-            z=[None],
-            mode='markers',
-            marker=dict(
-                colorscale=filter_type,
-                cmin=min_tic,
-                cmax=max_tic,
-                colorbar=dict(
-                    title='Total Ion Current (TIC)',
-                    title_font=dict(color='black'),
-                    tickfont=dict(color='black'),
-                    thickness=20,
-                    len=0.75
-                )
-            ),
-            hoverinfo='none'
-        )
+    # Crear bins para agrupar los datos
+    rt_bins = 100
+    mz_bins = 100
+
+    # Crear histograma 2D
+    heatmap, xedges, yedges = np.histogram2d(
+        rt_array,
+        mz_array,
+        bins=[rt_bins, mz_bins],
+        weights=tic_array
     )
 
-    # Improved design config
+    # Crear malla para la superficie
+    X, Y = np.meshgrid(xedges[:-1], yedges[:-1])
+
+    # Generar superficie 3D con Plotly
+    fig = go.Figure(data=[go.Surface(
+        x=X,
+        y=Y,
+        z=heatmap.T,
+        colorscale=filter_type,
+        colorbar=dict(
+            title=dict(
+                text='Intensity',
+                font=dict(size=14)
+            ),
+            tickfont=dict(size=12)
+        ),
+        hovertemplate=(
+            '<span style="font-size: 14px; font-weight: bold;">LC-MS Data Point</span><br>' +
+            '<b>Retention Time</b>: %{x:.2f} min<br>' +
+            '<b>m/z</b>: %{y:.4f} Da<br>' +
+            '<b>Intensity</b>: %{z:.0f}<br>' +
+            '<extra></extra>'
+        ),
+        lighting=dict(
+            ambient=0.8,
+            diffuse=0.8,
+            fresnel=0.1,
+            specular=0.5,
+            roughness=0.5
+        ),
+        lightposition=dict(x=100, y=100, z=1000)
+    )])
+
     fig.update_layout(
-        title='Total Ion Current (TIC) 3D Visualization - Vertical Spikes',
+        title=dict(
+            text='3D Surface Plot - LC-MS Data',
+            x=0.5,
+            font=dict(size=20, color='darkblue')
+        ),
         scene=dict(
             xaxis=dict(
                 title='Retention Time (min)',
-                backgroundcolor='white',
-                color='black',
-                gridcolor='rgba(0,0,0,0.5)',
-                title_font=dict(size=14)
+                title_font=dict(size=16),
+                tickfont=dict(size=12),
+                gridcolor='lightgray',
+                backgroundcolor='rgb(250, 250, 250)'
             ),
             yaxis=dict(
                 title='m/z',
-                backgroundcolor='white',
-                color='black',
-                gridcolor='rgba(0,0,0,0.2)',
-                title_font=dict(size=14)
+                title_font=dict(size=16),
+                tickfont=dict(size=12),
+                gridcolor='lightgray',
+                backgroundcolor='rgb(250, 250, 250)'
             ),
             zaxis=dict(
-                title='Total Ion Current',
-                backgroundcolor='white',
-                color='black',
-                gridcolor='rgba(0,0,0,0.2)',
-                title_font=dict(size=14)
+                title='Intensity',
+                title_font=dict(size=16),
+                tickfont=dict(size=12),
+                gridcolor='lightgray',
+                backgroundcolor='rgb(250, 250, 250)'
             ),
-            aspectmode='manual',
-            aspectratio=dict(x=1.5, y=1, z=0.7),
+            bgcolor='rgb(255, 255, 255)',
             camera=dict(
-                eye=dict(x=1.8, y=-1.8, z=0.9),
-                up=dict(x=0, y=0, z=1)
+                eye=dict(x=1.5, y=1.5, z=1.5)
             )
         ),
-        template='plotly_white',
-        margin=dict(l=0, r=0, t=50, b=0),
-        width=650,
-        height=500,
-        font=dict(
-            family="Arial, sans-serif",
-            size=12,
-            color="black"
-        ),
-        # Performance options
-        uirevision='true'  # Maintains view when updating
+        width=600,
+        height=500
     )
-    
-    return fig
-        
-def create_3d_surface(rt_list, mz_list, tic_list, width=650, height=500, filter_type='Plasma'):
-    # Crear una grilla regular
-    rt_grid = np.linspace(min(rt_list), max(rt_list), 100)
-    mz_grid = np.linspace(min(mz_list), max(mz_list), 100)
-    RT, MZ = np.meshgrid(rt_grid, mz_grid)
-    # Interpolar los valores TIC sobre la grilla
-    TIC_grid = griddata(
-        (rt_list, mz_list), tic_list, (RT, MZ), method='linear', fill_value=0
-    )
-    # Crear la figura de superficie
-    fig = go.Figure(
-        data=[go.Surface(
-            z=TIC_grid,
-            x=rt_grid,
-            y=mz_grid,
-            colorscale=filter_type,
-            colorbar=dict(title='TIC')
-        )]
-    )
-    fig.update_layout(
-        title='Total Ion Current (TIC) 3D Surface Plot',
-        scene=dict(
-            xaxis_title='Retention Time (min)',
-            yaxis_title='m/z',
-            zaxis_title='Total Ion Current'
-        ),
-        width=width,
-        height=height,
-        template='plotly_white'
-    )
+
     return fig
 
 # def create_2d_heatmap(rt_list, mz_list, tic_list, width=1200, height=800,
@@ -285,7 +226,7 @@ def create_3d_surface(rt_list, mz_list, tic_list, width=650, height=500, filter_
 #     return fig
 
     
-def create_2d_surface_and_heatmap(rt_list, mz_list, tic_list, width=600, height=500, filter_type='Plasma'): 
+def create_2d_surface_and_heatmap(rt_list, mz_list, tic_list, filter_type='Plasma'): 
     df = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'Total Ion Current': tic_list})
     df = df.dropna(subset=['RT', 'mz', 'Total Ion Current'])
     
@@ -326,8 +267,8 @@ def create_2d_surface_and_heatmap(rt_list, mz_list, tic_list, width=600, height=
         font=dict(color='black'),
         yaxis_title='Retention Time (min)',
         xaxis_title='m/z',
-        width=width,
-        height=height
+        width=650,
+        height=500
     )
     return fig, df
 
