@@ -120,7 +120,7 @@ body{
     border: 1px solid #ccc !important;
     color: black !important;
     padding: 5px;
-    margin-bottom: 5px;
+    min-height: fit-content;
 }
 .cards:hover{
     background-color: black !important;

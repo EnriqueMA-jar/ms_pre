@@ -24,20 +24,35 @@ async function fetchAllFilesAndRenderCards() {
     // Renderiza las cards
     const section = document.getElementById('generated-files-section');
     section.innerHTML = fileObjects.map((file, idx) =>
-        `<div class="cards" 
-              draggable="true" 
-              data-idx="${idx}" 
-              >
-            <b class="generated-files-name">${file.name}</b>
-        </div>`
+        `
+        <div class="input-group mb-3">
+  <div class="input-group-text">
+    <input type="checkbox" class="file-checkbox form-check-input mt-0" data-idx="${idx}">
+  </div>
+  <div class="cards form-control" 
+       draggable="true" 
+       data-idx="${idx}" 
+       style="cursor: grab; background: #fff;">
+    <b class="generated-files-name">${file.name}</b>
+  </div>
+</div>
+        `
     ).join('');
 
     // Añadir eventos drag a cada card
     document.querySelectorAll('.cards').forEach(card => {
-        card.addEventListener('dragstart', function(e) {
-            e.dataTransfer.setData('text/plain', card.dataset.idx);
-        });
+    card.addEventListener('dragstart', function(e) {
+        // Encuentra todos los checkboxes seleccionados
+        const selectedIdxs = Array.from(document.querySelectorAll('.file-checkbox:checked'))
+            .map(cb => cb.dataset.idx);
+        // Si ninguno está seleccionado, arrastra solo el actual
+        if (selectedIdxs.length === 0) {
+            e.dataTransfer.setData('text/plain', JSON.stringify([card.dataset.idx]));
+        } else {
+            e.dataTransfer.setData('text/plain', JSON.stringify(selectedIdxs));
+        }
     });
+});
 }
 
 // Drag & drop sobre el input
@@ -50,20 +65,24 @@ document.querySelectorAll('.form-control').forEach(fileInput => {
         fileInput.style.border = '';
     });
     fileInput.addEventListener('drop', e => {
-        e.preventDefault();
-        fileInput.style.border = '';
-        const idx = e.dataTransfer.getData('text/plain');
+    e.preventDefault();
+    fileInput.style.border = '';
+    const idxs = JSON.parse(e.dataTransfer.getData('text/plain'));
+    const dt = new DataTransfer();
+
+    // Mantén los archivos ya presentes
+    for (let i = 0; i < fileInput.files.length; i++) {
+        dt.items.add(fileInput.files[i]);
+    }
+
+    // Agrega todos los archivos seleccionados
+    idxs.forEach(idx => {
         if (fileObjects[idx]) {
-            const dt = new DataTransfer();
-
-            for (let i = 0; i < fileInput.files.length; i++) {
-                dt.items.add(fileInput.files[i]);
-            }
-
             dt.items.add(fileObjects[idx]);
-            fileInput.files = dt.files;
         }
     });
+    fileInput.files = dt.files;
+});
 });
 
 
