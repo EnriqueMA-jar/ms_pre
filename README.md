@@ -29,17 +29,20 @@ py -m venv <environment_name>
 ```
 4️. Activate the virtual environment
 
-#### Windows (PowerShell):
-```BASH
-./<environment_name>/Scripts/Activate.ps1
+#### Windows – PowerShell
+```SHELL
+.\<environment_name>\Scripts\Activate.ps1
 ```
 
-#### Windows (CMD):
+#### Windows – CMD
+```CMD
+<environment_name>\Scripts\activate.bat
 ```
-<environment_name>/Scripts/activate.bat
+#### Windows – Git Bash
+```GIT BASH
+source <environment_name>/Scripts/activate
 ```
-
-#### macOS / Linux:
+#### Linux / macOS
 ```BASH
 source <environment_name>/bin/activate
 ```
