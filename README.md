@@ -19,27 +19,34 @@ It provides scripts and modules to streamline data management, transformation, a
 ```BASH
 git clone https://github.com/EnriqueMA-jar/ms_pre.git
 ```
+
 2️. Move into the main directory
 ```BASH
 cd ms_pre
 ```
+
 3️. Create a virtual environment
+#### Windows (PowerShell o CMD)
 ```BASH
 py -m venv <environment_name>
 ```
-4️. Activate the virtual environment
+#### Linux / macOS
+```BASH
+python3 -m venv <environment_name>
+```
 
+4️. Activate the virtual environment
 #### Windows – PowerShell
-```SHELL
+```BASH
 .\<environment_name>\Scripts\Activate.ps1
 ```
 
 #### Windows – CMD
-```CMD
+```BASH
 <environment_name>\Scripts\activate.bat
 ```
 #### Windows – Git Bash
-```GIT BASH
+```BASH
 source <environment_name>/Scripts/activate
 ```
 #### Linux / macOS
