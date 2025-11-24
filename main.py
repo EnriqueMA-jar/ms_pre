@@ -867,7 +867,10 @@ def process_adducts():
     for file in files:
         path = f"{uploads_dir}/{file.filename}"
         file.save(path)
-    file_paths.append(path)
+        file_paths.append(path)
+        
+    for file in file_paths:
+        print("Procesando archivo:", file)
 
     # Llama a get_adduct_files con la lista de archivos
     output_files, output_files2, output_files3 = get_adduct_files(file_paths, ADDUCTS_DIR)

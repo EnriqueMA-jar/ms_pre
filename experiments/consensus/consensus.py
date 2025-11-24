@@ -7,11 +7,25 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
     feature_maps = []
     file_names = [os.path.basename(f) for f in feature_file_paths]
 
-    matrix_name = "".join([
-        re.sub(r"\(\d+\)", "", os.path.splitext(name)[0]) for name in file_names
-        ]).replace("_savgol","").replace("_centroided", "").replace("_Metabolomics","").replace("_Proteomics","").replace("_features","").replace("_aligned","").replace("_features","").replace("aligned_","").replace("-","").replace("_adducts","")
-
-    # Cargar los FeatureMaps
+    base_names = [
+        re.sub(r"\(\d+\)", "", os.path.splitext(name)[0])
+        .replace("_savgol","")
+        .replace("_centroided", "")
+        .replace("_Metabolomics","")
+        .replace("_Proteomics","")
+        .replace("_features","")
+        .replace("_aligned","")
+        .replace("aligned_","")
+        .replace("-","")
+        .replace("_adducts","")
+        for name in file_names
+    ]
+    max_files = 3  # Number of files to show in the short name
+    short_name = "_".join(base_names[:max_files])
+    if len(base_names) > max_files:
+        short_name += f"_plus{len(base_names)-max_files}"
+    matrix_name = f"{short_name}"
+    # Load featureXML files
     for feature_file in feature_file_paths:
         file_path = feature_file
         if os.path.exists(file_path):
@@ -22,16 +36,16 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
         else:
             print(f"  - Error: {feature_file} not found, skipping...")
 
-    # Cargar los archivos mzML (asumiendo que están en el mismo directorio y tienen nombres relacionados)
+    # Load mzML files (assuming they are in the same directory and have related names)
     mzml_files = []
     for name in file_names:
-        # Busca archivos mzML con el mismo nombre base
+        # Look for mzML files with the same base name
         base = name.replace(".featureXML","")
         possible_mzml = os.path.join(output_dir, base + ".mzML")
         if os.path.exists(possible_mzml):
             mzml_files.append(possible_mzml)
 
-    # Mapear identificaciones (IDMapper)
+    # Map identifications (IDMapper)
     feature_maps_mapped = []
     use_centroid_rt = False
     use_centroid_mz = True
@@ -40,7 +54,7 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
         exp = oms.MSExperiment()
         oms.MzMLFile().load(file, exp)
         for i, feature_map in enumerate(feature_maps):
-            # Verifica que el metadato coincida
+            # Check if metadata matches
             if feature_map.getMetaValue("spectra_data")[0].decode() == exp.getMetaValue("mzML_path"):
                 peptide_ids = []
                 protein_ids = []
@@ -127,7 +141,7 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
 
     output_path = os.path.join(output_dir, f"{matrix_name}.consensusXML")
     oms.ConsensusXMLFile().store(output_path, consensus_map)
-    print(f"\nConsensus matrix saved to: {output_path}")
+    # print(f"\nConsensus matrix saved to: {output_path}")
     
     oms.ConsensusXMLFile().load(output_path, consensus_map)
     
@@ -162,7 +176,7 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
     columns = ['rt', 'mz', 'intensity'] + filenames
     df = df[columns]
     csv = df.to_csv(index=False)
-    csv_path = os.path.join(output_dir, f"{matrix_name}_consensus_matrix.csv")
+    csv_path = os.path.join(output_dir, f"{matrix_name}_consensus.csv")
     with open(csv_path, 'w') as f:
         f.write(csv)
     print(f"Consensus matrix CSV saved to: {csv_path}")

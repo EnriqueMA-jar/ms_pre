@@ -53,6 +53,7 @@ def get_file_info_extended(file_path):
     
     # Procesar cada espectro
     for spec in exp:
+        polarity = spec.getInstrumentSettings().getPolarity()
         ms_level = spec.getMSLevel()
         ms_levels[ms_level] += 1
         
@@ -177,6 +178,10 @@ def get_file_info_extended(file_path):
         instrument = exp.getInstrument()
         if instrument is not None:
             instrument_name = instrument.getName()
+            ion_source = instrument.getIonSources()
+            for source in ion_source:
+                ionization_method = source.getIonizationMethod()
+                print(f"Ionization Method: {ionization_method}")
             for analyzer in instrument.getMassAnalyzers():
                 analyzers.append({
                     "type": analyzer.getType(),
@@ -204,7 +209,9 @@ def get_file_info_extended(file_path):
         "Chromatogram types": chrom_types,
         "Total chromatogram peaks": total_chrom_peaks,
         "Total peaks": total_peaks,
-        "Elapsed time (sec)": time.time() - start_time
+        "Elapsed time (sec)": time.time() - start_time,
+        "Ionization method": ionization_method,
+        "Polarity": polarity
     }
     
     return summary
