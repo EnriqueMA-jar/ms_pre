@@ -50,6 +50,8 @@ def get_file_info_extended(file_path):
     
     profile_by_level = defaultdict(int)
     centroid_by_level = defaultdict(int)
+    ionization_method = None
+    polarity = None
     
     # Procesar cada espectro
     for spec in exp:
@@ -210,7 +212,7 @@ def get_file_info_extended(file_path):
         "Total chromatogram peaks": total_chrom_peaks,
         "Total peaks": total_peaks,
         "Elapsed time (sec)": time.time() - start_time,
-        "Ionization method": ionization_method,
+        "Ionization method": ionization_method if ionization_method else None,
         "Polarity": polarity
     }
     
