@@ -18,8 +18,8 @@ def load_mzml_file(file_path):
     
 
     if len(spectra_ms1) > 0 and len(spectra_ms2) > 0:
-        ms1_index = min(500, len(spectra_ms1) - 1)  # MS1 spectrum
-        ms2_index = min(100, len(spectra_ms2) - 1)  # MS2 spectrum
+        ms1_index = min(300, len(spectra_ms1) - 1)  # MS1 spectrum
+        ms2_index = min(80, len(spectra_ms2) - 1)  # MS2 spectrum
 
         spectrum_ms1 = spectra_ms1[ms1_index]
         #print(f"spectrum_ms1: {spectrum_ms1.getType()}")

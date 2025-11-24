@@ -68,70 +68,57 @@ app.config['SESSION_PERMANENT'] = False
 # Large file upload endpoint/function ####################################
 @app.route('/upload_chunk', methods=['POST'])
 def upload_chunk():
+    """
+    Endpoint para recibir y ensamblar archivos subidos en chunks.
+    Espera los siguientes campos en el form-data:
+    - chunk: el fragmento de archivo
+    - filename: nombre original del archivo
+    - upload_id: id único de la subida
+    - chunk_index: índice del chunk
+    - total_chunks: número total de chunks
+    - target_dir: carpeta destino
+    """
     try:
-        # Ensure base chunks directory exists
-        os.makedirs(CHUNKS_DIR, exist_ok=True)
         chunk = request.files['chunk']
         filename = request.form['filename']
+        upload_id = request.form['upload_id']
         chunk_index = int(request.form['chunk_index'])
         total_chunks = int(request.form['total_chunks'])
-        chunk_folder = os.path.join(CHUNKS_DIR, filename)
-        target_dir = request.form.get('target_dir')
-        os.makedirs(target_dir, exist_ok=True)
-        #print(f"[UPLOAD_CHUNK] filename={filename}, chunk_index={chunk_index}, total_chunks={total_chunks}")
-        # If it exists as a file, remove it before creating the directory
-        if os.path.isfile(chunk_folder):
-            print(f"[UPLOAD_CHUNK] {chunk_folder} exists as file, removing...")
-            os.remove(chunk_folder)
-        if not os.path.exists(chunk_folder):
-            os.makedirs(chunk_folder, exist_ok=True)
+        target_dir = request.form.get('target_dir', 'mzML_samples')
+
+        # Carpeta temporal para los chunks de este archivo
+        chunk_folder = os.path.join(CHUNKS_DIR, upload_id)
+        os.makedirs(chunk_folder, exist_ok=True)
+
+        # Guardar el chunk
         chunk_path = os.path.join(chunk_folder, f"chunk_{chunk_index}")
         chunk.save(chunk_path)
-        #print(f"[UPLOAD_CHUNK] Saved chunk to {chunk_path}")
 
-        # Verify if all chunks have been uploaded
+        # Revisar si ya se recibieron todos los chunks
         uploaded_chunks = len([name for name in os.listdir(chunk_folder) if name.startswith('chunk_')])
-        #print(f"[UPLOAD_CHUNK] Uploaded chunks: {uploaded_chunks}/{total_chunks}")
         if uploaded_chunks == total_chunks:
-            # Merge the chunks
+            # Ensamblar el archivo final
+            os.makedirs(target_dir, exist_ok=True)
             assembled_path = os.path.join(target_dir, filename)
             print(f"[UPLOAD_CHUNK] All chunks received. Assembling to {assembled_path}")
             with open(assembled_path, 'wb') as assembled:
                 for i in range(total_chunks):
                     part_path = os.path.join(chunk_folder, f"chunk_{i}")
-                    if not os.path.exists(part_path):
-                        print(f"[UPLOAD_CHUNK][ERROR] Missing chunk: {part_path}")
-                        return jsonify({'status': 'error', 'message': f'Missing chunk {i}'}), 500
                     with open(part_path, 'rb') as part:
                         assembled.write(part.read())
-            # Clean up chunks (try once, skip on access denied, do not print repeated warnings)
-            failed_removals = 0
-            for i in range(total_chunks):
-                try:
-                    os.remove(os.path.join(chunk_folder, f"chunk_{i}"))
-                except PermissionError:
-                    failed_removals += 1
-                    # Do not print warning, just skip
-                except FileNotFoundError:
-                    pass
-                except Exception as e:
-                    failed_removals += 1
-            try:
-                os.rmdir(chunk_folder)
-            except Exception:
-                # Silently skip if folder can't be removed (likely due to undeleted chunks)
-                pass
-            if failed_removals > 0:
-                print(f"[UPLOAD_CHUNK][WARN] {failed_removals} chunk files could not be removed (access denied or in use).")
+            # Limpiar los chunks temporales
+            for name in os.listdir(chunk_folder):
+                os.remove(os.path.join(chunk_folder, name))
+            os.rmdir(chunk_folder)
+            # Guardar la ruta en sesión para el summary
+            session['file_path'] = assembled_path
             print(f"[UPLOAD_CHUNK] Assembly complete. Returning file_path: {assembled_path}")
             return jsonify({'status': 'complete', 'file_path': assembled_path})
-        return jsonify({'status': 'incomplete', 'received': chunk_index})
+        else:
+            return jsonify({'status': 'incomplete', 'received': uploaded_chunks, 'total': total_chunks})
     except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        print(f"[UPLOAD_CHUNK][ERROR] Exception: {e}\n{tb}")
-        # Return more structured error info to the client (without exposing sensitive internal state)
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        print(f"[UPLOAD_CHUNK] Error: {e}")
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -772,27 +759,28 @@ def process_mzML():
     elif 'filename' in request.form:
         filename = request.form.get('filename')
 
-    if not filename and filename.endswith('.mzML'):
+    # Validación de extensión
+    if not filename or not filename.endswith('.mzML'):
         alert = "Invalid file type. Please upload a .mzML file."
         return render_template('summary.html', error_alert=alert, page='Summary')
-    filter_type = request.form.get('filter_options', 'Plasma')
-    #print(f"[DEBUG] filter_type recibido: {filter_type}")
-    filename = request.form.get('filename')
 
+    filter_type = request.form.get('filter_options', 'Plasma')
+
+    # Determinar la ruta real del archivo
     if file:
-        path = f"mzML_samples/{file.filename}"
+        path = os.path.join('mzML_samples', filename)
         session['file_path'] = path
         file.save(path)
-        filename = file.filename
     else:
+        # Si viene de upload_chunk, la ruta ya está en session['file_path']
         path = session.get('file_path')
+        # Si no está en sesión, intenta buscar en mzML_samples/
         if not path and filename:
-            path = f"mzML_samples/{filename}"
-        if not filename and path:
-            filename = path.split('/')[-1]
+            path = os.path.join('mzML_samples', filename)
         # Si no hay archivo, error
-        if not path:
-            return "No file selected", 400
+        if not path or not os.path.exists(path):
+            alert = f"Error: Archivo '{path}' no encontrado"
+            return render_template('summary.html', error_alert=alert, page='Summary')
 
     import plotly.io as pio
     import pandas as pd
@@ -851,15 +839,13 @@ def process_mzML():
     plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
     plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
 
-    # If theres a AJAX request, return only the plot HTML
+    # If AJAX request, return only the plot HTML
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         print("AJAX request detected for summary")
         return jsonify({'plot_html': plot_html, 'plot_html2': plot_html2})
-    
-    # Otherwise, return the full page
-    # Calling the summary page
-    return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')
 
+    # Otherwise, return the full page
+    return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')
 
 # Adduct page #############################
 @app.route('/adducts')
