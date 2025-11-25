@@ -2,9 +2,11 @@ from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, send_file, jsonify, url_for, send_from_directory
 import re
 import os
+import pandas as pd
 # Import summary functions
 from experiments.summary.summary import get_file_info
 from experiments.tic.tic_2d_3d import main as plot_tic
+from experiments.tic.tic_2d_3d import load_and_process_data
 from experiments.summary.summary_extended import get_file_info_extended 
 
 # Import chromatogram functions
@@ -487,13 +489,6 @@ def process_gnps():
             workflow_step_finished('gnps', generated_files)
             #advance_workflow_step('gnps')
             return render_template('gnps.html', download_links_gnps=download_links, page='GNPS')
-            # for output_file in output_files:
-            #     if output_file and os.path.exists(output_file):
-            #         filename = os.path.basename(output_file)
-            #         download_link = f"/uploads/gnps/{filename}"
-            #         download_links.append(download_link)
-            #     else:
-            #         print(f"[ERROR] No se generó archivo GNPS para {output_file}")
 
         return render_template('gnps.html', download_links_gnps=download_links, page='GNPS')
 
@@ -811,26 +806,45 @@ def process_mzML():
     result2 = {k: clean_value(v) for k, v in result.items()}
 
     # Para 3D spikes y para obtener los datos base
-    rt_list, mz_list, tic_list = None, None, None
+    df_summary = None
 
-    # Usamos la función de TIC2 para obtener los datos base
-    from experiments.tic.tic_2d_3d import load_and_process_data
-    try: 
-        rt_list, mz_list, tic_list = load_and_process_data(path)
-    except Exception as e:
-        alert = f"Error loading and processing data: {str(e)}"
-        return render_template('summary.html', error_alert=alert, page='Summary')
+    # If DataFrame exists in the session, use it
+    if 'df_summary' in session:
+        df_summary = pd.read_json(session.get('df_summary_path'))
+        df_summary['filter_type'] = filter_type
+    else:
+        try: 
+            df_summary = load_and_process_data(path)
+            session.pop('df_summary', None)
+            session['df_summary'] = df_summary.to_json('uploads/temp_chunks/df_summary.json')
+            session['df_summary_path'] = 'uploads/temp_chunks/df_summary.json'
+        except Exception as e:
+            alert = f"Error loading and processing data: {str(e)}"
+            return render_template('summary.html', error_alert=alert, page='Summary')
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and 'df_summary' in session:
+        print("AJAX request detected for summary")
+        df_summary = pd.read_json(session.get('df_summary_path'))
+        df_summary['filter_type'] = filter_type
+        session['df_summary'] = df_summary.to_json(session.get('df_summary_path'))
+        try:
+            fig = plot_tic(df_summary=df_summary, mode='3d-spikes', max_points=10000, filter_type=filter_type)
+            fig2, _ = plot_tic(df_summary=df_summary, mode='2d', max_points=10000, filter_type=filter_type)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+        plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
+        plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
+        return jsonify({'plot_html': plot_html, 'plot_html2': plot_html2})
 
     try:
-        fig = plot_tic(path, mode='3d-spikes', max_points=10000, df=None, filter=filter_type)
+        fig = plot_tic(df_summary=df_summary, mode='3d-spikes', max_points=10000, filter_type=filter_type)
     except Exception as e:
         alert = f"Error generating 3D TIC plot: {str(e)}"
         return render_template('summary.html', error_alert=alert, page='Summary')
 
-    # For 2D, we create the DataFrame from the same data
-    df = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'Total Ion Current': tic_list})
     try:
-        fig2, _ = plot_tic(path, mode='2d', max_points=10000, df=df, filter=filter_type)
+        fig2, _ = plot_tic(df_summary=df_summary, mode='2d', max_points=10000, filter_type=filter_type)
     except Exception as e:
         alert = f"Error generating 2D TIC plot: {str(e)}"
         return render_template('summary.html', error_alert=alert, page='Summary')
@@ -838,11 +852,6 @@ def process_mzML():
     # result plots
     plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
     plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
-
-    # If AJAX request, return only the plot HTML
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        print("AJAX request detected for summary")
-        return jsonify({'plot_html': plot_html, 'plot_html2': plot_html2})
 
     # Otherwise, return the full page
     return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')
@@ -1242,12 +1251,17 @@ def inject_workflow_vars():
     workflow_status = session.get('workflow_status', 'not started')
     current_steps = session.get('current_steps', [])
     step_status = session.get('step_status', 'not started')
+    if 'df_summary' in session:
+        df_summary = pd.read_json(session.get('df_summary_path'))
+    else:
+        df_summary = None
     return {
         'workflow_id': workflow_id, 
         'current_workflow': current_workflow, 
         'workflow_status': workflow_status,
         'current_steps': current_steps,
         'step_status': step_status,
+        'df_summary': df_summary
     }
 
 def advance_workflow_step(step_name):

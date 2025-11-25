@@ -3,45 +3,40 @@ import time
 import os
 from collections import defaultdict
 
+
 def get_file_info_extended(file_path):
     """
-    Replica la funcionalidad del comando FileInfo de OpenMS
+    Replicates the functionality of the OpenMS FileInfo command line tool with extended details.
     """
     start_time = time.time()
     
-    # Verificar que el archivo existe
+    # Check if the file exists
     if not os.path.exists(file_path):
-        print(f"Error: Archivo '{file_path}' no encontrado")
+        print(f"Error: File '{file_path}' not found")
         return
     
-    # Obtener tamaño del archivo
+    # Get file size
     file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
     
-    # Cargar el archivo silenciosamente
+    # Load the file silently
     exp = MSExperiment()
     MzMLFile().load(file_path, exp)
     
-    #print("\n-- General information --")
-    #print(f"File name: {os.path.basename(file_path)}")
-    #print(f"File type: mzML")
-    
-    # Información del instrumento
+    # Instrument information
     try:
         instrument = exp.getInstrument()
         if instrument is not None:
-            #print(f"Instrument: {instrument.getName()}")
             
-            # Información del analizador de masa
+            # Mass analyzer information
             for analyzer in instrument.getMassAnalyzers():
                 analyzer_type = analyzer.getType()
                 resolution = analyzer.getResolution()
-                #print(f"  Mass Analyzer: {analyzer_type} (resolution: {resolution})")
         else:
             print("Instrument: Unknown")
     except:
         print("Instrument: Unknown")
     
-    # Análisis de espectros
+    # Spectrum analysis
     ms_levels = defaultdict(int)
     total_peaks = 0
     all_rt = []
@@ -53,13 +48,13 @@ def get_file_info_extended(file_path):
     ionization_method = None
     polarity = None
     
-    # Procesar cada espectro
+    # Process each spectrum
     for spec in exp:
         polarity = spec.getInstrumentSettings().getPolarity()
         ms_level = spec.getMSLevel()
         ms_levels[ms_level] += 1
         
-        # Obtener datos de picos
+        # Get peak data
         if spec.size() > 0:
             try:
                 mz_array, intensity_array = spec.get_peaks()
@@ -69,14 +64,14 @@ def get_file_info_extended(file_path):
                     all_mz.extend(mz_array)
                     all_intensity.extend(intensity_array)
                 
-                # Determinar tipo de datos por nivel MS
+                # Determine data type by MS level
                 spec_type = spec.getType()
                 if spec_type == 0:  # Profile
                     profile_by_level[ms_level] += 1
                 elif spec_type == 1:  # Centroid
                     centroid_by_level[ms_level] += 1
                 else:
-                    # Estimación basada en densidad
+                    # Density-based estimation
                     if len(mz_array) > 1:
                         mz_range = mz_array[-1] - mz_array[0]
                         if mz_range > 0:
@@ -88,9 +83,9 @@ def get_file_info_extended(file_path):
             except:
                 pass
         
-        # Tiempo de retención
+        # Retention time
         rt = spec.getRT()
-        if 0 < rt < 1e6:  # Filtrar valores extremos
+        if 0 < rt < 1e6:  # Filter out extreme values
             all_rt.append(rt)
     
     ms_levels_sorted = sorted(ms_levels.keys())

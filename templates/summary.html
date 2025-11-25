@@ -88,6 +88,7 @@
             <section class="result_section2">
                 <div class="plot_tic_container">
                 {% if plot_html %}
+                <h5>3D Surface Plot - TIC</h5>
                 <div id="plotly-graph-1">
                     {{ plot_html|safe }}
                 </div>
@@ -97,6 +98,7 @@
             <section class="result_section3">
                 <div class="plot_tic_container">
                 {% if plot_html2 %}
+                <h5>2D Heatmap Plot - TIC</h5>
                     <div id="plotly-graph-2">
                         {{ plot_html2|safe }}
                     </div>
