@@ -1,3 +1,4 @@
+from flask import session
 import pyopenms as oms
 import numpy as np
 import plotly.graph_objects as go
@@ -11,9 +12,7 @@ from plotly.subplots import make_subplots
 from scipy.ndimage import gaussian_filter
 from scipy.interpolate import griddata
 
-
-
-# sample file path mzML_samples/Col/Col_1.mzML
+from experiments.summary import summary
 
 
 def load_and_process_data(file_path):
@@ -42,11 +41,15 @@ def load_and_process_data(file_path):
             rt_list.append(rt)
             mz_list.append(mz)
             tic_list.append(tic)
+            
+    session['df_summary'] = None
+    df_summary = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'TIC': tic_list, 'filter_type': ['Plasma'] * len(rt_list)}, columns=['RT', 'mz', 'TIC', 'filter_type'])
+    session['df_summary'] = df_summary.to_json('uploads/temp_chunks/df_summary.json')
 
-    return rt_list, mz_list, tic_list
+    return df_summary
 
 # Function to create a 3D scatter plot using Plotly
-def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, filter_type='Viridis'):
+def create_optimized_3d_spikes(df_summary, max_points=10000):
     """
     Crea una gráfica 3D tipo superficie (como 3d_personalizado.py) pero usando filter_type como colorscale.
     """
@@ -54,9 +57,9 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, fil
     import plotly.graph_objects as go
 
     # Convertir listas a arrays de numpy
-    rt_array = np.array(rt_list)
-    mz_array = np.array(mz_list)
-    tic_array = np.array(tic_list)
+    rt_array = np.array(df_summary['RT'])
+    mz_array = np.array(df_summary['mz'])
+    tic_array = np.array(df_summary['TIC'])
 
     # Si hay demasiados puntos, muestrea aleatoriamente
     n_points = len(rt_array)
@@ -86,7 +89,7 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, fil
         x=X,
         y=Y,
         z=heatmap.T,
-        colorscale=filter_type,
+        colorscale=df_summary['filter_type'].iloc[0],
         colorbar=dict(
             title=dict(
                 text='Intensity',
@@ -112,11 +115,12 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, fil
     )])
 
     fig.update_layout(
-        title=dict(
-            text='3D Surface Plot - LC-MS Data',
-            x=0.5,
-            font=dict(size=20, color='darkblue')
-        ),
+        # title=dict(
+        #     text='3D Surface Plot - LC-MS Data',
+        #     x=0.5,
+        #     font=dict(size=20, color='darkblue')
+        # ),
+        margin=dict(l=10, r=10, t=30, b=10),
         scene=dict(
             xaxis=dict(
                 title='Retention Time (min)',
@@ -144,8 +148,8 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, fil
                 eye=dict(x=1.5, y=1.5, z=1.5)
             )
         ),
-        width=600,
-        height=500
+        width=700,
+        height=550
     )
 
     return fig
@@ -226,21 +230,20 @@ def create_optimized_3d_spikes(rt_list, mz_list, tic_list, max_points=10000, fil
 #     return fig
 
     
-def create_2d_surface_and_heatmap(rt_list, mz_list, tic_list, filter_type='Plasma'): 
-    df = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'Total Ion Current': tic_list})
-    df = df.dropna(subset=['RT', 'mz', 'Total Ion Current'])
+def create_2d_surface_and_heatmap(df_summary): 
     
-    rt_min, rt_max = df['RT'].min(), df['RT'].max()
-    mz_min, mz_max = df['mz'].min(), df['mz'].max()
     
-    num_rt_bins = min(300, len(df['RT'].unique()))
-    num_mz_bins = min(300, int(len(df['mz'].unique())/10))
+    rt_min, rt_max = df_summary['RT'].min(), df_summary['RT'].max()
+    mz_min, mz_max = df_summary['mz'].min(), df_summary['mz'].max()
+    
+    num_rt_bins = min(300, len(df_summary['RT'].unique()))
+    num_mz_bins = min(300, int(len(df_summary['mz'].unique())/10))
     
     rt_edges = np.linspace(rt_min, rt_max, num_rt_bins + 1)
     mz_edges = np.linspace(mz_min, mz_max, num_mz_bins + 1)
     
     H, rt_edges, mz_edges = np.histogram2d(
-        df['RT'], df['mz'], bins=[rt_edges, mz_edges], weights=df['Total Ion Current']
+        df_summary['RT'], df_summary['mz'], bins=[rt_edges, mz_edges], weights=df_summary['TIC']
     )
     
     H_smooth = gaussian_filter(H, sigma=1)
@@ -256,61 +259,36 @@ def create_2d_surface_and_heatmap(rt_list, mz_list, tic_list, filter_type='Plasm
             z=H_log,
             x=mz_centers,
             y=rt_centers,
-            colorscale=filter_type,
+            colorscale=df_summary['filter_type'].iloc[0],
             colorbar=dict(title='Log(TIC)'),
             showscale=True
         )
     )
     fig.update_layout(
-        title='2D TIC Heatmap',
+        # title='2D TIC Heatmap',
+        margin=dict(l=10, r=10, t=30, b=10),
         template='plotly_white',
         font=dict(color='black'),
         yaxis_title='Retention Time (min)',
         xaxis_title='m/z',
-        width=650,
-        height=500
+        width=550,
+        height=550
     )
-    return fig, df
+    return fig, df_summary
 
-# Obtain all peaks as a DataFrame
-# def get_all_peaks(file_path):
-#     exp = oms.MSExperiment()
-#     oms.MzMLFile().load(file_path, exp)
-#     spectra = exp.getSpectra()
-#     data = []
-#     for spectrum in spectra:
-#         if spectrum.getMSLevel() == 1:
-#             rt = spectrum.getRT() / 60  # minutes
-#             mz_array, intensity_array = spectrum.get_peaks()
-#             for mz, intensity in zip(mz_array, intensity_array):
-#                 if intensity > 5:  # threshold to filter noise
-#                     data.append({'RT': rt, 'mz': mz, 'Total Ion Current': intensity})
-#     return pd.DataFrame(data)
-def main(file_path, mode, max_points, df, filter):
+def main(file_path=None, mode=None, max_points=None, df_summary=None, filter_type='Plasma'):
+    if df_summary is not None:
+        df_summary['filter_type'] = filter_type
+    else:
+        df_summary = load_and_process_data(file_path)
     # For 2D mode, use all individual peaks, not just spectrum averages
     if mode == '2d':
-        # Get all peaks as a DataFrame (each row: RT, mz, intensity)
-        # df = get_all_peaks(file_path)
-        # Create the combined 2D/3D visualization using the new method
-        fig = create_2d_surface_and_heatmap(df['RT'], df['mz'], df['Total Ion Current'], filter_type=filter)
+        fig = create_2d_surface_and_heatmap(df_summary=df_summary)
         return fig
-
     # For 3D and 3d-spikes, keep using the original logic
-    rt_list, mz_list, tic_list = load_and_process_data(file_path)
-    if mode == '3d':
-        fig = create_optimized_3d_spikes(rt_list, mz_list, tic_list,
-                                         max_points=max_points, filter_type=filter)
-        return fig
     elif mode == '3d-spikes':
-        fig = create_optimized_3d_spikes(rt_list, mz_list, tic_list,
-                                      max_points=max_points, filter_type=filter)
+        fig = create_optimized_3d_spikes(df_summary=df_summary, max_points=max_points)
         return fig
-    elif mode == '3d-surface':
-        fig = create_3d_surface(rt_list, mz_list, tic_list,
-                                width=650, height=500, filter_type=filter)
-        return fig
-
-    # Default: return None if mode is not recognized
     return None
 
     

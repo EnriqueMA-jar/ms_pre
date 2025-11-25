@@ -10,10 +10,10 @@
         <div class="generated-files-section" id="generated-files-section"> </div>
 <script>
 const generatedFiles = {{ session.get('generated_files', []) | tojson | safe }};
-let fileObjects = []; // <-- Declarar aquí
+let fileObjects = []; // <-- Declare here
 
 async function fetchAllFilesAndRenderCards() {
-    fileObjects = []; // <-- Limpiar antes de llenar
+    fileObjects = []; // Clear the array before populating it
     for (const file of generatedFiles) {
         const response = await fetch(file.path);
         const blob = await response.blob();
@@ -39,13 +39,13 @@ async function fetchAllFilesAndRenderCards() {
         `
     ).join('');
 
-    // Añadir eventos drag a cada card
+    // Add dragstart event listeners to cards
     document.querySelectorAll('.cards').forEach(card => {
     card.addEventListener('dragstart', function(e) {
-        // Encuentra todos los checkboxes seleccionados
+        // Find all selected checkboxes
         const selectedIdxs = Array.from(document.querySelectorAll('.file-checkbox:checked'))
             .map(cb => cb.dataset.idx);
-        // Si ninguno está seleccionado, arrastra solo el actual
+        // If none are selected, drag only the current one
         if (selectedIdxs.length === 0) {
             e.dataTransfer.setData('text/plain', JSON.stringify([card.dataset.idx]));
         } else {
@@ -55,7 +55,7 @@ async function fetchAllFilesAndRenderCards() {
 });
 }
 
-// Drag & drop sobre el input
+// Drag & drop over the input
 document.querySelectorAll('.form-control').forEach(fileInput => {
     fileInput.addEventListener('dragover', e => {
         e.preventDefault();
@@ -70,12 +70,12 @@ document.querySelectorAll('.form-control').forEach(fileInput => {
     const idxs = JSON.parse(e.dataTransfer.getData('text/plain'));
     const dt = new DataTransfer();
 
-    // Mantén los archivos ya presentes
+    // Keep the files already present in the input
     for (let i = 0; i < fileInput.files.length; i++) {
         dt.items.add(fileInput.files[i]);
     }
 
-    // Agrega todos los archivos seleccionados
+    // Add all selected files
     idxs.forEach(idx => {
         if (fileObjects[idx]) {
             dt.items.add(fileObjects[idx]);
