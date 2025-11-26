@@ -10,12 +10,12 @@ def get_consensus_matrix(feature_file_paths, output_dir, empty_idmxl):
     base_names = [
         re.sub(r"\(\d+\)", "", os.path.splitext(name)[0])
         .replace("_savgol","")
-        .replace("_centroided", "")
-        .replace("_Metabolomics","")
-        .replace("_Proteomics","")
+        .replace("_centroid", "")
+        .replace("_Meta","")
+        .replace("_Prote","")
         .replace("_features","")
         .replace("_aligned","")
-        .replace("aligned_","")
+        .replace("_align","")
         .replace("-","")
         .replace("_adducts","")
         for name in file_names

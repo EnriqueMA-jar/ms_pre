@@ -86,7 +86,7 @@ def align_files(feature_file_paths, mzML_file_paths, resolution, output_dir, val
     print("\nSaving aligned featureXML files...")
     for i, feature_map in enumerate(feature_maps):
         base_name = os.path.basename(feature_file_paths[i])
-        aligned_file = os.path.join(output_dir, f"aligned_{base_name}")
+        aligned_file = os.path.join(output_dir, f"align_{base_name}")
         oms.FeatureXMLFile().store(aligned_file, feature_map)
         aligned_feature_paths.append(aligned_file)
         print(f"  - Saved: {aligned_file}")
@@ -113,7 +113,7 @@ def align_files(feature_file_paths, mzML_file_paths, resolution, output_dir, val
         tran_description = transform_files.get(feature_file)
 
         # save the aligned mzML file
-        aligned_mzML_path = os.path.join(output_dir, f"aligned_{base_name}")
+        aligned_mzML_path = os.path.join(output_dir, f"align_{base_name}")
 
         if tran_description is None:
             # Is the reference file, save directly

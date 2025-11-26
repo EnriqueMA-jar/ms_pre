@@ -226,13 +226,13 @@ def process_alignment():
                 for path in download_links_features_paths + mapped_feature_paths + download_links_mzml_paths:
                     generated_files.append({
                         "filename": os.path.basename(path),
-                        "path": path
+                        "path": f"/uploads/alignment/{os.path.basename(path)}"
                     })
             else:
                 for path in download_links_features_paths + download_links_mzml_paths:
                     generated_files.append({
                         "filename": os.path.basename(path),
-                        "path": path
+                        "path": f"/uploads/alignment/{os.path.basename(path)}"
                     })
             workflow_step_finished('alignment', generated_files)
             #advance_workflow_step('alignment')
@@ -1277,14 +1277,16 @@ def advance_workflow_step(step_name):
 def workflow_step_finished(step_name=None, generated_files=None):
 
     if session.get('workflow_status') == 'started':
-        if 'generated_files' not in session or not isinstance(session['generated_files'], list):
-            session['generated_files'] = []
-        if generated_files:
+        if 'generated_files' not in session or not isinstance(session['generated_files'], dict):
+            session['generated_files'] = {}
+        if generated_files and step_name:
+            if step_name not in session['generated_files']:
+                session['generated_files'][step_name] = []
             # Evita duplicados
-            filenames = {f['filename'] for f in session['generated_files']}
+            filenames = {f['filename'] for f in session['generated_files'][step_name]}
             for f in generated_files:
                 if f['filename'] not in filenames:
-                    session['generated_files'].append(f)
+                    session['generated_files'][step_name].append(f)
         session['step_status'] = 'finished'
         
         

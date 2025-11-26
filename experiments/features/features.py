@@ -75,7 +75,7 @@ def detect_features(file_paths, mass_error_ppm, noise_threshold_int, features_ty
                 fm.setPrimaryMSRunPath([input_path.encode()])
     
                 # Define output path
-                output_paths.append(input_path.replace(".mzML", "_Metabolomics_features.featureXML"))
+                output_paths.append(input_path.replace(".mzML", "_Meta.featureXML"))
     
                 # Save the result to a FeatureXML file
                 oms.FeatureXMLFile().store(output_paths[-1], fm)
@@ -117,7 +117,7 @@ def detect_features(file_paths, mass_error_ppm, noise_threshold_int, features_ty
                         print(f"[WARN] No features detected in {input_path}")
 
                     # Define output path
-                    output_file = input_path.replace(".mzML", "_Proteomics_features.featureXML")
+                    output_file = input_path.replace(".mzML", "_Prote.featureXML")
                     output_paths.append(output_file)
 
                     # Asignar IDs únicos y guardar en archivo

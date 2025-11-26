@@ -14,7 +14,7 @@ def centroid_file(file_paths, output_dir):
     output_files = []
     for file_path in file_paths:
         input_filename = os.path.basename(file_path)
-        output_filename = os.path.splitext(input_filename)[0] + "_centroided.mzML"
+        output_filename = os.path.splitext(input_filename)[0] + "_centroid.mzML"
         output_file = os.path.join(output_dir, output_filename)
         output_files.append(output_file)
 

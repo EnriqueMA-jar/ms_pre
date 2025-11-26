@@ -17,11 +17,11 @@
             <h4>Select files:</h4>
             <form action="/get_files_gnps" method="post" enctype="multipart/form-data" id="uploadForm">
                 <div class="input-group mb-3 inputs">
-                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Feature" name="mzml_filename" accept=".mzML" required multiple>
+                    <input type="file" class="form-control workflow-file-input" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Feature" name="mzml_filename" accept=".mzML" required multiple>
                     <label class="input-group-text" style="min-width: 210px; text-align:center;">mzML Aligned Files</label>
                 </div>
                 <div class="input-group mb-3 inputs">
-                    <input type="file" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="mzML" name="consensus_filename" accept=".consensusXML" required>
+                    <input type="file" class="form-control workflow-file-input" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="mzML" name="consensus_filename" accept=".consensusXML" required>
                     <label class="input-group-text" style="min-width: 110px; text-align:center;">Consensus Files</label>
                     <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Process</button>
                 </div>
