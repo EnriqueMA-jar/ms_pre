@@ -1230,7 +1230,9 @@ def start_workflow(workflow_id):
     session['workflow_id'] = workflow_id
     session['workflow_status'] = 'started'
     session['step_status'] = 'started'
+    session['generated_files'] = {}  # Inicializar como diccionario vacío
     workflow_status = session['workflow_status']
+
 
     if workflow_id == 1:
         current_workflow = "Untargeted Metabolomics Pre-Processing"
@@ -1262,11 +1264,9 @@ def end_workflow():
     session['workflow_id'] = 0
     session['workflow_status'] = 'finished'
     session['step_status'] = 'finished'
-    session.pop('generated_files', None)
-    # current_workflow = session.get('current_workflow')
-    # workflow_status = session['workflow_status']
-    # workflow_id = session['workflow_id']
+    session['generated_files'] = {}  # Cambiar a diccionario vacío
     return render_template('index.html', page='Home')
+
 
 
 # Get the workflows vars for every page
@@ -1303,14 +1303,22 @@ def advance_workflow_step(step_name):
 def workflow_step_finished(step_name=None, generated_files=None):
 
     if session.get('workflow_status') == 'started':
-        if 'generated_files' not in session or not isinstance(session['generated_files'], list):
-            session['generated_files'] = []
+        if 'generated_files' not in session or not isinstance(session['generated_files'], dict):
+            session['generated_files'] = {}
+        
         if generated_files:
-            # Evita duplicados
-            filenames = {f['filename'] for f in session['generated_files']}
-            for f in generated_files:
-                if f['filename'] not in filenames:
-                    session['generated_files'].append(f)
+            # Agrupar archivos por extensión
+            for file_info in generated_files:
+                filename = file_info.get('filename', '')
+                ext = filename.split('.')[-1].lower() if '.' in filename else 'other'
+                
+                if ext not in session['generated_files']:
+                    session['generated_files'][ext] = []
+                
+                session['generated_files'][ext].append(file_info)
+            
+            session.modified = True
+        
         session['step_status'] = 'finished'
         
         
