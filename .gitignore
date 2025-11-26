@@ -6,3 +6,4 @@
 *.consensusXML
 *.tsv
 *.csv
+/uploads/
