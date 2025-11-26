@@ -226,13 +226,13 @@ def process_alignment():
                 for path in download_links_features_paths + mapped_feature_paths + download_links_mzml_paths:
                     generated_files.append({
                         "filename": os.path.basename(path),
-                        "path": f"/uploads/alignment/{os.path.basename(path)}"
+                        "path": path
                     })
             else:
                 for path in download_links_features_paths + download_links_mzml_paths:
                     generated_files.append({
                         "filename": os.path.basename(path),
-                        "path": f"/uploads/alignment/{os.path.basename(path)}"
+                        "path": path
                     })
             workflow_step_finished('alignment', generated_files)
             #advance_workflow_step('alignment')
@@ -766,6 +766,16 @@ def process_mzML():
         path = os.path.join('mzML_samples', filename)
         session['file_path'] = path
         file.save(path)
+        # Limpiar el DataFrame anterior cuando se sube un nuevo archivo
+        session.pop('df_summary', None)
+        session.pop('df_summary_path', None)
+        # Limpiar el archivo JSON si existe
+        df_json_path = 'uploads/temp_chunks/df_summary.json'
+        if os.path.exists(df_json_path):
+            try:
+                os.remove(df_json_path)
+            except Exception as e:
+                print(f"Error removing old df_summary.json: {e}")
     else:
         # Si viene de upload_chunk, la ruta ya está en session['file_path']
         path = session.get('file_path')
@@ -807,26 +817,41 @@ def process_mzML():
 
     # Para 3D spikes y para obtener los datos base
     df_summary = None
+    df_json_path = 'uploads/temp_chunks/df_summary.json'
 
-    # If DataFrame exists in the session, use it
-    if 'df_summary' in session:
-        df_summary = pd.read_json(session.get('df_summary_path'))
-        df_summary['filter_type'] = filter_type
-    else:
+    # Verificar si es una petición AJAX (solo cambio de filtro, no nuevo archivo)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    # Si es AJAX y tenemos el DataFrame guardado, usarlo
+    if is_ajax and 'df_summary_path' in session and os.path.exists(session.get('df_summary_path', '')):
+        try:
+            df_summary = pd.read_json(session.get('df_summary_path'))
+            df_summary['filter_type'] = filter_type
+        except Exception as e:
+            print(f"Error reading cached df_summary: {e}")
+            df_summary = None
+    
+    # Si no tenemos DataFrame (nuevo archivo o error al leer), cargarlo
+    if df_summary is None:
         try: 
             df_summary = load_and_process_data(path)
-            session.pop('df_summary', None)
-            session['df_summary'] = df_summary.to_json('uploads/temp_chunks/df_summary.json')
-            session['df_summary_path'] = 'uploads/temp_chunks/df_summary.json'
+            df_summary['filter_type'] = filter_type
+            # Guardar el DataFrame
+            os.makedirs('uploads/temp_chunks', exist_ok=True)
+            df_summary.to_json(df_json_path)
+            session['df_summary_path'] = df_json_path
+            session['df_summary'] = 'loaded'  # Solo un flag, no el JSON completo
         except Exception as e:
             alert = f"Error loading and processing data: {str(e)}"
             return render_template('summary.html', error_alert=alert, page='Summary')
 
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and 'df_summary' in session:
+    # Validar que el DataFrame tenga datos válidos
+    if df_summary is None or df_summary.empty or df_summary['TIC'].isna().all():
+        alert = "Error: No valid data found in the file."
+        return render_template('summary.html', error_alert=alert, page='Summary')
+
+    if is_ajax:
         print("AJAX request detected for summary")
-        df_summary = pd.read_json(session.get('df_summary_path'))
-        df_summary['filter_type'] = filter_type
-        session['df_summary'] = df_summary.to_json(session.get('df_summary_path'))
         try:
             fig = plot_tic(df_summary=df_summary, mode='3d-spikes', max_points=10000, filter_type=filter_type)
             fig2, _ = plot_tic(df_summary=df_summary, mode='2d', max_points=10000, filter_type=filter_type)
@@ -855,6 +880,7 @@ def process_mzML():
 
     # Otherwise, return the full page
     return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')
+
 
 # Adduct page #############################
 @app.route('/adducts')
@@ -1277,16 +1303,14 @@ def advance_workflow_step(step_name):
 def workflow_step_finished(step_name=None, generated_files=None):
 
     if session.get('workflow_status') == 'started':
-        if 'generated_files' not in session or not isinstance(session['generated_files'], dict):
-            session['generated_files'] = {}
-        if generated_files and step_name:
-            if step_name not in session['generated_files']:
-                session['generated_files'][step_name] = []
+        if 'generated_files' not in session or not isinstance(session['generated_files'], list):
+            session['generated_files'] = []
+        if generated_files:
             # Evita duplicados
-            filenames = {f['filename'] for f in session['generated_files'][step_name]}
+            filenames = {f['filename'] for f in session['generated_files']}
             for f in generated_files:
                 if f['filename'] not in filenames:
-                    session['generated_files'][step_name].append(f)
+                    session['generated_files'].append(f)
         session['step_status'] = 'finished'
         
         

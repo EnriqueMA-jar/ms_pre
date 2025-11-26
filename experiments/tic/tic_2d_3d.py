@@ -41,12 +41,17 @@ def load_and_process_data(file_path):
             rt_list.append(rt)
             mz_list.append(mz)
             tic_list.append(tic)
-            
-    session['df_summary'] = None
-    df_summary = pd.DataFrame({'RT': rt_list, 'mz': mz_list, 'TIC': tic_list, 'filter_type': ['Plasma'] * len(rt_list)}, columns=['RT', 'mz', 'TIC', 'filter_type'])
-    session['df_summary'] = df_summary.to_json('uploads/temp_chunks/df_summary.json')
+    
+    # Crear DataFrame sin guardar en sesión (eso lo hace el endpoint)
+    df_summary = pd.DataFrame({
+        'RT': rt_list, 
+        'mz': mz_list, 
+        'TIC': tic_list, 
+        'filter_type': ['Plasma'] * len(rt_list)
+    })
 
     return df_summary
+
 
 # Function to create a 3D scatter plot using Plotly
 def create_optimized_3d_spikes(df_summary, max_points=10000):
