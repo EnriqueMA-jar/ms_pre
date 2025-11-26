@@ -9,54 +9,85 @@
         <p>Drag and drop the file cards into the inputs</p>
         <div class="generated-files-section" id="generated-files-section"> </div>
 <script>
-const generatedFiles = {{ session.get('generated_files', []) | tojson | safe }};
-let fileObjects = []; // <-- Declare here
+const generatedFilesDict = {{ session.get('generated_files', {}) | tojson | safe }};
+let fileObjectsDict = {};
 
 async function fetchAllFilesAndRenderCards() {
-    fileObjects = []; // Clear the array before populating it
-    for (const file of generatedFiles) {
-        const response = await fetch(file.path);
-        const blob = await response.blob();
-        const fileObject = new File([blob], file.filename, { type: blob.type });
-        fileObjects.push(fileObject);
+    fileObjectsDict = {};
+    let sectionHTML = '';
+
+    for (const [type, files] of Object.entries(generatedFilesDict)) {
+        fileObjectsDict[type] = [];
+        sectionHTML += `<div class="file-type-section">
+            <label>
+                <input type="checkbox" class="select-all-type" data-type="${type}"> <b>${type}</b>
+            </label>
+            <div class="file-type-cards" id="cards-${type}"></div>
+        </div>`;
+    }
+    document.getElementById('generated-files-section').innerHTML = sectionHTML;
+
+    for (const [type, files] of Object.entries(generatedFilesDict)) {
+        for (const file of files){
+            const response = await fetch(file.path);
+            const blob = await response.blob();
+            const fileObject = new File([blob], file.filename, { type: blob.type });
+            fileObjectsDict[type].push(fileObject);
+        }
+        document.getElementById(`cards-${type}`).innerHTML = fileObjectsDict[type].map((file, idx) =>
+        `
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input type="checkbox" class="file-checkbox form-check-input mt-0" data-type="${type}" data-idx="${idx}">
+                </div>
+                <div class="cards form-control"
+                    draggable="true"
+                    data-type="${type}"
+                    data-idx="${idx}"
+                    style="cursor: grab; background: #fff;">
+                    <b class="generated-files-name">${file.name}</b>
+                </div>
+            </div>
+        `
+        ).join('');
     }
 
-    // Renderiza las cards
-    const section = document.getElementById('generated-files-section');
-    section.innerHTML = fileObjects.map((file, idx) =>
-        `
-        <div class="input-group mb-3">
-  <div class="input-group-text">
-    <input type="checkbox" class="file-checkbox form-check-input mt-0" data-idx="${idx}">
-  </div>
-  <div class="cards form-control" 
-       draggable="true" 
-       data-idx="${idx}" 
-       style="cursor: grab; background: #fff;">
-    <b class="generated-files-name">${file.name}</b>
-  </div>
-</div>
-        `
-    ).join('');
-
-    // Add dragstart event listeners to cards
-    document.querySelectorAll('.cards').forEach(card => {
-    card.addEventListener('dragstart', function(e) {
-        // Find all selected checkboxes
-        const selectedIdxs = Array.from(document.querySelectorAll('.file-checkbox:checked'))
-            .map(cb => cb.dataset.idx);
-        // If none are selected, drag only the current one
-        if (selectedIdxs.length === 0) {
-            e.dataTransfer.setData('text/plain', JSON.stringify([card.dataset.idx]));
-        } else {
-            e.dataTransfer.setData('text/plain', JSON.stringify(selectedIdxs));
-        }
+    // Checkbox para seleccionar todos los de un tipo
+    document.querySelectorAll('.select-all-type').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const type = this.dataset.type;
+            document.querySelectorAll(`.file-checkbox[data-type="${type}"]`).forEach(fcb => {
+                fcb.checked = this.checked;
+            });
+        });
     });
-});
+
+    // Dragstart para arrastrar todos los seleccionados de un tipo
+    document.querySelectorAll('.cards').forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            const type = card.dataset.type;
+            const selectedIdxs = Array.from(document.querySelectorAll(`.file-checkbox[data-type="${type}"]:checked`))
+                .map(cb => ({type, idx: cb.dataset.idx}));
+            if (selectedIdxs.length === 0) {
+                e.dataTransfer.setData('text/plain', JSON.stringify([{type, idx: card.dataset.idx}]));
+            } else {
+                e.dataTransfer.setData('text/plain', JSON.stringify(selectedIdxs));
+            }
+        });
+    });
 }
 
-// Drag & drop over the input
-document.querySelectorAll('.form-control').forEach(fileInput => {
+if (Object.keys(generatedFilesDict).length > 0) {
+    fetchAllFilesAndRenderCards();
+}
+
+document.getElementById('toggle-files-btn').addEventListener('click', function() {
+    const section = document.getElementById('generated-files-section');
+    section.style.display = (section.style.display === 'none') ? 'block' : 'none';
+});
+
+// Si tienes inputs de archivos donde hacer drop, usa este bloque y ponle una clase específica a esos inputs, por ejemplo .workflow-file-input
+document.querySelectorAll('.workflow-file-input').forEach(fileInput => {
     fileInput.addEventListener('dragover', e => {
         e.preventDefault();
         fileInput.style.border = '2px dashed #007bff';
@@ -65,35 +96,25 @@ document.querySelectorAll('.form-control').forEach(fileInput => {
         fileInput.style.border = '';
     });
     fileInput.addEventListener('drop', e => {
-    e.preventDefault();
-    fileInput.style.border = '';
-    const idxs = JSON.parse(e.dataTransfer.getData('text/plain'));
-    const dt = new DataTransfer();
+        e.preventDefault();
+        fileInput.style.border = '';
+        const items = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const dt = new DataTransfer();
 
-    // Keep the files already present in the input
-    for (let i = 0; i < fileInput.files.length; i++) {
-        dt.items.add(fileInput.files[i]);
-    }
-
-    // Add all selected files
-    idxs.forEach(idx => {
-        if (fileObjects[idx]) {
-            dt.items.add(fileObjects[idx]);
+        // Mantén los archivos ya presentes en el input
+        for (let i = 0; i < fileInput.files.length; i++) {
+            dt.items.add(fileInput.files[i]);
         }
+
+        // Agrega los archivos seleccionados
+        items.forEach(({type, idx}) => {
+            if (fileObjectsDict[type] && fileObjectsDict[type][idx]) {
+                dt.items.add(fileObjectsDict[type][idx]);
+            }
+        });
+        fileInput.files = dt.files;
     });
-    fileInput.files = dt.files;
 });
-});
-
-
-if (generatedFiles.length > 0) {
-    fetchAllFilesAndRenderCards();
-}
-
-document.getElementById('toggle-files-btn').addEventListener('click', function() {
-        const section = document.getElementById('generated-files-section');
-        section.style.display = (section.style.display === 'none') ? 'block' : 'none';
-    });
 </script>
 </div>
     {% endif %}
