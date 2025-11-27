@@ -1311,14 +1311,10 @@ def workflow_step_finished(step_name=None, generated_files=None):
             for file_info in generated_files:
                 filename = file_info.get('filename', '')
                 ext = filename.split('.')[-1].lower() if '.' in filename else 'other'
-                
                 if ext not in session['generated_files']:
                     session['generated_files'][ext] = []
-                
                 session['generated_files'][ext].append(file_info)
-            
             session.modified = True
-        
         session['step_status'] = 'finished'
         
         
