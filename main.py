@@ -1230,7 +1230,7 @@ def start_workflow(workflow_id):
     session['workflow_id'] = workflow_id
     session['workflow_status'] = 'started'
     session['step_status'] = 'started'
-    session['generated_files'] = {}  # Inicializar como diccionario vacío
+    session['generated_files'] = {}  
     workflow_status = session['workflow_status']
 
 
@@ -1264,7 +1264,7 @@ def end_workflow():
     session['workflow_id'] = 0
     session['workflow_status'] = 'finished'
     session['step_status'] = 'finished'
-    session['generated_files'] = {}  # Cambiar a diccionario vacío
+    session['generated_files'] = {}  
     return render_template('index.html', page='Home')
 
 

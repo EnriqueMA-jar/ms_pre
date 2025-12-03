@@ -92,7 +92,7 @@
         if (selected.includes('ALL')) {
             folders = [{% for folder_name in folder_contents.keys() %}'{{ folder_name }}',{% endfor %}];
         } else {
-            folders = selected;
+            folders = [selected];
         }
         $.ajax({
             url: '/clean_folders',
