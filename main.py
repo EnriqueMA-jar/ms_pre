@@ -65,6 +65,8 @@ ALL_UPLOAD_DIRS = [SMOOTHING_DIR, CENTROIDS_DIR, NORMALIZE_DIR, FEATURES_DIR, AD
 
 app.config['SESSION_PERMANENT'] = False
 
+WORKFLOWS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'experiments/workflows/workflows.json')
+
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
 # Large file upload endpoint/function ####################################
@@ -136,7 +138,9 @@ def home():
 def index():
     return render_template('index.html', page='Home')
 
-
+@app.route('/functions_hub')
+def functions_hub():
+    return render_template('functions_hub.html', page='Functions Hub', workflows_file=WORKFLOWS_FILE)
 
 # Alignment page ####################################
 @app.route('/alignment', methods=['GET', 'POST'])
@@ -605,6 +609,7 @@ def spectra():
 @app.route('/get_files_spectra', methods=['POST'])
 def process_spectra():
     import plotly.io as pio
+    import pyopenms as oms
     
     # Check if files are uploaded
     if 'filename' in request.files:
@@ -619,7 +624,7 @@ def process_spectra():
             file.save(path)
         session['file_path'] = path
         filename = file.filename
-        print("Ruta de archivos:", path)
+        # print("Ruta de archivos:", path)
     else:
         # if there is no new file, get the previous one from the session, and the spectrum index from the set value input
         path = session.get('file_path')
@@ -627,39 +632,59 @@ def process_spectra():
         spectrum_value = int(request.form.get('spectrum_value', 100))
         
     # Check MS level
-    data = get_file_info(path)
-    match = re.search(r"MS Levels \(MS1: (\d+), MS2: (\d+)\)", data)
-    if match:
-        ms1 = int(match.group(1))
-        ms2 = int(match.group(2))
-    else:
-        pass
+    exp = oms.MSExperiment()
+    oms.MzMLFile().load(path, exp)
+    spectra = exp.getSpectra()
+    
+    # Contar MS levels directamente (sin regex ni llamar a get_file_info)
+    ms1 = sum(1 for s in spectra if s.getMSLevel() == 1)
+    ms2 = sum(1 for s in spectra if s.getMSLevel() == 2)
+    
+    # ========== MS1: Gráficas de binning y merge ==========
     if ms1 > 0 and ms2 == 0:
         ms_type = 1
-        alert, fig_binning, spectrum_index = binning_spectrum(spectrum_value, path)
+        
+        # Binning usando el experimento ya cargado
+        alert, fig_binning, spectrum_index = binning_spectrum(exp, spectrum_value)
         if alert and fig_binning is None:
             return render_template('spectra.html', error_alert=alert, page='Spectra')
-        elif alert is None and fig_binning is not None:
-            plot_spectra = pio.to_html(fig_binning, full_html=False)
-            fig_merge = merge_spectra(path)
-            plot_merge_spectrum = pio.to_html(fig_merge, full_html=False)
-            return render_template('spectra.html', plot_spectra=plot_spectra, plot_merge_spectrum=plot_merge_spectrum, filename=filename, ms_level=ms1, ms_type=ms_type, spectrum_value=spectrum_value, page='Spectra')
-    else:
-        if ms2 > 0:
-            ms_type = 2
-            fig_ms2_spectra, fig_ms2_overlay = render_spectra_plots(path)
-            plot_ms2_spectra = pio.to_html(fig_ms2_spectra, full_html=False)
-            plot_ms2_overlay = pio.to_html(fig_ms2_overlay, full_html=False)
-            return render_template(
-                'spectra.html',
-                plot_ms2_spectra=plot_ms2_spectra,
-                plot_ms2_overlay=plot_ms2_overlay,
-                filename=filename,
-                ms_level=ms1,
-                ms_type=ms_type,
-                spectrum_value=spectrum_value, 
-                page='Spectra'
-            )
+        
+        plot_spectra = pio.to_html(fig_binning, full_html=False)
+        
+        # Merge usando el experimento ya cargado
+        fig_merge = merge_spectra(exp)
+        plot_merge_spectrum = pio.to_html(fig_merge, full_html=False)
+        
+        return render_template('spectra.html', 
+            plot_spectra=plot_spectra, 
+            plot_merge_spectrum=plot_merge_spectrum, 
+            filename=filename, 
+            ms_level=ms1, 
+            ms_type=ms_type, 
+            spectrum_value=spectrum_value, 
+            page='Spectra')
+    
+    # ========== MS2: Gráficas de comparación MS1 vs MS2 ==========
+    elif ms2 > 0:
+        ms_type = 2
+        
+        # Render plots usando el experimento ya cargado
+        fig_ms2_spectra, fig_ms2_overlay = render_spectra_plots(exp)
+        plot_ms2_spectra = pio.to_html(fig_ms2_spectra, full_html=False)
+        plot_ms2_overlay = pio.to_html(fig_ms2_overlay, full_html=False)
+        
+        return render_template('spectra.html',
+            plot_ms2_spectra=plot_ms2_spectra,
+            plot_ms2_overlay=plot_ms2_overlay,
+            filename=filename,
+            ms_level=ms1,
+            ms_type=ms_type,
+            spectrum_value=spectrum_value, 
+            page='Spectra')
+    
+    # Si no hay espectros válidos
+    return render_template('spectra.html', error_alert="No valid MS1 or MS2 spectra found.", page='Spectra')
+
     
 # Smoothing page ####################################
 @app.route('/smoothing', methods=['GET', 'POST'])
@@ -1212,9 +1237,15 @@ def select_upload_folders():
 def ver_rutas():
     return str(session.get('file_paths', []))
 
+
+
+# Workflow management endpoints/functions ####################################
+
+
 @app.route('/start_workflow/<int:workflow_id>')
 def start_workflow(workflow_id):
     current_steps = []
+    workflow0_steps = []
     workflow1_steps = [
         "features",
         "adducts",
@@ -1233,8 +1264,10 @@ def start_workflow(workflow_id):
     session['generated_files'] = {}  
     workflow_status = session['workflow_status']
 
-
-    if workflow_id == 1:
+    if workflow_id == 0:
+        current_workflow = "None"
+        current_steps = workflow0_steps.copy()
+    elif workflow_id == 1:
         current_workflow = "Untargeted Metabolomics Pre-Processing"
         current_steps = workflow1_steps.copy()
     elif workflow_id == 2:
@@ -1252,8 +1285,9 @@ def start_workflow(workflow_id):
         # session['current_steps'].pop(0)  # Remove the first step as we are going to it now
         
         return redirect(url_for(redirect_link))
-    else:
-        return render_template('index.html', page='Home')
+    elif current_steps == [] and workflow_id == 0:
+        session['workflow_status'] = 'started'
+        return render_template('functions_hub.html', page='Functions Hub')
 
 @app.route('/end_workflow')
 def end_workflow():

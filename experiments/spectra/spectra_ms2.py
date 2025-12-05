@@ -5,9 +5,7 @@ from plotly.subplots import make_subplots
 import numpy as np
 
 # Load the mzML file
-def load_mzml_file(file_path):
-    exp = pyopenms.MSExperiment()
-    pyopenms.MzMLFile().load(file_path, exp)
+def load_mzml_file(exp):
     
     # Get the list of spectra
     spectra = exp.getSpectra()
@@ -49,8 +47,8 @@ def load_mzml_file(file_path):
     return spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type
 
 # Plot comparative spectra side by side
-def comparative_spectra_plots(file_path):
-    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(file_path)
+def comparative_spectra_plots(exp):
+    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(exp)
 
     fig_comparison = make_subplots(
         rows=1, cols=2,
@@ -101,8 +99,8 @@ def comparative_spectra_plots(file_path):
     fig_comparison.update_yaxes(title_text="Intensity", row=1, col=2)
     return fig_comparison
 
-def overlay_spectra_plots(file_path):
-    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(file_path)
+def overlay_spectra_plots(exp):
+    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(exp)
 
     fig_overlay = go.Figure()
     
@@ -179,8 +177,8 @@ def create_stick_traces(mz_array, intensity_array, name, color, show_fill=False)
     
     return trace, hover_trace
 
-def comparative_spectra_plots2(file_path):
-    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(file_path)
+def comparative_spectra_plots2(exp):
+    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(exp)
     
     ms1_index = min(500, len(spectra_ms1) - 1)  # Espectro MS1
     ms2_index = min(100, len(spectra_ms2) - 1)  # Espectro MS2
@@ -236,8 +234,8 @@ def comparative_spectra_plots2(file_path):
 
     return fig_comparison
 
-def overlay_spectra_plots2(file_path):
-    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(file_path)
+def overlay_spectra_plots2(exp):
+    spectra_ms1, spectra_ms2, spectrum_ms1, spectrum_ms2, mz_ms1, intensity_ms1, rt_ms1, mz_ms2, intensity_ms2, rt_ms2, precursor_mz, type = load_mzml_file(exp)
     
     fig_overlay = go.Figure()
     
@@ -268,11 +266,11 @@ def overlay_spectra_plots2(file_path):
     )
     return fig_overlay
 
-def render_spectra_plots(file_path):
-    type = load_mzml_file(file_path)[-1]
+def render_spectra_plots(exp):
+    type = load_mzml_file(exp)[-1]
     if type == "Centroid":
-        fig_comparison, fig_overlay = comparative_spectra_plots2(file_path), overlay_spectra_plots2(file_path)
+        fig_comparison, fig_overlay = comparative_spectra_plots2(exp), overlay_spectra_plots2(exp)
         return fig_comparison, fig_overlay
     elif type == "Profile":
-        fig_comparison, fig_overlay = comparative_spectra_plots(file_path), overlay_spectra_plots(file_path)
+        fig_comparison, fig_overlay = comparative_spectra_plots(exp), overlay_spectra_plots(exp)
         return fig_comparison, fig_overlay

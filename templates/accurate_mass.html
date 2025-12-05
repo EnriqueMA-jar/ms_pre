@@ -10,6 +10,10 @@
 <div class="container">
     <section class="form_section">
         <h2>Accurate Mass Search</h2>
+        <div id="processingOverlay">
+            <div class="spinner-processing"></div>
+            <div class="processing-text">Processing file, please wait...</div>
+        </div>
         <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
             </button>
@@ -68,5 +72,8 @@
 </div>
 <script>
     window.targetDir = 'uploads/accurate_mass';
+    window.showProcessingSpinner = function() {
+            document.getElementById('processingOverlay').style.display = 'flex';
+        };
 </script>
 {% endblock %}

@@ -6,7 +6,7 @@
     width: 100%;
     display: block;
     position: static;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     height: 50px;
 }
 .navbar .a{
@@ -40,6 +40,8 @@
     padding-right: 10px !important;
     height: 100%; 
     padding: 10px;
+    float: right;
+    right: 20px !important;
 }
 
 .li:hover{
@@ -153,6 +155,75 @@ body{
 h4{
     margin: 0;
 }
+ /* -------------------------------- Sidebar icons------------------------------------- */
+ .sidebar_icons {
+    display: block;
+    align-items: vertical;
+    position: fixed;
+    top: 50px;
+    z-index: 1000;
+ }
+ .sidebar_backward, .sidebar_functions, .sidebar_workflow {
+    display: block;
+    width: 50px;
+    height: 50px;
+    background-color: #028a70;
+    border-radius: 0.8em;
+    margin-top: 20px;
+    margin-left: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+ }
+ .sidebar_backward:hover, .sidebar_functions:hover, .sidebar_workflow:hover {
+    background-color: #072f28;
+    cursor: pointer;
+ }
+ .sidebar_icons_svg {
+    width: 36px;
+    height: 36px;
+    transition: transform 0.3s ease;
+    
+ }
+ .sidebar_icons_svg.rotate {
+    transform: rotate(180deg);
+ }
+ .sidebar_dropdown_menu {
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 170px;
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.sidebar_dropdown_menu.show {
+    display: flex;
+}
+
+.sidebar_dropdown_menu .dropdown-item {
+    padding: 10px 16px;
+    text-decoration: none;
+    color: #333;
+    transition: background-color 0.2s;
+}
+.sidebar_dropdown_menu .dropdown-father-item {
+    padding: 10px 16px;
+    text-decoration: none;
+    color: white;
+    background-color: #037e67;
+    transition: background-color 0.2s;
+}
+
+.sidebar_dropdown_menu .dropdown-item:hover {
+    background-color: #f5f5f5;
+}
 /*--------------------------------------ANIMATIONS--------------------------------------*/
 
 .container{
@@ -217,4 +288,37 @@ h4{
 .outputs-div{
     padding: 10px;
     background-color: #f0e3d1;
+}
+
+/* ------------------ Processing Spinner Progress --------------------------- */
+
+#processingOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.spinner-processing {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #e0e0e0;
+    border-top: 5px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.processing-text {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: #333;
 }

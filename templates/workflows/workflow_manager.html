@@ -1,4 +1,59 @@
 {% block workflow %}
+    {% if workflow_status == 'started' and workflow_id|int == 0 %}
+
+        <div class="sidebar_icons">
+            {% if page != 'Home' %}
+            <a href="javascript:history.back()">
+                <div class="sidebar_backward">
+                    <img src="{{ url_for('static', filename='images/svg/backward_arrow.svg') }}" alt="Back" class="sidebar_icons_svg">
+                </div>
+            </a>
+            {% endif %}
+            <div class="sidebar_functions">
+                <img src="{{ url_for('static', filename='images/svg/functions_hub.svg') }}" alt="Functions" class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
+
+                <div class="sidebar_dropdown_menu" id="functions-dropdown">
+                    <div style="padding: 10px; font: smaller;">
+                        <em>Select a function to start:</em>
+                    </div>
+                    <div class="dropdown-father-item">
+                        Inspection Tools
+                    </div>
+                    <a href="{{ url_for('summary') }}" class="dropdown-item">Summary</a>
+                    <a href="{{ url_for('chromatograms') }}" class="dropdown-item">Chromatograms</a>
+                    <a href="{{ url_for('spectra') }}" class="dropdown-item">Spectra</a>
+                    <div class="dropdown-father-item">
+                        Processing Tools
+                    </div>
+                    <a href="{{ url_for('smoothing') }}" class="dropdown-item">Smoothing</a>
+                    <a href="{{ url_for('centroiding') }}" class="dropdown-item">Centroiding</a>
+                    <a href="{{ url_for('normalize') }}" class="dropdown-item">Normalize</a>
+                    <a href="{{ url_for('features') }}" class="dropdown-item">Features</a>
+                    <a href="{{ url_for('adducts') }}" class="dropdown-item">Adducts</a>
+                    <a href="{{ url_for('alignment') }}" class="dropdown-item">Alignment</a>
+                    <a href="{{ url_for('consensus') }}" class="dropdown-item">Consensus</a>
+                    <a href="{{ url_for('gnps') }}" class="dropdown-item">GNPS</a>
+                    <a href="{{ url_for('accurate_mass') }}" class="dropdown-item">Accurate Mass Identification</a>
+                    
+        
+                </div>
+            </div>
+        </div>
+    {% elif workflow_status == 'started' and workflow_id|int != 0 %}
+        <div class="sidebar_icons">
+            <div class="sidebar_workflow">
+                <img src="{{ url_for('static', filename='images/svg/workflow_steps.svg') }}" alt="Workflow" class="sidebar_icons_svg" onclick="this.classList.toggle('rotate')">
+            </div>
+        </div>
+    {% elif session['workflow_status'] != 'started' %}
+        <div class="sidebar_icons">
+            <div class="sidebar_workflow">
+                Menu
+            </div>
+        </div>
+    {% endif %}
+
+    {% if workflow_status == 'started' and workflow_id|int != 0 %}
 
     {% if session['generated_files'] %}
     <div class="files-container">
@@ -115,6 +170,7 @@ document.querySelectorAll('.workflow-file-input').forEach(fileInput => {
         fileInput.files = dt.files;
     });
 });
+
 </script>
 </div>
     {% endif %}
@@ -158,4 +214,24 @@ document.querySelectorAll('.workflow-file-input').forEach(fileInput => {
 </form>
     </div>
 </div>
+
+{% endif %}
+<script>
+    
+function toggleFunctionsMenu(icon) {
+    icon.classList.toggle('rotate');
+    const dropdown = document.getElementById('functions-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Cerrar el menú si se hace clic fuera
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('functions-dropdown');
+    const icon = document.querySelector('.sidebar_functions img');
+    if (!event.target.closest('.sidebar_functions')) {
+        dropdown.classList.remove('show');
+        icon.classList.remove('rotate');
+    }
+});
+</script>
 {% endblock %}
