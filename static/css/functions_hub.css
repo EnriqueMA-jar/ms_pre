@@ -1,0 +1,103 @@
+.container{
+    display: grid;
+    grid-template-areas: 
+                'title_section title_section'
+               'inspection_section processing_section';
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 20px;
+    min-height: 100%;
+    width: 100%;
+    border-radius: 0.8em;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    animation: scaleUp 0.1s ease-in-out;
+    scale: 0.95;
+}
+
+.title_section {
+    grid-area: title_section;
+    text-align: center;
+}
+
+.inspection_section { 
+    grid-area: inspection_section; 
+    border: #ccc 1px solid;
+    border-radius: 0.5em;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f2f2f2;
+}
+.processing_section {
+    grid-area: processing_section;
+    border: #ccc 1px solid;
+    border-radius: 0.5em;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-color: #f2f2f2;
+}
+.title_div{
+    text-align: center;
+    background-color: purple;
+    color: white;
+    display: block;
+    padding: 5px;
+}
+
+/* cards section ############################### */
+.inspection_functions_div {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1;
+}
+.processing_functions_div {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+}
+
+.card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.card:hover {
+    color: white !important;
+    background-color: #24b6a5;
+}
+.card:hover p {
+    color: white !important;
+}
+
+.card h5 {
+    margin: 0 0 0.5rem 0;
+}
+
+.card p {
+    margin: 0;
+    margin-top: auto;
+    color: #666;
+    font-size: smaller;
+}
