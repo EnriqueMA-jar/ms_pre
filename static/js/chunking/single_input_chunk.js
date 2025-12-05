@@ -90,13 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (uploadedBytes === totalBytes) {
                                     progressBar.style.width = '100%';
                                     progressPercent.textContent = '100%';
-
-                                    if (typeof window.showProcessingSpinner === 'function') {
-                                        window.showProcessingSpinner();
-                                    }
-                                    setTimeout(() => {
-                                        form.submit();
-                                    }, 300);
                                 }
                                 onComplete();
                             } else {
@@ -124,9 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
             function uploadAllFiles() {
                 if (fileIndex >= files.length) {
                     // Todos los archivos subidos, enviar el form
-                    if (typeof window.showProcessingSpinner === 'function') {
-                        window.showProcessingSpinner();
-                    }
                     for (let i = 0; i < files.length; i++) {
                         const hidden = document.createElement('input');
                         hidden.type = 'hidden';

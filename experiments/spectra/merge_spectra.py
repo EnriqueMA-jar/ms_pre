@@ -2,8 +2,10 @@ import pyopenms as oms
 import numpy as np
 import plotly.graph_objects as go
 
-def merge_spectra(exp):
+def merge_spectra(file_path):
     # Cargar el archivo mzML
+    exp = oms.MSExperiment()
+    oms.MzMLFile().load(file_path, exp)
     spectra = exp.getSpectra()
 
     # Filtrar solo los espectros MS1 (puedes cambiar el nivel si es necesario)

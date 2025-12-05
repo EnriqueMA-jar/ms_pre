@@ -2,13 +2,13 @@ import pyopenms
 import plotly.graph_objects as go
 import numpy as np
 
-def binning_spectrum(exp, spectrum_value):
+def binning_spectrum(spectrum_value, file_path):
     alert = None
     # Load the mzML file
-    # exp = pyopenms.MSExperiment()
-    # # file_path = exp
-    # # File loaded by frontend
-    # pyopenms.MzMLFile().load(file_path, exp)
+    exp = pyopenms.MSExperiment()
+
+    # File loaded by frontend
+    pyopenms.MzMLFile().load(file_path, exp)
 
 
     # Extract spectra

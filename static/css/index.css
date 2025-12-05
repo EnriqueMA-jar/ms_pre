@@ -3,10 +3,9 @@
     grid-template-areas: 
                'title_section title_section'
                'summary_section summary_section'
-               'workflow_section1 workflow_section2'
-               'workflow_administration_section workflow_administration_section';
+               'workflow_section1 workflow_section2';
 
-    grid-template-columns: 2fr 2fr; 
+    grid-template-columns: 1fr 1fr; 
     grid-template-rows: auto;
     gap: 20px;
     min-height: 35vh;
@@ -35,33 +34,6 @@ h2{
 }
 .workflow_section1 { grid-area: workflow_section1; }
 .workflow_section2 { grid-area: workflow_section2; }
-.workflow_administration_section { 
-    grid-area: workflow_administration_section; 
-    display: grid;
-    grid-template-areas:
-                'add_workflow_section add_workflow_section no_workflow_section no_workflow_section';
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 10px;
-
-}
-.workflow_administration_section section:hover{
-    background-color: #24b6a5;
-    color: white;
-    transform: scale(1.02);
-    transition: transform 0.3s ease;
-}
-
-.workflow_administration_section section{
-    display: block;
-    padding: 10px;
-    text-align: center;
-    width: 100% !important;
-    height: 60px !important;
-    background-color: #f2f2f2;
-    border: 1px solid #ccc;
-    border-radius: 0.5em;
-}
-
 .card{
     padding: 10px;
     background-color: #f2f2f2;

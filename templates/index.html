@@ -15,6 +15,7 @@
     </section>
     <section class="summary_section">
     <div>
+        <h4>Summary</h4>
         <p>This application allows you to upload and analyze mzML files, visualize chromatograms and spectra, and perform various data processing tasks.
         Use the navigation menu to access different features of the application.</p>
         <h5>Choose one of the following workflows to get started:</h5>
@@ -37,19 +38,6 @@
                 <img src="{{ url_for('static', filename='images/workflow2.png') }}" alt="Workflow 2" class="workflow-image2">
             </div>
         </a>
-    </section>
-    <section class="workflow_administration_section">
-        <section class="add_workflow_section">
-            <a href="#">
-                <h5>Add a new workflow</h5>
-            </a>
-        </section>
-        <section class="no_workflow_section">
-            <a href="{{ url_for('start_workflow', workflow_id=0) }}">
-            <h5>Continue without a workflow</h5>
-            </a>
-        </section>
-        
     </section>
     </div>
     
