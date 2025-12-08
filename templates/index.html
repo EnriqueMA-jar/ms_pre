@@ -38,9 +38,14 @@
             </div>
         </a>
     </section>
+    <section class="other_workflows_section">
+        <div>
+            <h5>Other workflows you can use:</h5>
+        </div>
+    </section>
     <section class="workflow_administration_section">
         <section class="add_workflow_section">
-            <a href="#">
+            <a href="{{ url_for('new_workflow') }}">
                 <h5>Add a new workflow</h5>
             </a>
         </section>
@@ -49,7 +54,15 @@
             <h5>Continue without a workflow</h5>
             </a>
         </section>
-        
+        {% for workflow in custom_workflows %}
+        <section class="custom_workflow_section">
+            <a href="{{ url_for('start_workflow', workflow_id=workflow.id) }}">
+                <h6>{{ workflow.name }}</h6>
+            </a>
+            <a href="#" class="btn btn-light">Edit</a>
+            <a href="#" class="btn btn-danger">Delete</a>
+        </section>
+        {% endfor %}
     </section>
     </div>
     

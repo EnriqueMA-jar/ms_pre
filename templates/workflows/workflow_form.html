@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
     {% block title %}
-        Accurate Mass Search
+        Create Workflow
     {% endblock %}
     {% block head %}
     {{ super() }}
@@ -8,6 +8,249 @@
     {% endblock %}
 {% block content %}
     <div class="container">
-        
+            <section class="form_section">
+                <form id="workflowForm" action="{{ url_for('add_workflow') }}" method="POST" onsubmit="return validateSteps()">
+                <h2>Create a new workflow</h2>
+                <div class="mb-3">
+                    <label for="NameForm" class="form-label">Workflow Name</label>
+                    <input type="text" class="form-control" id="NameForm" name="workflow_name" placeholder="Enter workflow name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="DescriptionForm" class="form-label">Workflow Description</label>
+                    <textarea class="form-control" id="DescriptionForm" name="workflow_description" rows="2" placeholder="Enter workflow description" required></textarea>
+                </div>
+                
+                <div class="workflow-builder">
+                    <!-- Available Steps -->
+                    <div class="steps-panel">
+                        <h5>Available Steps</h5>
+                        <p class="text-muted small">
+                            Drag steps to the workflow area
+                        </p>
+                        <div class="available-steps" id="availableSteps">
+                            <div class="step-item" draggable="true" data-step="centroiding">
+                                <i class="bi bi-bullseye"></i> Centroiding
+                            </div>
+                            <div class="step-item" draggable="true" data-step="smoothing">
+                                <i class="bi bi-graph-up-arrow"></i> Smoothing
+                            </div>
+                            <div class="step-item" draggable="true" data-step="features">
+                                <i class="bi bi-grid-3x3-gap"></i> Features
+                            </div>
+                            <div class="step-item" draggable="true" data-step="alignment">
+                                <i class="bi bi-arrows-expand"></i> Alignment
+                            </div>
+                            <div class="step-item" draggable="true" data-step="adducts">
+                                <i class="bi bi-plus-circle"></i> Adducts
+                            </div>
+                            <div class="step-item" draggable="true" data-step="consensus">
+                                <i class="bi bi-people"></i> Consensus
+                            </div>
+                            <div class="step-item" draggable="true" data-step="normalize">
+                                <i class="bi bi-sliders"></i> Normalize
+                            </div>
+                            <div class="step-item" draggable="true" data-step="accurate_mass">
+                                <i class="bi bi-search"></i> Accurate Mass
+                            </div>
+                            <div class="step-item" draggable="true" data-step="gnps">
+                                <i class="bi bi-diagram-3"></i> GNPS
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workflow Steps Drop Zone -->
+                    <div class="workflow-panel">
+                        <h5>Workflow Steps</h5>
+                        <p class="text-muted small">Drop steps here to build your workflow</p>
+                        <div class="workflow-steps" id="workflowSteps">
+                            <div class="drop-placeholder" id="dropPlaceholder">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Drop steps here</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden input to store the steps order -->
+                <input type="hidden" id="stepsOrder" name="steps_order" value="[]">
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Workflow
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearWorkflow">
+                        <i class="bi bi-trash"></i> Clear Steps
+                    </button>
+                </div>
+                </form>
+                <div id="alertContainer" class="alertContainer"></div>
+            </section>
     </div>
+
+    <script>
+        // Validar que hay al menos un step antes de enviar
+        function validateSteps() {
+            const steps = JSON.parse(document.getElementById('stepsOrder').value || '[]');
+            const alertContainer = document.getElementById('alertContainer');
+            
+            if (steps.length === 0) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                        <div>
+                            Please add at least one step to the workflow.
+                        </div>
+                    </div>
+                `;
+                return false;
+            }
+            
+            alertContainer.innerHTML = '';
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const availableSteps = document.getElementById('availableSteps');
+            const workflowSteps = document.getElementById('workflowSteps');
+            const dropPlaceholder = document.getElementById('dropPlaceholder');
+            const stepsOrderInput = document.getElementById('stepsOrder');
+            
+            let draggedElement = null;
+            let isFromAvailable = false;
+
+            function addDragEvents(element) {
+                element.addEventListener('dragstart', handleDragStart);
+                element.addEventListener('dragend', handleDragEnd);
+            }
+
+            document.querySelectorAll('.available-steps .step-item').forEach(addDragEvents);
+
+            function handleDragStart(e) {
+                draggedElement = this;
+                isFromAvailable = this.parentElement === availableSteps;
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.dataset.step);
+            }
+
+            function handleDragEnd(e) {
+                this.classList.remove('dragging');
+                draggedElement = null;
+                isFromAvailable = false;
+                workflowSteps.classList.remove('drag-over');
+            }
+
+            workflowSteps.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('drag-over');
+                
+                if (!isFromAvailable && draggedElement) {
+                    const afterElement = getDragAfterElement(workflowSteps, e.clientY);
+                    if (afterElement == null) {
+                        workflowSteps.appendChild(draggedElement);
+                    } else {
+                        workflowSteps.insertBefore(draggedElement, afterElement);
+                    }
+                }
+            });
+
+            workflowSteps.addEventListener('dragleave', function(e) {
+                if (!this.contains(e.relatedTarget)) {
+                    this.classList.remove('drag-over');
+                }
+            });
+
+            workflowSteps.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                const stepName = e.dataTransfer.getData('text/plain');
+                
+                if (isFromAvailable && draggedElement) {
+                    const newStep = createWorkflowStep(stepName, draggedElement.innerHTML);
+                    
+                    const afterElement = getDragAfterElement(workflowSteps, e.clientY);
+                    if (afterElement == null) {
+                        workflowSteps.appendChild(newStep);
+                    } else {
+                        workflowSteps.insertBefore(newStep, afterElement);
+                    }
+                }
+                
+                updatePlaceholder();
+                updateStepsOrder();
+            });
+
+            function createWorkflowStep(stepName, innerHTML) {
+                const newStep = document.createElement('div');
+                newStep.className = 'step-item workflow-step';
+                newStep.draggable = true;
+                newStep.dataset.step = stepName;
+                newStep.innerHTML = `
+                    <span class="step-number"></span>
+                    ${innerHTML}
+                    <a href="#" class="remove-step" title="Remove step">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                `;
+                
+                addDragEvents(newStep);
+                
+                newStep.querySelector('.remove-step').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    newStep.remove();
+                    updatePlaceholder();
+                    updateStepsOrder();
+                });
+                
+                return newStep;
+            }
+
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.workflow-step:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+
+            function updatePlaceholder() {
+                const hasSteps = workflowSteps.querySelectorAll('.workflow-step').length > 0;
+                dropPlaceholder.style.display = hasSteps ? 'none' : 'flex';
+                updateStepNumbers();
+            }
+
+            function updateStepNumbers() {
+                const steps = workflowSteps.querySelectorAll('.workflow-step');
+                steps.forEach((step, index) => {
+                    const numberSpan = step.querySelector('.step-number');
+                    if (numberSpan) {
+                        numberSpan.textContent = (index + 1) + '.';
+                    }
+                });
+            }
+
+            function updateStepsOrder() {
+                const steps = workflowSteps.querySelectorAll('.workflow-step');
+                const order = Array.from(steps).map(step => step.dataset.step);
+                stepsOrderInput.value = JSON.stringify(order);
+            }
+
+            // Clear workflow
+            document.getElementById('clearWorkflow').addEventListener('click', function(e) {
+                e.preventDefault();
+                workflowSteps.querySelectorAll('.workflow-step').forEach(step => step.remove());
+                updatePlaceholder();
+                updateStepsOrder();
+            });
+        });
+    </script>
 {% endblock %}

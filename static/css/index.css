@@ -4,6 +4,7 @@
                'title_section title_section'
                'summary_section summary_section'
                'workflow_section1 workflow_section2'
+               'other_workflows_section other_workflows_section'
                'workflow_administration_section workflow_administration_section';
 
     grid-template-columns: 2fr 2fr; 
@@ -36,14 +37,39 @@ h2{
 }
 .workflow_section1 { grid-area: workflow_section1; }
 .workflow_section2 { grid-area: workflow_section2; }
+
+.other_workflows_section {
+    grid-area: other_workflows_section;
+}
+
 .workflow_administration_section { 
     grid-area: workflow_administration_section; 
-    display: grid;
-    grid-template-areas:
-                'add_workflow_section add_workflow_section no_workflow_section no_workflow_section';
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
+}
+.custom_workflow_section section {
+    flex: 1 1 200px;
+    display: block;
+    padding: 10px;
+    text-align: center;
+    min-height: 60px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+}
 
+.workflow_administration_section section {
+    flex: 1 1 200px;     
+    min-width: 200px;     
+    max-width: 300px;
+    display: block;
+    padding: 10px;
+    text-align: center;
+    min-height: 60px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
 }
 .workflow_administration_section section:hover{
     background-color: #24b6a5;
@@ -51,16 +77,14 @@ h2{
     transform: scale(1.02);
     transition: transform 0.3s ease;
 }
+.custom_workflow_section {
+    background-color: rgb(255, 192, 1) !important;
+    border: 1px solid rgb(255, 149, 11) !important;
+}
 
-.workflow_administration_section section{
-    display: block;
-    padding: 10px;
-    text-align: center;
-    width: 100% !important;
-    height: 60px !important;
-    background-color: #f2f2f2;
-    border: 1px solid #ccc;
-    border-radius: 0.5em;
+.custom_workflow_section:hover {
+    background-color: #b07727 !important;
+    color: white;
 }
 
 .card{

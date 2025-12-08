@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template, request, session, redirect, send_file, jsonify, url_for, send_from_directory
+from flask import Flask, json, render_template, request, session, redirect, send_file, jsonify, url_for, send_from_directory
 import re
 import os
 import pandas as pd
@@ -65,7 +65,7 @@ ALL_UPLOAD_DIRS = [SMOOTHING_DIR, CENTROIDS_DIR, NORMALIZE_DIR, FEATURES_DIR, AD
 
 app.config['SESSION_PERMANENT'] = False
 
-WORKFLOWS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'experiments/workflows/workflows.json')
+WORKFLOWS_FILE = os.path.join(os.path.dirname(__file__), 'experiments', 'workflows', 'workflows.json')
 
 # -------------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------------
@@ -152,8 +152,73 @@ def index():
         session['current_steps'] = []
         session['finished_steps'] = []
         session['generated_files'] = {}
-    return render_template('index.html', page='Home')
+        
+    workflows_data = load_workflows()
+    default_workflows = [wf for wf in workflows_data.get('workflows', []) if wf.get('is_default', False)]
+    custom_workflows = [wf for wf in workflows_data.get('workflows', []) if not wf.get('is_default', False)]
+    
+    return render_template('index.html', page='Home', 
+                           default_workflows=default_workflows,
+                           custom_workflows=custom_workflows)
 
+# new workflow page ####################################
+@app.route('/new_workflow')
+def new_workflow():
+    return render_template('workflows/workflow_form.html', page='New Workflow')
+
+def load_workflows():
+    """load workflows from the JSON file"""
+    if os.path.exists(WORKFLOWS_FILE):
+        with open(WORKFLOWS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {"workflows": []}
+
+def save_workflows(data):
+    """Save workflows to the JSON file"""
+    os.makedirs(os.path.dirname(WORKFLOWS_FILE), exist_ok=True)
+    with open(WORKFLOWS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def get_workflow_by_id(workflow_id):
+    """Get a specific workflow by its ID"""
+    data = load_workflows()
+    for wf in data.get('workflows', []):
+        if wf['id'] == workflow_id:
+            return wf
+    return None
+
+
+@app.route('/add_workflow', methods=['POST'])
+def add_workflow():
+    data = load_workflows()
+    
+    # Obtener el siguiente ID disponible
+    existing_ids = [wf['id'] for wf in data.get('workflows', [])]
+    new_id = max(existing_ids, default=0) + 1
+    
+    # Los pasos vienen como JSON string en 'steps_order'
+    steps_json = request.form.get('steps_order', '[]')
+    try:
+        steps = json.loads(steps_json)
+    except json.JSONDecodeError:
+        steps = []
+    
+    # Create new workflow dictionary
+    new_workflow = {
+        "id": new_id,
+        "name": request.form.get('workflow_name', 'New Workflow'),
+        "description": request.form.get('workflow_description', ''),
+        "image": "None",
+        "steps": steps,
+        "is_default": False
+    }
+    
+    data['workflows'].append(new_workflow)
+    save_workflows(data)
+    
+    return redirect('/index')
+
+# Functions Hub page ####################################
 @app.route('/functions_hub')
 def functions_hub():
     return render_template('functions_hub.html', page='Functions Hub', workflows_file=WORKFLOWS_FILE)
@@ -795,22 +860,22 @@ def process_mzML():
     elif 'filename' in request.form:
         filename = request.form.get('filename')
 
-    # Validación de extensión
+    # Validate file extension
     if not filename or not filename.endswith('.mzML'):
         alert = "Invalid file type. Please upload a .mzML file."
         return render_template('summary.html', error_alert=alert, page='Summary')
 
     filter_type = request.form.get('filter_options', 'Plasma')
 
-    # Determinar la ruta real del archivo
+    # Determine the actual file path
     if file:
         path = os.path.join('mzML_samples', filename)
         session['file_path'] = path
         file.save(path)
-        # Limpiar el DataFrame anterior cuando se sube un nuevo archivo
+        # Clean the previous DataFrame when a new file is uploaded
         session.pop('df_summary', None)
         session.pop('df_summary_path', None)
-        # Limpiar el archivo JSON si existe
+        # Clean the previous JSON file if it exists
         df_json_path = 'uploads/temp_chunks/df_summary.json'
         if os.path.exists(df_json_path):
             try:
@@ -818,14 +883,14 @@ def process_mzML():
             except Exception as e:
                 print(f"Error removing old df_summary.json: {e}")
     else:
-        # Si viene de upload_chunk, la ruta ya está en session['file_path']
+        # If coming from upload_chunk, the path is already in session['file_path']
         path = session.get('file_path')
-        # Si no está en sesión, intenta buscar en mzML_samples/
+        # If not in session, try to find in mzML_samples/
         if not path and filename:
             path = os.path.join('mzML_samples', filename)
-        # Si no hay archivo, error
+        # If no file, error
         if not path or not os.path.exists(path):
-            alert = f"Error: Archivo '{path}' no encontrado"
+            alert = f"Error: File '{path}' not found"
             return render_template('summary.html', error_alert=alert, page='Summary')
 
     import plotly.io as pio
@@ -840,7 +905,7 @@ def process_mzML():
         alert = f"Error processing file: {str(e)}"
         return render_template('summary.html', error_alert=alert, page='Summary')
 
-    # Convertir los valores numpy a tipos nativos para evitar np.float64/np.int32
+    # Convert numpy values to native types to avoid np.float64/np.int32 issues
     def clean_value(val):
         import numpy as np
         if isinstance(val, dict):
@@ -1260,50 +1325,31 @@ def ver_rutas():
 
 @app.route('/start_workflow/<int:workflow_id>')
 def start_workflow(workflow_id):
-    current_steps = []
-    workflow0_steps = []
-    workflow1_steps = [
-        "features",
-        "adducts",
-        "consensus",
-    ]
-    workflow2_steps = [
-        "centroiding",
-        "features",
-        "alignment",
-        "consensus",
-        "accurate_mass",
-    ]
     session['workflow_id'] = workflow_id
     session['workflow_status'] = 'started'
     session['step_status'] = 'started'
-    session['generated_files'] = {}  
-    workflow_status = session['workflow_status']
+    session['generated_files'] = {}
 
     if workflow_id == 0:
-        current_workflow = "None"
-        current_steps = workflow0_steps.copy()
-    elif workflow_id == 1:
-        current_workflow = "Untargeted Metabolomics Pre-Processing"
-        current_steps = workflow1_steps.copy()
-    elif workflow_id == 2:
-        current_workflow = "Identification by Accurate Mass"
-        current_steps = workflow2_steps.copy()
-    else:
-        current_workflow = None
-
-    session['current_workflow'] = current_workflow
-    session['current_steps'] = current_steps
-
-    # Redirect to the first step of the workflow
-    if current_steps:
-        redirect_link = current_steps[0]
-        # session['current_steps'].pop(0)  # Remove the first step as we are going to it now
-        
-        return redirect(url_for(redirect_link))
-    elif current_steps == [] and workflow_id == 0:
-        session['workflow_status'] = 'started'
+        session['current_workflow'] = "None"
+        session['current_steps'] = []
         return render_template('functions_hub.html', page='Functions Hub')
+
+    # Load workflow from workflows.json
+    workflow = get_workflow_by_id(workflow_id)
+    
+    if workflow:
+        session['current_workflow'] = workflow['name']
+        session['current_steps'] = workflow['steps'].copy()
+        session['finished_steps'] = []
+        
+        if session['current_steps']:
+            return redirect(url_for(session['current_steps'][0]))
+    
+    # If workflow not found or has no steps, redirect to home
+    session['current_workflow'] = "None"
+    session['current_steps'] = []
+    return render_template('functions_hub.html', page='Functions Hub')
 
 @app.route('/end_workflow')
 def end_workflow():
@@ -1316,7 +1362,10 @@ def end_workflow():
     session['workflow_status'] = 'started'
     session['step_status'] = 'finished'
     session['generated_files'] = {}  
-    return render_template('index.html', page='Home')
+    workflows_data = load_workflows()
+    default_workflows = [wf for wf in workflows_data.get('workflows', []) if wf.get('is_default', False)]
+    custom_workflows = [wf for wf in workflows_data.get('workflows', []) if not wf.get('is_default', False)]
+    return render_template('index.html', page='Home', default_workflows=default_workflows, custom_workflows=custom_workflows   )
 
 
 
