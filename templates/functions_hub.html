@@ -9,50 +9,51 @@
 {% block content %}
     <div class="container">
         <section class="title_section">
-            <div>
-                <h4>Available Functions:</h4>
-            </div>
+                <Strong>Start by selecting a tool from the options below:</Strong>
         </section>
         <section class="inspection_section">
             <div class="title_div">
-                    <h6>Inspections Tools</h6>
-                </div>
-                <div class="inspection_functions_div">
-                    <a href="/summary">
-                        <div class="card">
+                    <strong>Inspection Tools</strong>
+            </div>
+            <div class="inspection_functions_div">
+                <a href="/summary">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/backgrounds/bg_summary.png') }}" alt="Summary Information Viewer" class="bg_images">
                         <h6>Summary information viewer</h6>
                         <p>
                             Upload and process mzML files to obtain a summary of their contents, including metadata and basic statistics.
                         </p>
                     </div>
-                    </a>
-                    <a href="/chromatograms">
-                        <div class="card">
+                </a>
+                <a href="/chromatograms">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/backgrounds/bg_chromatograms.png') }}" alt="Chromatogram Viewer" class="bg_images">
                         <h6>Chromatogram viewer</h6>
                         <p>
                             Upload and process mzML files to plot the chromatogram of their contents, this page also allows you to compare multiple mzML chromatograms.
                         </p>
                     </div>
-                    </a>
-                    <a href="/spectra">
-                        <div class="card">
+                </a>
+                <a href="/spectra">
+                    <div class="card">
+                        <img src="{{ url_for('static', filename='images/backgrounds/bg_spectra.png') }}" alt="Spectra Inspector" class="bg_images">
                         <h6>Spectra inspector</h6>
                         <p>
                             Upload and process a single mzML file to plot and compare the spectra of its MS levels.
                         </p>
                     </div>
-                    </a>
-                    
-                </div>
+                </a>    
+            </div>
         </section>
         <section class="processing_section">
             <div class="title_div">
-                    <h6>Processing Tools</h6>
+                    <strong>Processing Tools</strong>
                 </div>
                 <div class="processing_functions_div">
                     <a href="/smoothing">
                         <div class="card">
                         <h6>mzML Smoother</h6>
+                        <img src="{{ url_for('static', filename='images/svg/smooth.svg') }}" alt="Smoother" class="bg_images2">
                         <p>
                             Apply smoothing using Savitzky-Golay filter to the mzML files uploaded to reduce noise and improve signal quality.
                         </p>
@@ -61,6 +62,7 @@
                     <a href="/centroiding">
                         <div class="card">
                         <h6>mzML Profile to Centroid Converter</h6>
+                        <img src="{{ url_for('static', filename='images/svg/centroid.svg') }}" alt="Profile to Centroid Converter" class="bg_images2">
                         <p>
                             Convert profile mzML data into centroided data, which simplifies the data by retaining only the most significant peaks.
                         </p>
@@ -69,6 +71,7 @@
                     <a href="/normalize">
                         <div class="card">
                         <h6>mzML Normalizer</h6>
+                        <img src="{{ url_for('static', filename='images/svg/threshold.svg') }}" alt="Normalizer" class="bg_images2">
                         <p>
                             Normalize mzML files to ensure that the data is on a comparable scale, which is essential for accurate analysis.
                         </p>
@@ -77,6 +80,7 @@
                     <a href="/features">
                         <div class="card">
                         <h6>mzML Feature Finder</h6>
+                        <img src="{{ url_for('static', filename='images/svg/finder.svg') }}" alt="Feature Finder" class="bg_images2">
                         <p>
                             Detect and extract features from mzML files, this page also allows you to visualize the detected features.
                         </p>
@@ -85,6 +89,7 @@
                     <a href="/adducts">
                         <div class="card">
                         <h6>mzML Adduct Annotator</h6>
+                        <img src="{{ url_for('static', filename='images/svg/annotator.svg') }}" alt="Adduct Annotator" class="bg_images2">
                         <p>
                             Annotate mzML features with potential adducts, which is crucial for accurate compound identification.
                         </p>
@@ -93,6 +98,7 @@
                     <a href="/alignment">
                         <div class="card">
                         <h6>mzML Aligner</h6>
+                        <img src="{{ url_for('static', filename='images/svg/align.svg') }}" alt="Aligner" class="bg_images2">
                         <p>
                             Align multiple mzML files to a common reference, which is essential for comparative analysis.
                         </p>
@@ -101,6 +107,7 @@
                     <a href="/consensus">
                         <div class="card">
                         <h6>mzML Consensus Matrix Builder</h6>
+                        <img src="{{ url_for('static', filename='images/svg/matrix.svg') }}" alt="Consensus Matrix Builder" class="bg_images2">
                         <p>
                             Generate consensus matrix from multiple mzML feature files to apply statistical analysis.
                         </p>
@@ -109,6 +116,7 @@
                     <a href="/gnps">
                         <div class="card">
                         <h6>GNPS Export</h6>
+                        <img src="{{ url_for('static', filename='images/svg/export.svg') }}" alt="GNPS Export" class="bg_images2">
                         <p>
                             Prepare aligned mzML files and consensus matrix to the GNPS platform for molecular networking and compound identification.
                         </p>
@@ -117,6 +125,7 @@
                     <a href="/ami">
                         <div class="card">
                         <h6>Accurate Mass Identifier</h6>
+                        <img src="{{ url_for('static', filename='images/svg/search.svg') }}" alt="Accurate Mass Identifier" class="bg_images2">
                         <p>
                             Perform accurate mass searches against compound databases to identify potential compounds.
                         </p>

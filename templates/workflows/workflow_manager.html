@@ -42,8 +42,41 @@
     {% elif workflow_status == 'started' and workflow_id|int != 0 %}
         <div class="sidebar_icons">
             <div class="sidebar_workflow">
-                <img src="{{ url_for('static', filename='images/svg/workflow_steps.svg') }}" alt="Workflow" class="sidebar_icons_svg" onclick="this.classList.toggle('rotate')">
+                <img src="{{ url_for('static', filename='images/svg/workflow_steps.svg') }}" alt="Workflow" class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
+                <div class="sidebar_dropdown_menu" id="functions-dropdown">
+                    <div style="padding: 10px; font: smaller;">
+                        <em>Current workflow</em>
+                        <strong>{{ current_workflow }}</strong>
+                    </div>
+                    <div class="dropdown-father-item">
+                        Finished steps:
+                    </div>
+                    {% if finished_steps %}
+                        {% for step in finished_steps %}
+                            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p style="padding: 10px; font: smaller;">No steps finished yet.</p>
+                    {% endif %}
+                    <div class="dropdown-father-item">
+                        Remaining steps:
+                    </div>
+                    {% if current_steps %}
+                        {% for step in current_steps %}
+                            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p style="padding: 10px; font: smaller;">No steps available.</p>
+                    {% endif %}
+                </div>
             </div>
+            {% if session.get('finished_steps', [])|length > 0 %}
+                <a href="/previous_step">
+                <div class="sidebar_backward">
+                    <img src="{{ url_for('static', filename='images/svg/undo_step.svg') }}" alt="Back" class="sidebar_icons_svg">
+                </div>
+                </a>
+            {% endif %}
         </div>
     {% elif session['workflow_status'] != 'started' %}
         <div class="sidebar_icons">
@@ -227,10 +260,14 @@ function toggleFunctionsMenu(icon) {
 // Cerrar el menú si se hace clic fuera
 document.addEventListener('click', function(event) {
     const dropdown = document.getElementById('functions-dropdown');
-    const icon = document.querySelector('.sidebar_functions img');
-    if (!event.target.closest('.sidebar_functions')) {
-        dropdown.classList.remove('show');
-        icon.classList.remove('rotate');
+    const iconFunctions = document.querySelector('.sidebar_functions img');
+    const iconWorkflow = document.querySelector('.sidebar_workflow img');
+    
+    // Verificar si el clic fue fuera de AMBOS contenedores
+    if (!event.target.closest('.sidebar_functions') && !event.target.closest('.sidebar_workflow')) {
+        if (dropdown) dropdown.classList.remove('show');
+        if (iconFunctions) iconFunctions.classList.remove('rotate');
+        if (iconWorkflow) iconWorkflow.classList.remove('rotate');
     }
 });
 </script>

@@ -51,7 +51,7 @@
                                 {{ file.path }}
                             </td>
                             <td class="file-actions-td">
-                                <a href="/uploads/{{ folder_name|lower|replace(' ', '_') }}/{{ file.name }}" title="Download {{file.name}}" class="btn btn-success">Download</a>
+                                <a href="/uploads/{{ folder_name|lower|replace(' ', '_') }}/{{ file.name }}" title="Download {{file.name}}" class="btn btn-success download">Download</a>
                             </td>
                         </tr>
                     {% endfor %}

@@ -87,6 +87,9 @@ a {
     color: white !important;
     background-color: #24b6a5;
 }
+.card:hover .bg_images2 {
+    filter: brightness(0) invert(1);
+}
 .card:hover p {
     color: white !important;
 }
@@ -100,4 +103,24 @@ a {
     margin-top: auto;
     color: #666;
     font-size: smaller;
+}
+.bg_images {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0.5em;
+    margin-bottom: 0.5em;
+    opacity: 1;   
+}
+
+.bg_images2 {
+    width: 60% !important;
+    height: 60% !important;
+    border-radius: 0.5em;
+    margin-bottom: 0.5em;
+    opacity: 1;   
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    filter: brightness(0) saturate(100%) invert(58%) sepia(52%) saturate(405%) hue-rotate(127deg) brightness(97%) contrast(91%);
+    transition: filter 0.3s ease;
 }

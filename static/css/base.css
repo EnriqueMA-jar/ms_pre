@@ -6,7 +6,7 @@
     width: 100%;
     display: block;
     position: static;
-    margin-bottom: 10px;
+    
     height: 50px;
 }
 .navbar .a{
@@ -35,7 +35,7 @@
 }
 .li_cleaner{
     display: block;
-     width: fit-content;
+    width: fit-content;
     padding-left: 10px !important;
     padding-right: 10px !important;
     height: 100%; 
@@ -55,6 +55,7 @@
 .container{
     background-color: white !important;
     border: none !important;
+    margin-top: 10px !important;
 }
 body{
     background-color: #f2f2f2 !important;
@@ -157,23 +158,24 @@ h4{
 }
  /* -------------------------------- Sidebar icons------------------------------------- */
  .sidebar_icons {
-    display: block;
-    align-items: vertical;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     top: 50px;
     z-index: 1000;
  }
  .sidebar_backward, .sidebar_functions, .sidebar_workflow {
     display: block;
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background-color: #028a70;
     border-radius: 0.8em;
     margin-top: 20px;
-    margin-left: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-left: 10px;
+    padding: 5px;
+   
  }
  .sidebar_backward:hover, .sidebar_functions:hover, .sidebar_workflow:hover {
     background-color: #072f28;
@@ -193,14 +195,14 @@ h4{
     top: 100%;
     left: 20px;
     background-color: #fff;
-    border: 1px solid #ccc;
     border-radius: 0.5em;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 170px;
+    min-width: 233px !important;
     z-index: 1000;
     display: none;
     flex-direction: column;
     padding: 8px 0;
+    font: smaller !important;
 }
 
 .sidebar_dropdown_menu.show {
@@ -208,17 +210,18 @@ h4{
 }
 
 .sidebar_dropdown_menu .dropdown-item {
-    padding: 10px 16px;
+    padding: 10px;
     text-decoration: none;
     color: #333;
     transition: background-color 0.2s;
 }
 .sidebar_dropdown_menu .dropdown-father-item {
-    padding: 10px 16px;
+    padding: 10px;
     text-decoration: none;
     color: white;
     background-color: #037e67;
     transition: background-color 0.2s;
+    font: smaller !important;
 }
 
 .sidebar_dropdown_menu .dropdown-item:hover {

@@ -132,10 +132,26 @@ def upload_chunk():
 # Index page ####################################
 @app.route('/')
 def home():
+    if 'workflow_id' not in session:
+        session['workflow_id'] = 0
+        session['workflow_status'] = 'started'
+        session['step_status'] = 'started'
+        session['current_workflow'] = "None"
+        session['current_steps'] = []
+        session['finished_steps'] = []
+        session['generated_files'] = {}
     return redirect('/index')
 
 @app.route('/index')
 def index():
+    if 'workflow_id' not in session:
+        session['workflow_id'] = 0
+        session['workflow_status'] = 'started'
+        session['step_status'] = 'started'
+        session['current_workflow'] = "None"
+        session['current_steps'] = []
+        session['finished_steps'] = []
+        session['generated_files'] = {}
     return render_template('index.html', page='Home')
 
 @app.route('/functions_hub')
@@ -1295,8 +1311,9 @@ def end_workflow():
     session.pop('file_path', None)
     session.pop('current_workflow', None)
     session.pop('current_steps', None)
+    session.pop('finished_steps', None)
     session['workflow_id'] = 0
-    session['workflow_status'] = 'finished'
+    session['workflow_status'] = 'started'
     session['step_status'] = 'finished'
     session['generated_files'] = {}  
     return render_template('index.html', page='Home')
@@ -1310,6 +1327,7 @@ def inject_workflow_vars():
     current_workflow = session.get('current_workflow', None)
     workflow_status = session.get('workflow_status', 'not started')
     current_steps = session.get('current_steps', [])
+    finished_steps = session.get('finished_steps', [])
     step_status = session.get('step_status', 'not started')
     if 'df_summary' in session:
         df_summary = pd.read_json(session.get('df_summary_path'))
@@ -1320,6 +1338,7 @@ def inject_workflow_vars():
         'current_workflow': current_workflow, 
         'workflow_status': workflow_status,
         'current_steps': current_steps,
+        'finished_steps': finished_steps,
         'step_status': step_status,
         'df_summary': df_summary
     }
@@ -1332,6 +1351,9 @@ def advance_workflow_step(step_name):
     step_status = session.get('step_status', 'not started')
     if current_steps and current_steps[0] == step_name and step_status == 'finished':
         current_steps.pop(0)
+        finished_steps = session.get('finished_steps', [])
+        finished_steps.append(step_name)
+        session['finished_steps'] = finished_steps
         session['current_steps'] = current_steps
         
 def workflow_step_finished(step_name=None, generated_files=None):
@@ -1363,6 +1385,28 @@ def next_step():
         return redirect(url_for(session['current_steps'][0]))
     else:
         return redirect(url_for('index'))
+    
+@app.route('/previous_step')
+def previous_step():
+    finished_steps = session.get('finished_steps', [])
+    current_steps = session.get('current_steps', [])
+    
+    if not finished_steps:
+        if current_steps:
+            return redirect(url_for(current_steps[0]))
+        else:
+            return redirect(url_for(finished_steps[-1]))
+    
+    last_finished_step = finished_steps.pop()
+    current_steps.insert(0, last_finished_step)
+    
+    session['finished_steps'] = finished_steps
+    session['current_steps'] = current_steps
+    session['step_status'] = 'started'
+    session.modified = True
+    
+    return redirect(url_for(last_finished_step))    
+    
     
 # -------------------------------------------------------------------
 # SEND FILES ENDPOINT
