@@ -34,13 +34,17 @@ py -m venv <environment_name>
 ```BASH
 python3 -m venv <environment_name>
 ```
+### NOTE: Most of the dependencies works on Python 3.13, if you're using Python 3.14 you can use Conda to create the virtual enviroment
+#### CONDA VIRTUAL ENVIROMENT
+```BASH
+conda create -n <enviroment_name> python=3.13
+```
 
 4️. Activate the virtual environment
 #### Windows – PowerShell
 ```BASH
 .\<environment_name>\Scripts\Activate.ps1
 ```
-
 #### Windows – CMD
 ```BASH
 <environment_name>\Scripts\activate.bat
@@ -52,6 +56,10 @@ source <environment_name>/Scripts/activate
 #### Linux / macOS
 ```BASH
 source <environment_name>/bin/activate
+```
+#### CONDA
+```BASH
+conda activate <environment_name>
 ```
 ### Install dependencies
 After activating the environment:
