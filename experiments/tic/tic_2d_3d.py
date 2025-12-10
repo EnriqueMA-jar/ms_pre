@@ -6,7 +6,7 @@ import plotly.express as px
 from plotly.colors import sample_colorscale
 import matplotlib.cm as cm
 # import datashader as ds
-from datashader.mpl_ext import dsshow
+# from datashader.mpl_ext import dsshow
 import pandas as pd
 from plotly.subplots import make_subplots
 from scipy.ndimage import gaussian_filter
