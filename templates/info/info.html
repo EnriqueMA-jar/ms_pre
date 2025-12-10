@@ -1,6 +1,10 @@
 
 
-
+{% set tool_type = "" %}
+{% set about = "" %}
+{% set inputs = {} %}
+{% set outputs = {} %}
+{% set options = {} %}
 {% if page=='Summary' or page=="process_mzML" %}
     {% set tool_type = "Inspection Tool" %}
     {% set inputs = {

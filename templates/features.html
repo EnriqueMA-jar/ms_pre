@@ -15,9 +15,9 @@
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>
             </div>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
+            <!-- <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
-            </button>
+            </button> -->
             <h6>Select Features Detection Options:</h6>
             <div class="features_options">
                 <form method="post">
@@ -56,6 +56,7 @@
                     </div>
                 </div>
             </form>
+            {% include 'alerts/alerts.html' %}
         </section>
         <section class="plot_section">
             {% if plot_features %}
@@ -85,6 +86,7 @@
                 {% set accept_types_label = "mzML/FeatureXML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
+            {% include 'alerts/alerts.html' %}
         </section>
         <section class="plot_section">
             {% if plot_features %}

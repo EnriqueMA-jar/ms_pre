@@ -15,16 +15,16 @@
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>
             </div>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
+            <!-- <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
-            </button>
+            </button> -->
             <h4>Select mzML features files to adduct:</h4>
             <form action="/get_files_adducts" method="post" enctype="multipart/form-data" id="uploadForm">
                 {% set accept_types = ".featureXML" %}
                 {% set accept_types_label = "FeatureXML" %}
                 {% include 'inputs/multiple_input.html' %}
-                {% include 'alerts/alerts.html' %}
             </form>
+            {% include 'alerts/alerts.html' %}
         </section>
         <section class="download_section">
             <h5>Download Features Adduct CSV File</h5>

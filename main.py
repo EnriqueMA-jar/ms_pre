@@ -245,7 +245,13 @@ def process_alignment():
         selected_option = 'op1'
         
     feature_files = request.files.getlist('feature_filename')
+    if not all(file.filename.endswith('.featureXML') for file in feature_files):
+        error_alert = "Please upload only .featureXML files for features."
+        return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert, page='Alignment')
     mzml_files = request.files.getlist('mzml_filename')
+    if not all(file.filename.endswith('.mzML') for file in mzml_files):
+        error_alert = "Please upload only .mzML files for mzML."
+        return render_template('alignment.html', download_links_features=None, download_links_mzml=None, selected_option=selected_option, error_alert=error_alert, page='Alignment')
     
 
     # Save files and get their paths
@@ -443,6 +449,11 @@ def features_function():
     session['selected_option_features'] = selected_option
     
     files = request.files.getlist('filename')
+    if not all(file.filename.endswith('.mzML') or file.filename.endswith('.featureXML') for file in files if file.filename):
+        error_alert = "Please upload only .mzML or .featureXML files."
+        return render_template('features.html', plot_features=None, download_links=None, error_alert=error_alert, selected_option=selected_option, page='Features')
+    
+     # Get parameters from the form
     mass_error_ppm = request.form.get('mass_error_ppm', 10)
     noise_threshold_int = request.form.get('noise_threshold_int', 1000)
     download_links = []
@@ -540,6 +551,8 @@ def process_gnps():
 
     aligned_mzML_files = request.files.getlist("mzml_filename")
     consensus_file = request.files["consensus_filename"]
+    if not consensus_file.filename.endswith('consensusXML') or consensus_file.filename.endswith('csv'):
+        return render_template('gnps.html', error_alert="Please upload a valid .consensusXML or .csv file for consensus.", page='GNPS')
     
     if len(aligned_mzML_files) < 1 or not consensus_file:
         error_alert = "Error: Please upload at least one aligned .mzML file and one .consensusXML file to generate GNPS files."
@@ -586,20 +599,27 @@ def chromatograms():
 # render chromatograms endpoint/function ####################################
 @app.route('/get_files_chromatograms', methods=['POST'])
 def process_chromatograms():
-    # Check if files are uploaded
-    if 'filename' in request.files:
-        files = request.files.getlist('filename')
-        intensity_threshold = 100
-        file_paths = []
-        for file in files:
-            path = f"mzML_samples/{file.filename}"
-            file.save(path)
-            file_paths.append(path)
-        session['file_paths'] = file_paths
-        print("Rutas de archivos:", file_paths)
-    else:
-        file_paths = session.get('file_paths', [])
-        intensity_threshold = int(request.form.get('intensity_threshold', 100))
+    
+    try:
+        # Check if files are uploaded
+        if 'filename' in request.files:
+            files = request.files.getlist('filename')
+            if not all(file.filename.endswith('.mzML') for file in files):
+                return render_template('chromatogram.html', plot_chromatograms=None, error_alert="Please upload only .mzML files.", page='Chromatograms')
+            intensity_threshold = 100
+            file_paths = []
+            for file in files:
+                path = f"mzML_samples/{file.filename}"
+                file.save(path)
+                file_paths.append(path)
+            session['file_paths'] = file_paths
+            print("Rutas de archivos:", file_paths)
+        else:
+            file_paths = session.get('file_paths', [])
+            intensity_threshold = int(request.form.get('intensity_threshold', 100))
+    except Exception as e:
+        # print(f"Error processing files: {e}")
+        return render_template('chromatogram.html', plot_chromatograms=None, error_alert=f"Error processing files. {e}", page='Chromatograms')
 
     # Generate chromatogram plot 
     import plotly.io as pio
@@ -640,15 +660,18 @@ def process_normalize():
     file_path = None
     
     if uploaded_file and uploaded_file.filename:
-        file_path = os.path.join(uploads_dir, uploaded_file.filename)
-        uploaded_file.save(file_path)
-        session['file_path'] = file_path
+        if not uploaded_file.filename.endswith('.mzML'):
+            return render_template('normalize.html', selected_option=selected_option, plot_original=None, plot_normalized=None, download_link=None, error_alert="Please upload a valid .mzML file.", page='Normalize')
+        else:
+            file_path = os.path.join(uploads_dir, uploaded_file.filename)
+            uploaded_file.save(file_path)
+            session['file_path'] = file_path
     else:
         file_path = session.get('file_path')
 
     # Only proceed if file_path is set
     if not file_path:
-        return render_template('normalize.html', selected_option=selected_option, plot_original=None, plot_normalized=None, download_link=None, error_msg="No file uploaded.", page='Normalize')
+        return render_template('normalize.html', selected_option=selected_option, plot_original=None, plot_normalized=None, download_link=None, error_alert="No file uploaded.", page='Normalize')
 
     if selected_option == 'op1':
         result = normalize_to_one(file_path)
@@ -692,9 +715,12 @@ def process_spectra():
     import plotly.io as pio
     import pyopenms as oms
     
-    # Check if files are uploaded
     if 'filename' in request.files:
         file = request.files['filename']
+        
+        if not file or not file.filename.endswith('.mzML'):
+            return render_template('spectra.html', error_alert="Please upload a valid .mzML file.", page='Spectra')
+            
         spectrum_value = 250
         # Guardar en uploads/temp_chunks
         chunk_dir = os.path.join('uploads', 'temp_chunks')
@@ -787,6 +813,7 @@ def process_smoothing():
     if selected_option == 'op1':
         # It could be a single file smoothing
         files = request.files.getlist('filename')
+        
         file = None
         for f in files:
             if f and f.filename and f.filename.endswith('.mzML'):
@@ -1004,6 +1031,12 @@ def process_adducts():
     os.makedirs(uploads_dir, exist_ok=True)
     
     files = request.files.getlist('filename')
+    if not all(file.filename.endswith('.featureXML') for file in files):
+        alert = "Please upload only .featureXML files for adduct generation."
+        session['step_status'] = 'started'
+        return render_template('adducts.html', download_links=None, download_links2=None, download_links3=None, error_alert=alert, page='Adducts')
+    
+     # Save uploaded files and get their paths
     file_paths = []
     for file in files:
         path = f"{uploads_dir}/{file.filename}"
@@ -1146,6 +1179,15 @@ def process_ami():
     adducts = request.files.get('filename4')
     adducts_file = os.path.join(uploads_dir, adducts.filename)
     adducts.save(adducts_file)
+    
+    if not consensus_file.endswith('.csv'):
+        return render_template('accurate_mass.html', error_alert="Please upload a valid .csv file for consensus.", page='Accurate Mass Search')
+    if not dbmapping_file.endswith('.tsv'):
+        return render_template('accurate_mass.html', error_alert="Please upload a valid .tsv file for database mapping.", page='Accurate Mass Search')
+    if not dbstruct_file.endswith('.tsv'):
+        return render_template('accurate_mass.html', error_alert="Please upload a valid .tsv file for database structure.", page='Accurate Mass Search')
+    if not adducts_file.endswith('.tsv'):
+        return render_template('accurate_mass.html', error_alert="Please upload a valid .tsv file for adducts.", page='Accurate Mass Search')   
 
     result, result2, result3, fig_id = accurate_mass_search(consensus_file, dbmapping_file, dbstruct_file, adducts_file, uploads_dir)
     import plotly.io as pio

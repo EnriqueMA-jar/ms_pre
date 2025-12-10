@@ -79,6 +79,20 @@
             "steps": [
                 "consensus"
             ]
+        },
+        {
+            "description": "Decription XXXX",
+            "id": 8,
+            "image": "None",
+            "is_default": false,
+            "name": "KKKKK",
+            "steps": [
+                "centroiding",
+                "alignment",
+                "adducts",
+                "adducts",
+                "consensus"
+            ]
         }
     ]
 }

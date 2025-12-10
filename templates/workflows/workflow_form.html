@@ -93,12 +93,12 @@
             const steps = JSON.parse(document.getElementById('stepsOrder').value || '[]');
             const alertContainer = document.getElementById('alertContainer');
             
-            if (steps.length === 0) {
+            if (steps.length < 2) {
                 alertContainer.innerHTML = `
                     <div class="alert alert-danger d-flex align-items-center" role="alert">
                         <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
                         <div>
-                            Please add at least one step to the workflow.
+                            Please add at least two steps to the workflow.
                         </div>
                     </div>
                 `;
@@ -191,7 +191,7 @@
                     <span class="step-number"></span>
                     ${innerHTML}
                     <a href="#" class="remove-step" title="Remove step">
-                        <i class="bi bi-x-lg"></i>
+                        <b class="bi bi-x-lg" style="cursor: pointer; text-decoration: none !important; padding-left: 5px; padding-right: 5px;">X</b>
                     </a>
                 `;
                 

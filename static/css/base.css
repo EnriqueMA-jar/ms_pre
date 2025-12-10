@@ -1,3 +1,7 @@
+body{
+    zoom: 90%;
+}
+
 .navbar{
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: white;
@@ -192,12 +196,12 @@ h4{
  }
  .sidebar_dropdown_menu {
     position: absolute;
-    top: 100%;
-    left: 20px;
+    top: calc(100% + 10px);
+    left: 10px;
     background-color: #fff;
     border-radius: 0.5em;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 233px !important;
+    min-width: 190px !important;
     z-index: 1000;
     display: none;
     flex-direction: column;

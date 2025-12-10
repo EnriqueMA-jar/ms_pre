@@ -14,15 +14,16 @@
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>
             </div>
-            <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
+            <!-- <button class="info-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions" title="About this page">
                 <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:"><use href="#info-fill"/></svg>
-            </button>
+            </button> -->
             <h4>Select mzML files to inspect:</h4>
             <form id="uploadForm" action="/get_files_chromatograms" method="post" enctype="multipart/form-data">
                 {% set accept_types = ".mzML" %}
                 {% set accept_types_label = "mzML" %}
                 {% include 'inputs/multiple_input.html' %}
             </form>
+            {% include 'alerts/alerts.html' %}
         </section>
             {% if plot_chromatograms %}
             <section class="result_section">

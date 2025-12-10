@@ -1,7 +1,7 @@
 .container{
     display: grid;
     grid-template-areas: 
-                'title_section title_section'
+                /* 'title_section title_section' */
                'inspection_section processing_section';
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto 1fr;
