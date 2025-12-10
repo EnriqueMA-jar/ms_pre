@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.colors import sample_colorscale
 import matplotlib.cm as cm
-import datashader as ds
+# import datashader as ds
 from datashader.mpl_ext import dsshow
 import pandas as pd
 from plotly.subplots import make_subplots
