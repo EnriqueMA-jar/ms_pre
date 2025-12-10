@@ -76,6 +76,13 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 deactivate
 ```
 ## Requirements
-* Python 3.10 or higher
+* Python 3.10 or higher (up to 3.13)
 * pip installed
+* git instaled
 * Internet connection for dependency installation
+
+## PULLING NEW CHANGES FROM THE REPOSITORY:
+```BASH
+git stash
+git pull
+```
