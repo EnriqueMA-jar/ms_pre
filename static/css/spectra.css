@@ -32,4 +32,13 @@ h2{
 .result_section3 { grid-area: result_section3; }
 .result_section4 { 
     grid-area: result_section4; 
+    overflow: visible !important;
+}
+
+.js-plotly-plot .plotly .hoverlayer {
+    overflow: visible !important;
+}
+
+.plotly-graph-div {
+    overflow: visible !important;
 }

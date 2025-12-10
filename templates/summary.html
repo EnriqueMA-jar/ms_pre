@@ -5,6 +5,15 @@
     {% block head %}
     {{ super() }}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/summary.css') }}">
+        <script>
+            window.showProcessingSpinner = function() {
+                document.getElementById('processingOverlay').style.display = 'flex';
+            };
+            
+            window.hideProcessingSpinner = function() {
+                document.getElementById('processingOverlay').style.display = 'none';
+            };
+        </script>
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
@@ -150,6 +159,10 @@
                 const formData = new FormData();
                 formData.append('filter_options', selectedFilter);
                 formData.append('filename', '{{ filename }}');
+                
+               
+                showProcessingSpinner();
+                
                 fetch('/get_file_info', {
                     method: 'POST',
                     body: formData,
@@ -157,6 +170,8 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                   hideProcessingSpinner();
+                    
                     document.getElementById('plotly-graph-1').innerHTML = data.plot_html;
                     document.getElementById('plotly-graph-2').innerHTML = data.plot_html2;
                     const container1 = document.getElementById('plotly-graph-1');
@@ -185,11 +200,14 @@
                         }
                         oldScript.parentNode.replaceChild(newScript, oldScript);
                     });
+                })
+                .catch(error => {
+                    hideProcessingSpinner();
+                    console.error('Error:', error);
                 });
             }
         );
 
-        // Función: exporta y descarga ambos gráficos (si existen) como archivos separados.
         function downloadBothPlotlyImages() {
             const format = document.getElementById('img-format').value || 'png';
             const width = parseInt(document.getElementById('img-width').value) || 800;

@@ -224,10 +224,12 @@ def functions_hub():
     return render_template('functions_hub.html', page='Functions Hub', workflows_file=WORKFLOWS_FILE)
 
 # Alignment page ####################################
+
 @app.route('/alignment', methods=['GET', 'POST'])
 def alignment():
-    if 'alignment' in session.get('current_steps', []) and session.get('step_status') == 'finished':
-        session['step_status'] = 'started'
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'alignment' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     selected_option = request.form.get('alignment_options', 'op1')
     return render_template('alignment.html', selected_option=selected_option, page='Alignment')
 
@@ -365,9 +367,10 @@ def process_alignment():
 # Consensus page ####################################
 @app.route('/consensus', methods=['GET', 'POST'])
 def consensus():
-    if session.get('workflow_status') == 'started':
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
         if 'consensus' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
+    # ... resto de la lógica ...
     return render_template('consensus.html', page='Consensus')
 
 # Consensus endpoint/function ####################################
@@ -427,13 +430,9 @@ def process_consensus():
 # Features page ####################################
 @app.route('/features', methods=['GET', 'POST'])
 def features():
-    
-    if session.get('workflow_status') == 'started':
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
         if 'features' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
-        #session['generated_files'] = []
-    
-    print("Current steps before:", session.get('current_steps', []))
     selected_option = request.form.get('features_options', 'op1')
     return render_template('features.html', selected_option=selected_option, page='Features')
 
@@ -537,6 +536,9 @@ def features_function():
 # GNPS page ####################################
 @app.route('/gnps', methods=['GET', 'POST'])
 def gnps():
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'gnps' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     return render_template('gnps.html', page='GNPS')
 
 # GNPS Endpoint for serving files from the uploads folder ####################################
@@ -596,6 +598,7 @@ def process_gnps():
 def chromatograms():
     return render_template('chromatogram.html', page='Chromatograms')
 
+
 # render chromatograms endpoint/function ####################################
 @app.route('/get_files_chromatograms', methods=['POST'])
 def process_chromatograms():
@@ -638,6 +641,9 @@ def process_chromatograms():
 # normalize page ####################################
 @app.route('/normalize', methods=['GET', 'POST'])
 def normalize():
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'normalize' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     selected_option = request.form.get('normalization_options', 'op1')
     return render_template('normalize.html', selected_option=selected_option, page='Normalize')
 
@@ -709,6 +715,7 @@ def spectra():
         plot_spectra=None,
         plot_merge_spectrum=None, page='Spectra')
 
+
 # render spectra endpoint/function (unificado) ####################################
 @app.route('/get_files_spectra', methods=['POST'])
 def process_spectra():
@@ -743,11 +750,10 @@ def process_spectra():
     oms.MzMLFile().load(path, exp)
     spectra = exp.getSpectra()
     
-    # Contar MS levels directamente (sin regex ni llamar a get_file_info)
     ms1 = sum(1 for s in spectra if s.getMSLevel() == 1)
     ms2 = sum(1 for s in spectra if s.getMSLevel() == 2)
     
-    # ========== MS1: Gráficas de binning y merge ==========
+    # ========== MS1 ==========
     if ms1 > 0 and ms2 == 0:
         ms_type = 1
         
@@ -769,13 +775,11 @@ def process_spectra():
             ms_level=ms1, 
             ms_type=ms_type, 
             spectrum_value=spectrum_value, 
-            page='Spectra')
+            page='Spectra', config={'displayModeBar': True})
     
-    # ========== MS2: Gráficas de comparación MS1 vs MS2 ==========
+    # ========== MS2 ==========
     elif ms2 > 0:
         ms_type = 2
-        
-        # Render plots usando el experimento ya cargado
         fig_ms2_spectra, fig_ms2_overlay = render_spectra_plots(exp)
         plot_ms2_spectra = pio.to_html(fig_ms2_spectra, full_html=False)
         plot_ms2_overlay = pio.to_html(fig_ms2_overlay, full_html=False)
@@ -789,13 +793,15 @@ def process_spectra():
             spectrum_value=spectrum_value, 
             page='Spectra')
     
-    # Si no hay espectros válidos
     return render_template('spectra.html', error_alert="No valid MS1 or MS2 spectra found.", page='Spectra')
 
     
 # Smoothing page ####################################
 @app.route('/smoothing', methods=['GET', 'POST'])
 def smoothing():
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'smoothing' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     selected_option = request.form.get('smoothing_options', 'op1')
     return render_template('smoothing.html', selected_option=selected_option, page='Smoothing')
 
@@ -822,7 +828,6 @@ def process_smoothing():
         if not file:
             alert = 'Please upload a valid .mzML file for single file smoothing.'
             return render_template('smoothing.html', selected_option='op1', download_link=None, window_length=11, polyorder=3, error_alert=alert, page='Smoothing')
-        # print(f"[DEBUG] single file: {file.filename}")
         save_path = os.path.join(uploads_dir, file.filename)
         if not os.path.exists(save_path):
             file.save(save_path)
@@ -830,6 +835,12 @@ def process_smoothing():
         if "savgol" in output_path:
             filename = os.path.basename(output_path)
             download_link = f"{SMOOTHING_DIR}/{filename}"
+        if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+            generated_files = [{
+                "filename": filename,
+                "path": download_link
+            }]
+            workflow_step_finished('smoothing', generated_files)
         return render_template('smoothing.html', selected_option='op1', download_link=download_link, window_length=11, polyorder=3, page='Smoothing')
     else:
         if selected_option == 'op2':
@@ -866,6 +877,9 @@ def process_smoothing():
                 if "savgol" in file_path:
                     filename = os.path.basename(file_path)
                 download_links.append(f"{SMOOTHING_DIR}/{filename}")
+            
+            if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+                workflow_step_finished('smoothing', generated_files)
 
             # Render the page with download links and keep the multiple option selected
             return render_template('smoothing.html', selected_option='op2', download_links=download_links, page='Smoothing', window_length=window_length, polyorder=polyorder)
@@ -1016,12 +1030,14 @@ def process_mzML():
 
 
 # Adduct page #############################
-@app.route('/adducts')
+@app.route('/adducts', methods=['GET', 'POST'])
 def adducts():
-    if session.get('workflow_status') == 'started':
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
         if 'adducts' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
+    # ... resto de la lógica ...
     return render_template('adducts.html', page='Adducts')
+
 
 # Adducts endpoint/function ####################################
 @app.route('/get_files_adducts', methods=['POST'])
@@ -1032,74 +1048,92 @@ def process_adducts():
     
     files = request.files.getlist('filename')
     if not all(file.filename.endswith('.featureXML') for file in files):
-        alert = "Please upload only .featureXML files for adduct generation."
-        session['step_status'] = 'started'
-        return render_template('adducts.html', download_links=None, download_links2=None, download_links3=None, error_alert=alert, page='Adducts')
+        return render_template('adducts.html', 
+                               error_alert="Please upload only .featureXML files.", 
+                               page='Adducts')
     
      # Save uploaded files and get their paths
     file_paths = []
     for file in files:
-        path = f"{uploads_dir}/{file.filename}"
-        file.save(path)
-        file_paths.append(path)
+        file_path = os.path.join(uploads_dir, file.filename)
+        file.save(file_path)
+        file_paths.append(file_path)
         
     for file in file_paths:
-        print("Procesando archivo:", file)
+        print(f"Uploaded file: {file}")
 
-    # Llama a get_adduct_files con la lista de archivos
-    output_files, output_files2, output_files3 = get_adduct_files(file_paths, ADDUCTS_DIR)
+    # Llama a get_adduct_files con la lista de archivos (procesa positivos y negativos)
+    results = get_adduct_files(file_paths, ADDUCTS_DIR)
 
-    download_links = []
-    download_links2 = []
-    download_links3 = []
-    for output_file in output_files:
-        if output_file and os.path.exists(output_file):
-            filename = os.path.basename(output_file)
-            download_link = f"/uploads/adducts/{filename}"
-            download_links.append(download_link)
-        else:
-            session['step_status'] = 'started'
-            alert = f"Error: adduct files not generated for {output_file}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
-    for output_file2 in output_files2:
-        if output_file2 and os.path.exists(output_file2):
-            filename = os.path.basename(output_file2)
-            download_link = f"/uploads/adducts/{filename}"
-            download_links2.append(download_link)
-        else:
-            session['step_status'] = 'started'
-            alert = f"Error: adduct files not generated for {output_file2}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
-    for output_file3 in output_files3:
-        if output_file3 and os.path.exists(output_file3):
-            filename = os.path.basename(output_file3)
-            download_link = f"/uploads/adducts/{filename}"
-            download_links3.append(download_link)
-        else:
-            session['step_status'] = 'started'
-            alert = f"Error: adduct files not generated for {output_file3}"
-            return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, error_alert=alert, page='Adducts')
+    # Preparar links para positivos
+    download_links_pos = []
+    download_links2_pos = []
+    download_links3_pos = []
+    
+    if "positive" in results:
+        for output_file in results["positive"]['csv_files']:
+            download_links_pos.append({
+                'filename': os.path.basename(output_file),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file))
+            })
+        for output_file2 in results["positive"]['featurexml_files']:
+            download_links2_pos.append({
+                'filename': os.path.basename(output_file2),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file2))
+            })
+        for output_file3 in results["positive"]['db_files']:
+            download_links3_pos.append({
+                'filename': os.path.basename(output_file3),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file3))
+            })
+
+    # Preparar links para negativos
+    download_links_neg = []
+    download_links2_neg = []
+    download_links3_neg = []
+    
+    if "negative" in results:
+        for output_file in results["negative"]['csv_files']:
+            download_links_neg.append({
+                'filename': os.path.basename(output_file),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file))
+            })
+        for output_file2 in results["negative"]['featurexml_files']:
+            download_links2_neg.append({
+                'filename': os.path.basename(output_file2),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file2))
+            })
+        for output_file3 in results["negative"]['db_files']:
+            download_links3_neg.append({
+                'filename': os.path.basename(output_file3),
+                'url': url_for('download_adducts', filename=os.path.basename(output_file3))
+            })
 
     # Store generated files in session for workflow tracking
     generated_files = []
-    for path in download_links + download_links2 + download_links3:
-        generated_files.append({
-                "filename": os.path.basename(path),
-                "path": path
-            })
+    all_links = (download_links_pos + download_links2_pos + download_links3_pos + download_links_neg + download_links2_neg + download_links3_neg)
+    for link in all_links:
+        generated_files.append(link)
+    
     workflow_step_finished('adducts', generated_files)
-    #advance_workflow_step('adducts')
-    return render_template('adducts.html', download_links=download_links, download_links2=download_links2, download_links3=download_links3, page='Adducts')
+    
+    return render_template('adducts.html', 
+                           download_links_pos=download_links_pos, 
+                           download_links2_pos=download_links2_pos, 
+                           download_links3_pos=download_links3_pos,
+                           download_links_neg=download_links_neg, 
+                           download_links2_neg=download_links2_neg, 
+                           download_links3_neg=download_links3_neg,
+                           page='Adducts')
+
 
 # Centroiding page ####################################
-@app.route('/centroiding')
+@app.route('/centroiding', methods=['GET', 'POST'])
 def centroiding():
-    
-    if session.get('workflow_status') == 'started':
-        if 'centroided' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'centroiding' in session.get('current_steps', []) and session.get('step_status') == 'finished':
             session['step_status'] = 'started'
-        #session['generated_files'] = []
-        
+    # ... resto de la lógica ...
     return render_template('centroiding.html', page='Centroiding')
 
 # Centroiding endpoint/function
@@ -1143,7 +1177,8 @@ def process_centroiding():
                 "filename": os.path.basename(path),
                 "path": path
             })
-        workflow_step_finished('centroiding', generated_files)
+        if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+            workflow_step_finished('centroiding', generated_files)
         #advance_workflow_step('centroiding')
         return render_template('centroiding.html', download_links=download_links, page='Centroiding')
     except Exception as e:
@@ -1152,11 +1187,11 @@ def process_centroiding():
         return render_template('centroiding.html', download_links=None, error_alert=alert, page='Centroiding')
 
 # Accurate mass page ####################################
-@app.route('/ami')
+@app.route('/ami', methods=['GET', 'POST'])
 def accurate_mass():
-    if 'accurate_mass' in session.get('current_steps', []) and session.get('step_status') == 'finished':
-        session['step_status'] = 'started'
-
+    if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+        if 'accurate_mass' in session.get('current_steps', []) and session.get('step_status') == 'finished':
+            session['step_status'] = 'started'
     return render_template('accurate_mass.html', page='Accurate Mass Search')
 
 # Accurate mass endpoint/function ####################################

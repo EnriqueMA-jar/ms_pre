@@ -90,13 +90,17 @@ def binning_spectrum(exp, spectrum_value):
         ))
     
         fig_annotated.update_layout(
-            margin=dict(t=0),
+            margin=dict(t=10, l=60, r=60, b=50),
             xaxis_title='m/z',
             yaxis_title='Intensity',
             width=600,
             height=450,
             template='plotly_white',
-            hovermode='x'
+            hovermode='x unified'
+        )
+        
+        fig_annotated.update_traces(
+            hoverlabel=dict(namelength=-1)
         )
         alert = None
         return alert, fig_annotated, spectrum_index

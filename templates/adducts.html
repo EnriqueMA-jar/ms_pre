@@ -26,44 +26,93 @@
             </form>
             {% include 'alerts/alerts.html' %}
         </section>
-        <section class="download_section">
-            <h5>Download Features Adduct CSV File</h5>
-            <h6>Click the link below to download the features adduct file:</h6>
-            {% if download_links %}
-                <ul>
-                    {% for download_link in download_links %}
-                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No files processed yet.</p>
-            {% endif %}
+        <section class="download_section_positive mt-4">
+            
+            <div class="download_subsection">
+                <h5>Download Features Adduct CSV File (Positive)</h5>
+                <h6>Click the link below to download the features adduct file:</h6>
+                {% if download_links_pos %}
+                    <ul>
+                        {% for link in download_links_pos %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="download_subsection">
+                <h5>Download Features Adduct FeatureXML File (Positive)</h5>
+                <h6>Click the link below to download the features adduct file:</h6>
+                {% if download_links2_pos %}
+                    <ul>
+                        {% for link in download_links2_pos %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="download_subsection">
+                <h5>Download Features Positive Adduct for DB File</h5>
+                <h6>Click the link below to download the features adduct db file:</h6>
+                {% if download_links3_pos %}
+                    <ul>
+                        {% for link in download_links3_pos %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
         </section>
-        <section class="download_section2">
-            <h5>Download Features Adduct FeaturesXML File</h5>
-            <h6>Click the link below to download the features adduct file:</h6>
-            {% if download_links2 %}
-                <ul>
-                    {% for download_link in download_links2 %}
-                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No files processed yet.</p>
-            {% endif %}
-        </section>
-        <section class="download_section3">
-            <h5>Download Features Positive Adduct for db File</h5>
-            <h6>Click the link below to download the features adduct db file:</h6>
-            {% if download_links3 %}
-                <ul>
-                    {% for download_link in download_links3 %}
-                        <li><a href="{{ download_link }}" class="link" download>Download {{ download_link.split('/')[-1] }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p>No files processed yet.</p>
-            {% endif %}
+
+        <section class="download_section_negative mt-4">
+            <div class="download_subsection">
+                <h5>Download Features Adduct CSV File (Negative)</h5>
+                <h6>Click the link below to download the features adduct file:</h6>
+                {% if download_links_neg %}
+                    <ul>
+                        {% for link in download_links_neg %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="download_subsection">
+                <h5>Download Features Adduct FeatureXML File (Negative)</h5>
+                <h6>Click the link below to download the features adduct file:</h6>
+                {% if download_links2_neg %}
+                    <ul>
+                        {% for link in download_links2_neg %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
+
+            <div class="download_subsection">
+                <h5>Download Features Negative Adduct for DB File</h5>
+                <h6>Click the link below to download the features adduct db file:</h6>
+                {% if download_links3_neg %}
+                    <ul>
+                        {% for link in download_links3_neg %}
+                            <li><a href="{{ link.url }}" class="link" download>Download {{ link.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No files processed yet.</p>
+                {% endif %}
+            </div>
         </section>
     </div>
     <script>

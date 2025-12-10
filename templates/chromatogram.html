@@ -5,11 +5,47 @@
     {% block head %}
     {{ super() }}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/chromatogram.css') }}">
+        <script>
+             window.targetDir = 'uploads/chromatograms';
+            
+            window.showProcessingSpinner = function() {
+                document.getElementById('processingOverlay').style.display = 'flex';
+            };
+            
+            window.hideProcessingSpinner = function() {
+                document.getElementById('processingOverlay').style.display = 'none';
+            };
+        </script>
+        <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
+    {% if page=='Chromatograms' or page=='process_chromatograms' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = {
+        "mzML": "Multiple mzML files, profile and centroid data supported"
+    } %}
+    {% set outputs = {
+        "None": "No output files generated."
+    } %} 
+    {% set options = {
+        "Plot": {
+            "Chromatogram Comparisson": "Overlayed view of chromatograms from multiple mzML files."
+        },
+        "Plot options":{
+            "Intensity Threshold": "Sets the intensity threshold for displaying chromatograms."
+        }
+    } %}
+    {% set about = "This section allows you to upload and process mzML files to plot the chromatogram of their contents, this page also allows you to compare multiple mzML chromatograms." %}
+    {% endif %}
 {% block content %}
     <div class="container">
         <section class="form_section">
             <h2>mzML Chromatogram Visualizer</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>
@@ -46,6 +82,9 @@
         const intensity = document.getElementById('intensity_threshold').value;
         const formData = new FormData();
         formData.append('intensity_threshold', intensity);
+        
+        showProcessingSpinner();
+        
         fetch('/get_files_chromatograms', {
             method: 'POST',
             body: formData,
@@ -53,6 +92,8 @@
         })
         .then(response => response.text())
         .then(html => {
+            hideProcessingSpinner();
+            
             document.getElementById('plot-container').innerHTML = html;
                 const container = document.getElementById('plot-container');
                 const scripts = container.querySelectorAll('script');
@@ -67,13 +108,14 @@
                     }
                     oldScript.parentNode.replaceChild(newScript, oldScript);
                 });
+        })
+        .catch(error => {
+            // Ocultar spinner en caso de error
+            hideProcessingSpinner();
+            console.error('Error:', error);
         });
     });
-
-    window.targetDir = 'uploads/chromatograms';
-    window.showProcessingSpinner = function() {
-            document.getElementById('processingOverlay').style.display = 'flex';
-        };
+  
 
     </script>
 {% endblock %}

@@ -5,47 +5,8 @@
 {% set inputs = {} %}
 {% set outputs = {} %}
 {% set options = {} %}
-{% if page=='Summary' or page=="process_mzML" %}
-    {% set tool_type = "Inspection Tool" %}
-    {% set inputs = {
-        "mzML": "Single mzML file, profile and centroid data supported."
-    } %}
-    {% set outputs = {
-        "None": "No output files generated."
-    } %}
-    {% set options = {
-    "Plot options": {
-        "Appearance": "Customize the look of the plots.",
-        "Download options": {
-            "Format": "Specifies format to download the plot",
-            "Width": "Width of the downloaded plot in pixels.",
-            "Height": "Height of the downloaded plot in pixels.",
-            "Download both": "Option to download both plots."
-        }
-    },
-    "Plots": {
-        "Total Ion Current Chromatogram": "TIC plot of the mzML file, showing the intensity of all ions over time.",
-        "2D TIC Heatmap": "2D heatmap representation of the TIC."
-    }
-} %}
-    {% set about = "This section allows you to upload and process mzML files to obtain a summary of their contents, including metadata and basic statistics." %}
-{% elif page=='Chromatograms' or page=='process_chromatograms' %}
-    {% set tool_type = "Inspection Tool" %}
-    {% set inputs = {
-        "mzML": "Multiple mzML files, profile and centroid data supported"
-    } %}
-    {% set outputs = {
-        "None": "No output files generated."
-    } %} 
-    {% set options = {
-        "Plot": {
-            "Chromatogram Comparisson": "Overlayed view of chromatograms from multiple mzML files."
-        },
-        "Plot options":{
-            "Intensity Threshold": "Sets the intensity threshold for displaying chromatograms."
-        }
-    } %}
-    {% set about = "This section allows you to upload and process mzML files to plot the chromatogram of their contents, this page also allows you to compare multiple mzML chromatograms." %}
+
+
 {% elif page=='Spectra' or page=='process_spectra' %}
     {% set tool_type = "Inspection Tool" %}
     {% set inputs = {

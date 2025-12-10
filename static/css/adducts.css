@@ -2,8 +2,8 @@
     display: grid;
     grid-template-areas: 
                'form_section form_section'
-               'download_section download_section2'
-               'download_section3 download_section3';
+               'download_section_positive download_section_positive'
+               'download_section_negative download_section_negative';
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
@@ -35,6 +35,47 @@ h2{
     width: 100% !important;
 }
 
-.download_section { grid-area: download_section; }
-.download_section2 { grid-area: download_section2; }
-.download_section3 { grid-area: download_section3; }
+
+.download_section_positive { 
+    grid-area: download_section_positive;
+    border-radius: 0.5em;
+    padding: 15px;
+}
+
+.download_section_negative { 
+    grid-area: download_section_negative;
+    border-radius: 0.5em;
+    padding: 15px;
+}
+
+.download_subsection {
+    display: inline-block;
+    vertical-align: top;
+    width: 32%;
+    margin-right: 1%;
+    padding: 10px;
+}
+
+.download_subsection:last-child {
+    margin-right: 0;
+}
+
+.download_subsection h5 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.download_subsection h6 {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.download_subsection ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.download_subsection li {
+    margin-bottom: 5px;
+}
