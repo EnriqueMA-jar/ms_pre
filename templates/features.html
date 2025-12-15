@@ -8,9 +8,39 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Features' or page=='process_features' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "mzML": "Multiple mzML files, profile and centroid data supported.",
+        "featureXML": "Multiple FeatureXML file to show detected features."
+    } %}
+    {% set outputs = {
+        "file_featureXML.featureXML": "Extracted features in featureXML format"
+    } %}
+    {% set options = {
+        "Options": {
+            "Metabolomic Features": "Detects metabolomic features from the mzML files.",
+            "Proteomic Features": "Detects proteomic features from the mzML files."
+        },
+        "Parameters": {
+            "Mass Error (PPM)": "Defines the acceptable mass error for feature detection in parts per million (PPM), the lower the value the stricter the detection.",
+            "Noise Threshold": "Sets the noise threshold for feature detection."
+        },
+        "Plot": {
+            "Feature Map": "Visual representation of detected features."
+        }
+    } %}
+    {% set about = "This section allows you to detect and extract features from mzML files, which are essential for downstream analysis such as identification and quantification, this page also allows you to visualize the detected features." %}
+    {% endif %}
       <div class="container">
         <section class="selection_section">
             <h2>mzML Features Detection</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

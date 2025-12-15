@@ -8,9 +8,28 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Consensus' or page=='process_consensus' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "featureXML": "Multiple mzML features files to generate consensus features."
+    } %}
+    {% set outputs = {
+        "consensusXML.consensusXML": "Consensus featureXML file"
+    } %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to generate consensus matrix from multiple mzML feature files, which helps in consolidating data for better analysis." %}
+    {% endif %}
       <div class="container">
         <section class="form_section">
             <h2>mzML Consensus Features</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

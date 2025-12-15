@@ -9,9 +9,44 @@
 
     {% endblock %}
 {% block content %}
+{% if page=='Spectra' or page=='process_spectra' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = {
+        "mzML": "Single mzML file, profile and centroid data and both MS Levels supported."
+    } %}
+    {% set outputs = {
+        "None": "No output files generated."
+     } %}
+    {% set options = {
+        "MS1 Level detected": {
+            "Plots": {
+                "Reference Spectrum": "The spectrum number used as a reference for plotting.",
+                "Merged Reference Spectrum": "Reference spectra merged for a simplified view.",
+                "Total Merged MS1 Spectra": "Shows the total number of MS1 spectra to merge for the reference view."
+            },
+            "Plot options": {
+                "Spectrum Index": "Set the specific reference spectrum index to visualize.",
+            },
+        },
+        "MS2 Level detected": {
+            "Plots": {
+                "MS1 Spectrum": "The MS1 spectrum associated with the selected MS2 spectrum.",
+                "MS2 Spectrum": "The MS2 spectrum selected for visualization.",
+                "MS1 and MS2 Spectra": "Overlayed view of MS1 and MS2 spectra with the normalized intensities."
+            }
+        }
+    } %}
+    {% set about = "This section allows you to upload and process a single mzML file to plot and compare the spectra of its MS levels." %}
+    {% endif %} 
       <div class="container">
         <section class="form_section">
             <h2>mzML Spectra Visualizer</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

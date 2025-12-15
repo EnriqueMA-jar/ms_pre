@@ -12,9 +12,30 @@
         <script src="{{ url_for('static', filename='js/datatables/dataTables.bootstrap5.min.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Backup Storage' or page=='show_upload_folders' %}
+    {% set tool_type = "Inspection Tool" %}
+    {% set inputs = {
+        "None": "No input files required."
+    } %}
+    {% set outputs = {
+        "None": "No output files generated."
+    } %}
+    {% set options = {
+        "Show entries": "Sets the number of entries to display in the table.",
+        "Search": "Allows searching for specific files or folders in the table.",
+        "Pagination": "Enables pagination for easier navigation through large datasets."
+    } %}
+    {% set about = "This section allows you to manage and back up your uploaded files, ensuring that your data is securely stored and easily accessible." %}
+{% endif %}
     <div class="container">
         <section class="table-section">
         <h2>Backup Storage Management</h2>
+        <div class="about">
+            <em>
+                {{ about }}
+            </em>
+            <hr>
+        </div>
         <div id="processingOverlay">
             <div class="spinner-processing"></div>
             <div class="processing-text">Processing request, please wait...</div>

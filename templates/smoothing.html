@@ -8,9 +8,35 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Smoothing' or page=='process_smoothing' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "mzML": "Single or multiple mzML files to be smoothed."
+    } %}
+    {% set outputs = {
+        "file_savgol.mzML": "SAVGOL smoothed mzML file"
+    } %}
+    {% set options = {
+       "Options": {
+        "Single Smoothing": "Applies smoothing to a single file.",
+        "Multiple Smoothing": "Applies smoothing to multiple files."
+    },
+    "Parameters": {
+        "Window Length": "Defines the length of the smoothing window.",
+        "Polyorder": "Polynomial order for the smoothing algorithm."
+    }
+    } %}
+    {% set about = "This section allows you to apply smoothing using Savitzky-Golay filter to the mzML files uploaded to reduce noise and improve signal quality." %}
+    {% endif %}
       <div class="container">
         <section class="selection_section">
             <h2>mzML Smoothing</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

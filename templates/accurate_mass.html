@@ -7,9 +7,35 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/accurate_mass.css') }}">
     {% endblock %}
 {% block content %}
+{% if page=='Accurate Mass Search' or page=='process_ami' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "consensusXML": "Single Consensus featureXML file",
+        "DB Mapping file": "Database mapping file",
+        "DB Struct file": "Database structure file",
+        "Adducts file tsv": "Adducts file in TSV format, positive and negative idon mode adducts supported."
+    } %}
+    {% set outputs = {
+        "ids_smsection.csv": "CSV file containing Accurate Mass Search results",
+        "ids_smsection_filtered.csv": "CSV file containing filtered Accurate Mass Search results",
+        "results_ids_identification.tsv": "TSV file for identified features for further analysis"
+    } %}
+    {% set options = {
+        "Plot": {
+            "Features with identifications": "Visual representation of features that have been identified through Accurate Mass Search."
+        }
+    } %}
+    {% set about = "This section allows you to perform accurate mass searches against compound databases to identify potential compounds present in your mzML files." %}
+    {% endif %}
 <div class="container">
     <section class="form_section">
         <h2>Accurate Mass Search</h2>
+        <div class="about">
+            <em>
+                {{ about }}
+            </em>
+            <hr>
+        </div>
         <div id="processingOverlay">
             <div class="spinner-processing"></div>
             <div class="processing-text">Processing file, please wait...</div>

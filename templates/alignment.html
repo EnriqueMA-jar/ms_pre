@@ -8,9 +8,33 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Alignment' or page=='process_alignment' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "featureXML": "Multiple mzML features files to be aligned.",
+        "mzML": "Multiple mzML files, profile and centroid data supported."
+    } %}
+    {% set outputs = {
+        "aligned_featureXML.featureXML": "Aligned featureXML file",
+        "aligned_mzML.mzML": "Aligned mzML file"
+    } %}
+    {% set options = {
+        "Parameters": {
+            "Part Per Million": "Aligns features based on mass accuracy in parts per million (PPM).",
+            "Daltons": "Aligns features based on absolute mass difference in Daltons (Da)."
+        },
+    } %}
+    {% set about = "This section allows you to align multiple mzML files to a common reference, which is essential for comparative analysis." %}
+    {% endif %}
       <div class="container">
         <section class="selection_section">
             <h2>mzML Features Alignment</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

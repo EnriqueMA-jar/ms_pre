@@ -7,9 +7,28 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/centroiding.css') }}">
     {% endblock %}
 {% block content %}
+{% if page=='Centroiding' or page=='process_centroiding' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "mzML": "Single or multiple profile mzML files to be centroided, MS1 and MS2 levels supported."
+    } %}
+    {% set outputs = {
+        "file_centroided.mzML": "Centroided mzML file"
+    } %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to convert profile mzML data into centroided data, which simplifies the data by retaining only the most significant peaks." %}
+    {% endif %}
       <div class="container">
         <section class="form_section">
             <h2>mzML Centroiding</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

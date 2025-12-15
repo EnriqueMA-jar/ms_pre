@@ -8,9 +8,32 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='GNPS' or page=='process_gnps' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "mzML": "Multiple mzML files, profile and centroid data supported.",
+        "ConsensusXML": "Single Consensus featureXML file"
+    } %}
+    {% set outputs = {
+        "consensus.consensusXML": "Filtered consensus featureXML file for GNPS",
+        "MS2data_consensus.mgf": "MGF file containing MS2 spectra for GNPS",
+        "consensus_FeatureQuantificationTable.txt": "TXT file containing feature quantification data for GNPS",
+        "consensus_MetaValueTable.txt": "TXT file containing consensus metadata for GNPS"
+    } %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to prepare aligned mzML files and consensus matrix to the GNPS platform for molecular networking and compound identification." %}
+    {% endif %}
       <div class="container">
         <section class="form_section">
             <h2>GNPS File Generation</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

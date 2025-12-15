@@ -8,9 +8,44 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Normalize' or page=='process_normalize' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "mzML": "Single or multiple mzML files to be normalized, profile and centroid data supported."
+    } %}
+    {% set outputs = {
+        "file_normalized_TO_ONE.mzML": "Normalized TO ONE mzML file",
+        "file_normalized_TO_TIC.mzML": "Normalized TO TIC mzML file"
+    } %}
+    {% set options = {
+         "Options": {
+          "TO ONE": "Normalizes intensities to a maximum of one.",
+          "TO TIC": "Normalizes intensities based on the Total Ion Current."
+         },
+         "Normalization To One": {
+            "Plots": {
+                "Before Normalization": "Plot showing the spectrum before normalization.",
+                "After Normalization": "Plot showing the spectrum after normalization."
+            }
+         },
+            "Normalization To TIC": {
+                "Plots": {
+                    "Before Normalization": "Plot showing the spectrum before normalization.",
+                    "After Normalization": "Plot showing the spectrum after normalization."
+                }
+            }
+    } %}
+    {% set about = "This section allows you to normalize mzML files to ensure that the data is on a comparable scale, which is essential for accurate analysis." %}
+    {% endif %}
       <div class="container">
          <section class="selection_section">
             <h2>mzML Normalization</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>

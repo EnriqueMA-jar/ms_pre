@@ -8,9 +8,30 @@
         <script src="{{ url_for('static', filename='js/chunking/single_input_chunk.js') }}"></script>
     {% endblock %}
 {% block content %}
+{% if page=='Adducts' or page=='process_adducts' %}
+    {% set tool_type = "Pre-Processing Tool" %}
+    {% set inputs = {
+        "featureXML": "Multiple mzML features files to annotate adducts."
+    } %}
+    {% set outputs = {
+        "file_adducts.featureXML": "Adducts annotated featureXML file",
+        "file_adducts.csv": "Adducts annotated CSV file",
+        "file_adducts.tsv": "Adducts annotated TSV for Accurate Mass Search file"
+    } %}
+    {% set options = {
+        "None": "No additional features available."
+    } %}
+    {% set about = "This section allows you to annotate mzML features with potential adducts, which is crucial for accurate compound identification." %}
+    {% endif %}
     <div class="container">
         <section class="form_section">
             <h2>mzML Features Adducts</h2>
+            <div class="about">
+                <em>
+                    {{ about }}
+                </em>
+                <hr>
+            </div>
             <div id="processingOverlay">
                 <div class="spinner-processing"></div>
                 <div class="processing-text">Processing file, please wait...</div>
