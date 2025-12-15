@@ -59,10 +59,12 @@
             <a href="{{ url_for('start_workflow', workflow_id=workflow.id) }}">
                 <h6>{{ workflow.name }}</h6>
             </a>
-            <!-- <a href="#" class="btn btn-light">Edit</a>
-            <a href="#" class="btn btn-danger">Delete</a> -->
+            <a href="{{ url_for('remove_workflow', workflow_id=workflow.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure?');">Remove</a>
         </section>
         {% endfor %}
+    </section>
+    <section class="alerts_section">
+        {% include 'alerts/alerts.html' %}
     </section>
     </div>
     

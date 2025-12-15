@@ -47,7 +47,7 @@
                 <div class="plot_spectrum_container">
                     {{ plot_spectra|safe }}
                 </div>
-                                <form action="/get_files_spectra" method="post">
+                                <form id="spectrumIndexForm" action="/get_files_spectra" method="post">
                                     <div class="input-group mb-3">
                                         <span class="input-group-text">Spectrum Index</span>
                                         <input type="number" id="spectrum_value" name="spectrum_value" value="{{ spectrum_value }}" class="form-control" placeholder="Spectrum index" aria-label="Spectrum value" aria-describedby="button-addon2">
@@ -91,5 +91,27 @@
         window.showProcessingSpinner = function() {
             document.getElementById('processingOverlay').style.display = 'flex';
         };
+
+        // AJAX para el formulario de Spectrum Index
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('spectrumIndexForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    window.showProcessingSpinner();
+                    var formData = new FormData(form);
+                    fetch('/get_files_spectra', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    });
+                });
+            }
+        });
     </script>
 {% endblock %}

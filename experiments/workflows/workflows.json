@@ -1,32 +1,6 @@
 {
     "workflows": [
         {
-            "description": "This workflow enables comprehensive preprocessing of mass spectrometry data to detect, align, and quantify metabolites without prior knowledge of their identities.",
-            "id": 1,
-            "image": "images/workflow1.png",
-            "is_default": true,
-            "name": "Untargeted Metabolomics Pre-Processing",
-            "steps": [
-                "features",
-                "adducts",
-                "consensus"
-            ]
-        },
-        {
-            "description": "This workflow quickly identifies metabolites in mass spectrometry data by matching detected features to reference databases using accurate mass.",
-            "id": 2,
-            "image": "images/workflow2.png",
-            "is_default": true,
-            "name": "Identification by Accurate Mass",
-            "steps": [
-                "centroiding",
-                "features",
-                "alignment",
-                "consensus",
-                "accurate_mass"
-            ]
-        },
-        {
             "description": "Test Description",
             "id": 3,
             "image": "None",
@@ -37,60 +11,6 @@
                 "smoothing",
                 "features",
                 "alignment",
-                "consensus"
-            ]
-        },
-        {
-            "description": "Description Test 2",
-            "id": 4,
-            "image": "None",
-            "is_default": false,
-            "name": "Workflow Test 2",
-            "steps": [
-                "smoothing"
-            ]
-        },
-        {
-            "description": "Test",
-            "id": 5,
-            "image": "None",
-            "is_default": false,
-            "name": "Test 3",
-            "steps": [
-                "alignment"
-            ]
-        },
-        {
-            "description": "Test",
-            "id": 6,
-            "image": "None",
-            "is_default": false,
-            "name": "Test 4",
-            "steps": [
-                "features"
-            ]
-        },
-        {
-            "description": "Test 5",
-            "id": 7,
-            "image": "None",
-            "is_default": false,
-            "name": "Test 5",
-            "steps": [
-                "consensus"
-            ]
-        },
-        {
-            "description": "Decription XXXX",
-            "id": 8,
-            "image": "None",
-            "is_default": false,
-            "name": "KKKKK",
-            "steps": [
-                "centroiding",
-                "alignment",
-                "adducts",
-                "adducts",
                 "consensus"
             ]
         }

@@ -5,7 +5,8 @@
                'summary_section summary_section'
                'workflow_section1 workflow_section2'
                'other_workflows_section other_workflows_section'
-               'workflow_administration_section workflow_administration_section';
+               'workflow_administration_section workflow_administration_section'
+               'alerts_section alerts_section';
 
     grid-template-columns: 2fr 2fr; 
     grid-template-rows: auto;
@@ -47,6 +48,11 @@ h2{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+}
+.alerts_section {
+    grid-area: alerts_section;
+    display: block;
+    background-color: white;
 }
 .custom_workflow_section section {
     flex: 1 1 200px;

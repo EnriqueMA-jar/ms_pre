@@ -41,26 +41,20 @@ def merge_spectra(exp):
         y=intensity_fused,
         mode='lines',
         name='Merged Spectrum',
-        line=dict(color='blue', width=1),
+        line=dict(color='darkblue', width=2),
         fill='tozeroy',
-        fillcolor='rgba(0,100,255,0.2)',
+        fillcolor='rgba(0,100,255,0.3)',
         hovertemplate='<b>m/z:</b> %{x:.4f}<br><b>Intensity:</b> %{y:.0f}<extra></extra>'
     ))
 
     fig.update_layout(
-        # title={
-        #     'text': f'Total merged MS1 spectra: {len(spectra_ms1)}',
-        #     'x': 0.5,
-        #     'xanchor': 'center',
-        #     'font': {'size': 16}
-        # },
-        margin=dict(t=0),
+        margin=dict(t=10, l=60, r=60, b=50),
         xaxis_title='m/z',
         yaxis_title='Intensity',
         width=600,
         height=450,
         template='plotly_white',
-        hovermode='x'
+        hovermode='x unified'
         
     )
 

@@ -179,6 +179,19 @@ def save_workflows(data):
     with open(WORKFLOWS_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+@app.route('/remove_workflow/<int:workflow_id>')
+def remove_workflow(workflow_id):
+    data = load_workflows()
+    workflows = data.get('workflows', [])
+    new_workflows = [wf for wf in workflows if wf.get('id') != workflow_id and not wf.get('is_default', False)]
+    if len(new_workflows) == len(workflows):
+        return redirect('/index?alert=Workflow+not+found')
+    data['workflows'] = new_workflows
+    save_workflows(data)
+    success_alert = "Workflow removed successfully."
+    # return render_template('index.html', page='Home', success_alert=success_alert)
+    return redirect('/index')
+
 def get_workflow_by_id(workflow_id):
     """Get a specific workflow by its ID"""
     data = load_workflows()
@@ -186,7 +199,6 @@ def get_workflow_by_id(workflow_id):
         if wf['id'] == workflow_id:
             return wf
     return None
-
 
 @app.route('/add_workflow', methods=['POST'])
 def add_workflow():
@@ -728,7 +740,7 @@ def process_spectra():
         if not file or not file.filename.endswith('.mzML'):
             return render_template('spectra.html', error_alert="Please upload a valid .mzML file.", page='Spectra')
             
-        spectrum_value = 250
+        spectrum_value = 1
         # Guardar en uploads/temp_chunks
         chunk_dir = os.path.join('uploads', 'temp_chunks')
         os.makedirs(chunk_dir, exist_ok=True)
