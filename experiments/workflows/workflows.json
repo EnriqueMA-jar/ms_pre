@@ -1,6 +1,33 @@
 {
     "workflows": [
         {
+            "description": "Preprocessing workflow for untargeted metabolomics.",
+            "id": 1,
+            "image": "None",
+            "is_default": true,
+            "name": "Untargeted Metabolomics Pre-Processing",
+            "steps": [
+                "centroiding",
+                "features",
+                "adducts",
+                "consensus"
+            ]
+        },
+        {
+            "description": "Accurate mass identification workflow.",
+            "id": 2,
+            "image": "None",
+            "is_default": true,
+            "name": "Identification by Accurate Mass",
+            "steps": [
+                "centroiding",
+                "features",
+                "alignment",
+                "consensus",
+                "accurate_mass"
+            ]
+        },
+        {
             "description": "Test Description",
             "id": 3,
             "image": "None",
@@ -11,6 +38,20 @@
                 "smoothing",
                 "features",
                 "alignment",
+                "consensus"
+            ]
+        },
+        {
+            "description": "Workflow para proar ultimas observaciones",
+            "id": 4,
+            "image": "None",
+            "is_default": false,
+            "name": "Workflow prueba errores",
+            "steps": [
+                "smoothing",
+                "features",
+                "alignment",
+                "adducts",
                 "consensus"
             ]
         }

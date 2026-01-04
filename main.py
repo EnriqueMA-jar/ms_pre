@@ -871,14 +871,21 @@ def process_smoothing():
             file_paths = []
             for file in files:
                 # print(f"[DEBUG] processing file: {file.filename}")
-                if file.filename.endswith('.mzML'):
+                if file.filename and file.filename.endswith('.mzML'):
                     save_path = os.path.join(uploads_dir, file.filename)
                     if not os.path.exists(save_path):
                         file.save(save_path)
                     file_paths.append(save_path)
-                else:
-                    alert = 'Please upload a valid .mzML file for multiple file smoothing.'
-                    return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert, page='Smoothing')
+            
+            # If no files from form (chunked upload), look for files already in uploads_dir
+            if not file_paths:
+                for filename in os.listdir(uploads_dir):
+                    if filename.endswith('.mzML') and 'savgol' not in filename:
+                        file_paths.append(os.path.join(uploads_dir, filename))
+            
+            if not file_paths:
+                alert = 'Please upload valid .mzML files for multiple file smoothing.'
+                return render_template('smoothing.html', selected_option='op2', download_links=None, window_length=window_length, polyorder=polyorder, error_alert=alert, page='Smoothing')
 
             # Process files and get output paths
             output_files = multiple_smoothing(file_paths, window_length, polyorder)
@@ -888,9 +895,15 @@ def process_smoothing():
             for file_path in output_files:
                 if "savgol" in file_path:
                     filename = os.path.basename(file_path)
-                download_links.append(f"{SMOOTHING_DIR}/{filename}")
+                    download_links.append(f"{SMOOTHING_DIR}/{filename}")
             
             if session.get('workflow_id', 0) != 0 and session.get('workflow_status') == 'started':
+                generated_files = []
+                for link in download_links:
+                    generated_files.append({
+                        "filename": os.path.basename(link),
+                        "path": link
+                    })
                 workflow_step_finished('smoothing', generated_files)
 
             # Render the page with download links and keep the multiple option selected
