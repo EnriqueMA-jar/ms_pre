@@ -1030,8 +1030,8 @@ def process_mzML():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-        plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
-        plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
+        plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False, "responsive": True})
+        plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False, "responsive": True})
         return jsonify({'plot_html': plot_html, 'plot_html2': plot_html2})
 
     try:
@@ -1047,8 +1047,8 @@ def process_mzML():
         return render_template('summary.html', error_alert=alert, page='Summary')
 
     # result plots
-    plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
-    plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False})
+    plot_html = pio.to_html(fig, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False, "responsive": True})
+    plot_html2 = pio.to_html(fig2, full_html=False, config={"toImageButtonOptions": {"format": "svg"}, "displaylogo": False, "responsive": True})
 
     # Otherwise, return the full page
     return render_template('summary.html', result=result2, filename=filename, plot_html=plot_html, plot_html2=plot_html2, selected_filter=filter_type, page='Summary')

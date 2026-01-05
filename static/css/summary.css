@@ -51,7 +51,17 @@ h2{
 }
 .plot_tic_container{
     width: 100% !important;
-    min-width: none;
+    max-width: 100%;
+    overflow: hidden;
+}
+.plot_tic_container > div {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+/* Forzar que Plotly respete el contenedor */
+.js-plotly-plot, .plotly {
+    width: 100% !important;
+    max-width: 100% !important;
 }
 .about{
     display: block;
@@ -64,11 +74,13 @@ h2{
 .result_section { grid-area: result_section; }
 .result_section2 { 
     grid-area: result_section2; 
-    float: center;
+    overflow: hidden;
+    max-width: 100%;
 }
 .result_section3 { 
     grid-area: result_section3; 
-    float: center;
+    overflow: hidden;
+    max-width: 100%;
 }
 .filters_section { 
     grid-area: filters_section; 
