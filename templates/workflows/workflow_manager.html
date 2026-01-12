@@ -1,129 +1,134 @@
 {% block workflow %}
-    {% if workflow_status == 'started' and workflow_id|int == 0 %}
+{% if workflow_status == 'started' and workflow_id|int == 0 %}
 
-        <div class="sidebar_icons">
-            {% if page != 'Home' %}
-            <a href="javascript:history.back()">
-                <div class="sidebar_backward">
-                    <img src="{{ url_for('static', filename='images/svg/backward_arrow.svg') }}" alt="Back" class="sidebar_icons_svg">
-                </div>
-            </a>
-            {% endif %}
-            <div class="sidebar_functions">
-                <img src="{{ url_for('static', filename='images/svg/functions_hub.svg') }}" alt="Functions" class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
-
-                <div class="sidebar_dropdown_menu" id="functions-dropdown">
-                    <div style="padding: 10px; font: smaller;">
-                        <em>Select a function to start:</em>
-                    </div>
-                    <div class="dropdown-father-item">
-                        Inspection Tools
-                    </div>
-                    <a href="{{ url_for('summary') }}" class="dropdown-item">Summary</a>
-                    <a href="{{ url_for('chromatograms') }}" class="dropdown-item">Chromatograms</a>
-                    <a href="{{ url_for('spectra') }}" class="dropdown-item">Spectra</a>
-                    <div class="dropdown-father-item">
-                        Processing Tools
-                    </div>
-                    <a href="{{ url_for('smoothing') }}" class="dropdown-item">Smoothing</a>
-                    <a href="{{ url_for('centroiding') }}" class="dropdown-item">Centroiding</a>
-                    <a href="{{ url_for('normalize') }}" class="dropdown-item">Normalize</a>
-                    <a href="{{ url_for('features') }}" class="dropdown-item">Features</a>
-                    <a href="{{ url_for('adducts') }}" class="dropdown-item">Adducts</a>
-                    <a href="{{ url_for('alignment') }}" class="dropdown-item">Alignment</a>
-                    <a href="{{ url_for('consensus') }}" class="dropdown-item">Consensus</a>
-                    <a href="{{ url_for('gnps') }}" class="dropdown-item">GNPS</a>
-                    <a href="{{ url_for('accurate_mass') }}" class="dropdown-item">Mass Identification</a>
-                    
-        
-                </div>
-            </div>
+<div class="sidebar_icons">
+    {% if page != 'Home' %}
+    <a href="javascript:history.back()">
+        <div class="sidebar_backward">
+            <img src="{{ url_for('static', filename='images/svg/backward_arrow.svg') }}" alt="Back"
+                class="sidebar_icons_svg">
         </div>
-    {% elif workflow_status == 'started' and workflow_id|int != 0 %}
-        <div class="sidebar_icons">
-            <div class="sidebar_workflow">
-                <img src="{{ url_for('static', filename='images/svg/workflow_steps.svg') }}" alt="Workflow" class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
-                <div class="sidebar_dropdown_menu" id="functions-dropdown">
-                    <div style="padding: 10px; font: smaller;">
-                        <em>Current workflow</em>
-                        <strong>{{ current_workflow }}</strong>
-                    </div>
-                    <div class="dropdown-father-item">
-                        Finished steps:
-                    </div>
-                    {% if finished_steps %}
-                        {% for step in finished_steps %}
-                            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
-                        {% endfor %}
-                    {% else %}
-                        <p style="padding: 10px; font: smaller;">No steps finished yet.</p>
-                    {% endif %}
-                    <div class="dropdown-father-item">
-                        Remaining steps:
-                    </div>
-                    {% if current_steps %}
-                        {% for step in current_steps %}
-                            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
-                        {% endfor %}
-                    {% else %}
-                        <p style="padding: 10px; font: smaller;">No steps available.</p>
-                    {% endif %}
-                </div>
-            </div>
-            {% if session.get('finished_steps', [])|length > 0 %}
-                <a href="/previous_step">
-                <div class="sidebar_backward">
-                    <img src="{{ url_for('static', filename='images/svg/undo_step.svg') }}" alt="Back" class="sidebar_icons_svg">
-                </div>
-                </a>
-            {% endif %}
-        </div>
-    {% elif session['workflow_status'] != 'started' %}
-        <div class="sidebar_icons">
-            <div class="sidebar_workflow">
-                Menu
-            </div>
-        </div>
+    </a>
     {% endif %}
+    <div class="sidebar_functions">
+        <img src="{{ url_for('static', filename='images/svg/functions_hub.svg') }}" alt="Functions"
+            class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
 
-    {% if workflow_status == 'started' and workflow_id|int != 0 %}
+        <div class="sidebar_dropdown_menu" id="functions-dropdown">
+            <div style="padding: 10px; font: smaller;">
+                <em>Select a function to start:</em>
+            </div>
+            <div class="dropdown-father-item">
+                Inspection Tools
+            </div>
+            <a href="{{ url_for('summary') }}" class="dropdown-item">Summary</a>
+            <a href="{{ url_for('chromatograms') }}" class="dropdown-item">Chromatograms</a>
+            <a href="{{ url_for('spectra') }}" class="dropdown-item">Spectra</a>
+            <div class="dropdown-father-item">
+                Processing Tools
+            </div>
+            <a href="{{ url_for('smoothing') }}" class="dropdown-item">Smoothing</a>
+            <a href="{{ url_for('centroiding') }}" class="dropdown-item">Centroiding</a>
+            <a href="{{ url_for('normalize') }}" class="dropdown-item">Normalize</a>
+            <a href="{{ url_for('features') }}" class="dropdown-item">Features</a>
+            <a href="{{ url_for('adducts') }}" class="dropdown-item">Adducts</a>
+            <a href="{{ url_for('alignment') }}" class="dropdown-item">Alignment</a>
+            <a href="{{ url_for('consensus') }}" class="dropdown-item">Consensus</a>
+            <a href="{{ url_for('gnps') }}" class="dropdown-item">GNPS</a>
+            <a href="{{ url_for('accurate_mass') }}" class="dropdown-item">Mass Identification</a>
 
-    {% if session['generated_files'] %}
-    <div class="files-container">
-        <div class="container-header">
-            <h5>Generated files</h5>
-            <button type="button" class="btn btn-light btn-sm" id="toggle-files-btn">Show/Hide</button>
+
         </div>
-        <p>Drag and drop the file cards into the inputs</p>
-        <div class="generated-files-section" id="generated-files-section"> </div>
-<script>
-const generatedFilesDict = {{ session.get('generated_files', {}) | tojson | safe }};
-let fileObjectsDict = {};
+    </div>
+</div>
+{% elif workflow_status == 'started' and workflow_id|int != 0 %}
+<div class="sidebar_icons">
+    <div class="sidebar_workflow">
+        <img src="{{ url_for('static', filename='images/svg/workflow_steps.svg') }}" alt="Workflow"
+            class="sidebar_icons_svg" onclick="toggleFunctionsMenu(this)">
+        <div class="sidebar_dropdown_menu" id="functions-dropdown">
+            <div style="padding: 10px; font: smaller;">
+                <em>Current workflow</em>
+                <strong>{{ current_workflow }}</strong>
+            </div>
+            <div class="dropdown-father-item">
+                Finished steps:
+            </div>
+            {% if finished_steps %}
+            {% for step in finished_steps %}
+            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
+            {% endfor %}
+            {% else %}
+            <p style="padding: 10px; font: smaller;">No steps finished yet.</p>
+            {% endif %}
+            <div class="dropdown-father-item">
+                Remaining steps:
+            </div>
+            {% if current_steps %}
+            {% for step in current_steps %}
+            <a href="{{ url_for(step) }}" class="dropdown-item">{{ step }}</a>
+            {% endfor %}
+            {% else %}
+            <p style="padding: 10px; font: smaller;">No steps available.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% if session.get('finished_steps', [])|length > 0 %}
+    <a href="/previous_step">
+        <div class="sidebar_backward">
+            <img src="{{ url_for('static', filename='images/svg/undo_step.svg') }}" alt="Back"
+                class="sidebar_icons_svg">
+        </div>
+    </a>
+    {% endif %}
+</div>
+{% elif session['workflow_status'] != 'started' %}
+<div class="sidebar_icons">
+    <div class="sidebar_workflow">
+        Menu
+    </div>
+</div>
+{% endif %}
 
-async function fetchAllFilesAndRenderCards() {
-    fileObjectsDict = {};
-    let sectionHTML = '';
+{% if workflow_status == 'started' and workflow_id|int != 0 %}
 
-    for (const [type, files] of Object.entries(generatedFilesDict)) {
-        fileObjectsDict[type] = [];
-        sectionHTML += `<div class="file-type-section">
+{% if session['generated_files'] %}
+<div class="files-container">
+    <div class="container-header">
+        <h5>Generated files</h5>
+        <button type="button" class="btn btn-light btn-sm" id="toggle-files-btn">Show/Hide</button>
+    </div>
+    <p>Drag and drop the file cards into the inputs</p>
+    <div class="generated-files-section" id="generated-files-section"> </div>
+    <script>
+        const generatedFilesDict = {{ session.get('generated_files', {}) | tojson | safe }};
+        console.log('DEBUG generatedFilesDict:', generatedFilesDict); // <--- LOG TEMPORAL
+        let fileObjectsDict = {};
+
+        async function fetchAllFilesAndRenderCards() {
+            fileObjectsDict = {};
+            let sectionHTML = '';
+
+            for (const [type, files] of Object.entries(generatedFilesDict)) {
+                fileObjectsDict[type] = [];
+                sectionHTML += `<div class="file-type-section">
             <label>
                 <input type="checkbox" class="select-all-type" data-type="${type}"> <b>${type}</b>
             </label>
             <div class="file-type-cards" id="cards-${type}"></div>
         </div>`;
-    }
-    document.getElementById('generated-files-section').innerHTML = sectionHTML;
+            }
+            document.getElementById('generated-files-section').innerHTML = sectionHTML;
 
-    for (const [type, files] of Object.entries(generatedFilesDict)) {
-        for (const file of files){
-            const response = await fetch(file.path);
-            const blob = await response.blob();
-            const fileObject = new File([blob], file.filename, { type: blob.type });
-            fileObjectsDict[type].push(fileObject);
-        }
-        document.getElementById(`cards-${type}`).innerHTML = fileObjectsDict[type].map((file, idx) =>
-        `
+            for (const [type, files] of Object.entries(generatedFilesDict)) {
+                for (const file of files) {
+                    const response = await fetch(file.path);
+                    const blob = await response.blob();
+                    const fileObject = new File([blob], file.filename, { type: blob.type });
+                    fileObjectsDict[type].push(fileObject);
+                }
+                document.getElementById(`cards-${type}`).innerHTML = fileObjectsDict[type].map((file, idx) =>
+                    `
             <div class="input-group mb-3">
                 <div class="input-group-text">
                     <input type="checkbox" class="file-checkbox form-check-input mt-0" data-type="${type}" data-idx="${idx}">
@@ -137,138 +142,138 @@ async function fetchAllFilesAndRenderCards() {
                 </div>
             </div>
         `
-        ).join('');
-    }
-
-    // Checkbox para seleccionar todos los de un tipo
-    document.querySelectorAll('.select-all-type').forEach(cb => {
-        cb.addEventListener('change', function() {
-            const type = this.dataset.type;
-            document.querySelectorAll(`.file-checkbox[data-type="${type}"]`).forEach(fcb => {
-                fcb.checked = this.checked;
-            });
-        });
-    });
-
-    // Dragstart para arrastrar todos los seleccionados de un tipo
-    document.querySelectorAll('.cards').forEach(card => {
-        card.addEventListener('dragstart', function(e) {
-            const type = card.dataset.type;
-            const selectedIdxs = Array.from(document.querySelectorAll(`.file-checkbox[data-type="${type}"]:checked`))
-                .map(cb => ({type, idx: cb.dataset.idx}));
-            if (selectedIdxs.length === 0) {
-                e.dataTransfer.setData('text/plain', JSON.stringify([{type, idx: card.dataset.idx}]));
-            } else {
-                e.dataTransfer.setData('text/plain', JSON.stringify(selectedIdxs));
+                ).join('');
             }
-        });
-    });
-}
 
-if (Object.keys(generatedFilesDict).length > 0) {
-    fetchAllFilesAndRenderCards();
-}
+            // Checkbox para seleccionar todos los de un tipo
+            document.querySelectorAll('.select-all-type').forEach(cb => {
+                cb.addEventListener('change', function () {
+                    const type = this.dataset.type;
+                    document.querySelectorAll(`.file-checkbox[data-type="${type}"]`).forEach(fcb => {
+                        fcb.checked = this.checked;
+                    });
+                });
+            });
 
-document.getElementById('toggle-files-btn').addEventListener('click', function() {
-    const section = document.getElementById('generated-files-section');
-    section.style.display = (section.style.display === 'none') ? 'block' : 'none';
-});
-
-// Si tienes inputs de archivos donde hacer drop, usa este bloque y ponle una clase específica a esos inputs, por ejemplo .workflow-file-input
-document.querySelectorAll('.workflow-file-input').forEach(fileInput => {
-    fileInput.addEventListener('dragover', e => {
-        e.preventDefault();
-        fileInput.style.border = '2px dashed #007bff';
-    });
-    fileInput.addEventListener('dragleave', e => {
-        fileInput.style.border = '';
-    });
-    fileInput.addEventListener('drop', e => {
-        e.preventDefault();
-        fileInput.style.border = '';
-        const items = JSON.parse(e.dataTransfer.getData('text/plain'));
-        const dt = new DataTransfer();
-
-        // Mantén los archivos ya presentes en el input
-        for (let i = 0; i < fileInput.files.length; i++) {
-            dt.items.add(fileInput.files[i]);
+            // Dragstart para arrastrar todos los seleccionados de un tipo
+            document.querySelectorAll('.cards').forEach(card => {
+                card.addEventListener('dragstart', function (e) {
+                    const type = card.dataset.type;
+                    const selectedIdxs = Array.from(document.querySelectorAll(`.file-checkbox[data-type="${type}"]:checked`))
+                        .map(cb => ({ type, idx: cb.dataset.idx }));
+                    if (selectedIdxs.length === 0) {
+                        e.dataTransfer.setData('text/plain', JSON.stringify([{ type, idx: card.dataset.idx }]));
+                    } else {
+                        e.dataTransfer.setData('text/plain', JSON.stringify(selectedIdxs));
+                    }
+                });
+            });
         }
 
-        // Agrega los archivos seleccionados
-        items.forEach(({type, idx}) => {
-            if (fileObjectsDict[type] && fileObjectsDict[type][idx]) {
-                dt.items.add(fileObjectsDict[type][idx]);
-            }
-        });
-        fileInput.files = dt.files;
-    });
-});
+        if (Object.keys(generatedFilesDict).length > 0) {
+            fetchAllFilesAndRenderCards();
+        }
 
-</script>
+        document.getElementById('toggle-files-btn').addEventListener('click', function () {
+            const section = document.getElementById('generated-files-section');
+            section.style.display = (section.style.display === 'none') ? 'block' : 'none';
+        });
+
+        // Si tienes inputs de archivos donde hacer drop, usa este bloque y ponle una clase específica a esos inputs, por ejemplo .workflow-file-input
+        document.querySelectorAll('.workflow-file-input').forEach(fileInput => {
+            fileInput.addEventListener('dragover', e => {
+                e.preventDefault();
+                fileInput.style.border = '2px dashed #007bff';
+            });
+            fileInput.addEventListener('dragleave', e => {
+                fileInput.style.border = '';
+            });
+            fileInput.addEventListener('drop', e => {
+                e.preventDefault();
+                fileInput.style.border = '';
+                const items = JSON.parse(e.dataTransfer.getData('text/plain'));
+                const dt = new DataTransfer();
+
+                // Mantén los archivos ya presentes en el input
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    dt.items.add(fileInput.files[i]);
+                }
+
+                // Agrega los archivos seleccionados
+                items.forEach(({ type, idx }) => {
+                    if (fileObjectsDict[type] && fileObjectsDict[type][idx]) {
+                        dt.items.add(fileObjectsDict[type][idx]);
+                    }
+                });
+                fileInput.files = dt.files;
+            });
+        });
+
+    </script>
 </div>
-    {% endif %}
+{% endif %}
 
 <div class="workflow-manager">
     <div class="workflow-manager-content">
-    <div>
-        <td>
-            Current Workflow:
-            <p class="status">
-                Step status: <b class="step-status">{{ step_status }}</b>
-            </p>
-            
-        </td>
-        
-    </div>
-    <h4>{{ current_workflow }}</h4> 
-    <form action="{{ url_for('end_workflow') }}" method="get" style="display:inline;">
-    {% if workflow_status == 'started' %}
-        {% if step_status == 'started' %}
+        <div>
+            <td>
+                Current Workflow:
+                <p class="status">
+                    Step status: <b class="step-status">{{ step_status }}</b>
+                </p>
+
+            </td>
+
+        </div>
+        <h4>{{ current_workflow }}</h4>
+        <form action="{{ url_for('end_workflow') }}" method="get" style="display:inline;">
+            {% if workflow_status == 'started' %}
+            {% if step_status == 'started' %}
             {% if current_steps|length > 1 %}
-                <button type="button" class="btn btn-light next-step-button" disabled>{{ current_steps[0] }}</button>
+            <button type="button" class="btn btn-light next-step-button" disabled>{{ current_steps[0] }}</button>
             {% elif current_steps|length == 1 %}
-                <button type="button" class="btn btn-light next-step-button" disabled>Finish Workflow</button>
+            <button type="button" class="btn btn-light next-step-button" disabled>Finish Workflow</button>
             {% endif %}
-        {% elif step_status == 'finished' %}
+            {% elif step_status == 'finished' %}
             {% if current_steps|length > 1 %}
-                <a href="{{ url_for('next_step') }}" class="btn btn-light next-step-button">
-                    {{ current_steps[1] }}
-                </a>
+            <a href="{{ url_for('next_step') }}" class="btn btn-light next-step-button">
+                {{ current_steps[1] }}
+            </a>
             {% elif current_steps|length == 1 %}
-                <button type="submit" class="btn btn-light next-step-button">
-                    Finish Workflow
-                </button>
+            <button type="submit" class="btn btn-light next-step-button">
+                Finish Workflow
+            </button>
             {% endif %}
-        {% endif %}
-        {% if workflow_status == 'started' %}
+            {% endif %}
+            {% if workflow_status == 'started' %}
             <button type="submit" class="btn btn-dark">End Workflow</button>
-        {% endif %}
-    {% endif %}
-</form>
+            {% endif %}
+            {% endif %}
+        </form>
     </div>
 </div>
 
 {% endif %}
 <script>
-    
-function toggleFunctionsMenu(icon) {
-    icon.classList.toggle('rotate');
-    const dropdown = document.getElementById('functions-dropdown');
-    dropdown.classList.toggle('show');
-}
 
-// Cerrar el menú si se hace clic fuera
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('functions-dropdown');
-    const iconFunctions = document.querySelector('.sidebar_functions img');
-    const iconWorkflow = document.querySelector('.sidebar_workflow img');
-    
-    // Verificar si el clic fue fuera de AMBOS contenedores
-    if (!event.target.closest('.sidebar_functions') && !event.target.closest('.sidebar_workflow')) {
-        if (dropdown) dropdown.classList.remove('show');
-        if (iconFunctions) iconFunctions.classList.remove('rotate');
-        if (iconWorkflow) iconWorkflow.classList.remove('rotate');
+    function toggleFunctionsMenu(icon) {
+        icon.classList.toggle('rotate');
+        const dropdown = document.getElementById('functions-dropdown');
+        dropdown.classList.toggle('show');
     }
-});
+
+    // Cerrar el menú si se hace clic fuera
+    document.addEventListener('click', function (event) {
+        const dropdown = document.getElementById('functions-dropdown');
+        const iconFunctions = document.querySelector('.sidebar_functions img');
+        const iconWorkflow = document.querySelector('.sidebar_workflow img');
+
+        // Verificar si el clic fue fuera de AMBOS contenedores
+        if (!event.target.closest('.sidebar_functions') && !event.target.closest('.sidebar_workflow')) {
+            if (dropdown) dropdown.classList.remove('show');
+            if (iconFunctions) iconFunctions.classList.remove('rotate');
+            if (iconWorkflow) iconWorkflow.classList.remove('rotate');
+        }
+    });
 </script>
 {% endblock %}
